@@ -22,4 +22,8 @@ print(f"Atualizado em: {dados['ultima_atualizacao']}")
 for escola in dados["escolas"]:
     print(f"\n  {escola['nome']}")
     for turma in escola["turmas"]:
-        print(f"    - {turma['turma']} | {turma['disciplina']} | {len(turma['alunos'])} alunos")
+        inativos = [a for a in turma["alunos"] if a.get("situacao", "").strip()]
+        print(f"    - {turma['turma']} | {turma['disciplina']} | {len(turma['alunos'])} alunos"
+              + (f" | {len(inativos)} inativo(s)" if inativos else ""))
+        for a in inativos:
+            print(f"        ! {a['nome']} → {a['situacao']}")

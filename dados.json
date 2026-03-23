@@ -10,197 +10,236 @@
             {
               "numero": 1,
               "nome": "ANA ALYCE AZEVEDO TRINDADE",
-              "nome_normalizado": "ANA ALYCE AZEVEDO TRINDADE"
+              "nome_normalizado": "ANA ALYCE AZEVEDO TRINDADE",
+              "situacao": ""
             },
             {
               "numero": 2,
               "nome": "ANA BEATRIZ BORGES RIBEIRO",
-              "nome_normalizado": "ANA BEATRIZ BORGES RIBEIRO"
+              "nome_normalizado": "ANA BEATRIZ BORGES RIBEIRO",
+              "situacao": ""
             },
             {
               "numero": 3,
               "nome": "ASAPH MORAIS ROCHA",
-              "nome_normalizado": "ASAPH MORAIS ROCHA"
+              "nome_normalizado": "ASAPH MORAIS ROCHA",
+              "situacao": ""
             },
             {
               "numero": 4,
               "nome": "CAIO EDUARDO CAMARGO VILELA",
-              "nome_normalizado": "CAIO EDUARDO CAMARGO VILELA"
+              "nome_normalizado": "CAIO EDUARDO CAMARGO VILELA",
+              "situacao": ""
             },
             {
               "numero": 5,
               "nome": "CLAUDINEY AYLTON DE FREITAS ALMEIDA",
-              "nome_normalizado": "CLAUDINEY AYLTON DE FREITAS ALMEIDA"
+              "nome_normalizado": "CLAUDINEY AYLTON DE FREITAS ALMEIDA",
+              "situacao": "Transf"
             },
             {
               "numero": 6,
               "nome": "DERICK COLAÇO RECKELBERG",
-              "nome_normalizado": "DERICK COLACO RECKELBERG"
+              "nome_normalizado": "DERICK COLACO RECKELBERG",
+              "situacao": ""
             },
             {
               "numero": 7,
               "nome": "EDUARDA ALVES CORDEIRO",
-              "nome_normalizado": "EDUARDA ALVES CORDEIRO"
+              "nome_normalizado": "EDUARDA ALVES CORDEIRO",
+              "situacao": ""
             },
             {
               "numero": 8,
               "nome": "EDUARDO DA LUZ RODRIGUES DE OLIVEIRA",
-              "nome_normalizado": "EDUARDO DA LUZ RODRIGUES DE OLIVEIRA"
+              "nome_normalizado": "EDUARDO DA LUZ RODRIGUES DE OLIVEIRA",
+              "situacao": ""
             },
             {
               "numero": 9,
               "nome": "EDUARDO JOSE PEREIRA DA SILVEIRA",
-              "nome_normalizado": "EDUARDO JOSE PEREIRA DA SILVEIRA"
+              "nome_normalizado": "EDUARDO JOSE PEREIRA DA SILVEIRA",
+              "situacao": ""
             },
             {
               "numero": 10,
               "nome": "EMILY DOS SANTOS BORGES",
-              "nome_normalizado": "EMILY DOS SANTOS BORGES"
+              "nome_normalizado": "EMILY DOS SANTOS BORGES",
+              "situacao": ""
             },
             {
               "numero": 11,
               "nome": "FERNANDA DA CRUZ DE AZEVEDO",
-              "nome_normalizado": "FERNANDA DA CRUZ DE AZEVEDO"
+              "nome_normalizado": "FERNANDA DA CRUZ DE AZEVEDO",
+              "situacao": ""
             },
             {
               "numero": 12,
               "nome": "FERNANDO DE SOUZA INGATAIN",
-              "nome_normalizado": "FERNANDO DE SOUZA INGATAIN"
+              "nome_normalizado": "FERNANDO DE SOUZA INGATAIN",
+              "situacao": ""
             },
             {
               "numero": 13,
               "nome": "GABRIELE MORAES DA SILVA",
-              "nome_normalizado": "GABRIELE MORAES DA SILVA"
+              "nome_normalizado": "GABRIELE MORAES DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 14,
               "nome": "GABRIELLA MENDES",
-              "nome_normalizado": "GABRIELLA MENDES"
+              "nome_normalizado": "GABRIELLA MENDES",
+              "situacao": ""
             },
             {
               "numero": 15,
               "nome": "GABRIEL RAFAEL RODRIGUES DA SILVA",
-              "nome_normalizado": "GABRIEL RAFAEL RODRIGUES DA SILVA"
+              "nome_normalizado": "GABRIEL RAFAEL RODRIGUES DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 16,
               "nome": "ISABELY KAROLAYNY TEIXEIRA JORGE",
-              "nome_normalizado": "ISABELY KAROLAYNY TEIXEIRA JORGE"
+              "nome_normalizado": "ISABELY KAROLAYNY TEIXEIRA JORGE",
+              "situacao": ""
             },
             {
               "numero": 17,
               "nome": "JACKSON DE ALMEIDA DIAS",
-              "nome_normalizado": "JACKSON DE ALMEIDA DIAS"
+              "nome_normalizado": "JACKSON DE ALMEIDA DIAS",
+              "situacao": ""
             },
             {
               "numero": 18,
               "nome": "KAMILY VITÓRIA SANTOS RIBEIRO",
-              "nome_normalizado": "KAMILY VITORIA SANTOS RIBEIRO"
+              "nome_normalizado": "KAMILY VITORIA SANTOS RIBEIRO",
+              "situacao": ""
             },
             {
               "numero": 19,
               "nome": "KAUAN YOHANCE DOS SANTOS DA CRUZ",
-              "nome_normalizado": "KAUAN YOHANCE DOS SANTOS DA CRUZ"
+              "nome_normalizado": "KAUAN YOHANCE DOS SANTOS DA CRUZ",
+              "situacao": ""
             },
             {
               "numero": 20,
               "nome": "LARA LIMA CUSTODIO",
-              "nome_normalizado": "LARA LIMA CUSTODIO"
+              "nome_normalizado": "LARA LIMA CUSTODIO",
+              "situacao": ""
             },
             {
               "numero": 21,
               "nome": "LARISSA ALVES LENARDT",
-              "nome_normalizado": "LARISSA ALVES LENARDT"
+              "nome_normalizado": "LARISSA ALVES LENARDT",
+              "situacao": ""
             },
             {
               "numero": 22,
               "nome": "LUCAS DE JESUS DA SILVA",
-              "nome_normalizado": "LUCAS DE JESUS DA SILVA"
+              "nome_normalizado": "LUCAS DE JESUS DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 23,
               "nome": "LUIS FELIPE OLIVEIRA DA SILVA",
-              "nome_normalizado": "LUIS FELIPE OLIVEIRA DA SILVA"
+              "nome_normalizado": "LUIS FELIPE OLIVEIRA DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 24,
               "nome": "MARCOS EDUARDO GIMENES DA SILVA",
-              "nome_normalizado": "MARCOS EDUARDO GIMENES DA SILVA"
+              "nome_normalizado": "MARCOS EDUARDO GIMENES DA SILVA",
+              "situacao": "Transf"
             },
             {
               "numero": 25,
               "nome": "MATHEUS NASCIMENTO HLADCZUK",
-              "nome_normalizado": "MATHEUS NASCIMENTO HLADCZUK"
+              "nome_normalizado": "MATHEUS NASCIMENTO HLADCZUK",
+              "situacao": ""
             },
             {
               "numero": 26,
               "nome": "MURYLLO GONÇALVES GARCIA DE MATTOS",
-              "nome_normalizado": "MURYLLO GONCALVES GARCIA DE MATTOS"
+              "nome_normalizado": "MURYLLO GONCALVES GARCIA DE MATTOS",
+              "situacao": ""
             },
             {
               "numero": 27,
               "nome": "NATALI EDUARDA GOMES FELIX",
-              "nome_normalizado": "NATALI EDUARDA GOMES FELIX"
+              "nome_normalizado": "NATALI EDUARDA GOMES FELIX",
+              "situacao": "Transf"
             },
             {
               "numero": 28,
               "nome": "NICOLLAS GABRIEL DA ROSA",
-              "nome_normalizado": "NICOLLAS GABRIEL DA ROSA"
+              "nome_normalizado": "NICOLLAS GABRIEL DA ROSA",
+              "situacao": ""
             },
             {
               "numero": 29,
               "nome": "NICOLLY APARECIDA DO PRADO",
-              "nome_normalizado": "NICOLLY APARECIDA DO PRADO"
+              "nome_normalizado": "NICOLLY APARECIDA DO PRADO",
+              "situacao": ""
             },
             {
               "numero": 30,
               "nome": "NYCOLLAS LIMA DA SILVA",
-              "nome_normalizado": "NYCOLLAS LIMA DA SILVA"
+              "nome_normalizado": "NYCOLLAS LIMA DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 31,
               "nome": "CHLOE GABRIELA RIBEIRO",
-              "nome_normalizado": "CHLOE GABRIELA RIBEIRO"
+              "nome_normalizado": "CHLOE GABRIELA RIBEIRO",
+              "situacao": ""
             },
             {
               "numero": 32,
               "nome": "THALITA DE PAULA STRAPASON",
-              "nome_normalizado": "THALITA DE PAULA STRAPASON"
+              "nome_normalizado": "THALITA DE PAULA STRAPASON",
+              "situacao": ""
             },
             {
               "numero": 33,
               "nome": "THOMAZ VILLAÇA RODRIGUES MARTINS",
-              "nome_normalizado": "THOMAZ VILLACA RODRIGUES MARTINS"
+              "nome_normalizado": "THOMAZ VILLACA RODRIGUES MARTINS",
+              "situacao": ""
             },
             {
               "numero": 34,
               "nome": "VICTOR DE ALMEIDA RIBEIRO",
-              "nome_normalizado": "VICTOR DE ALMEIDA RIBEIRO"
+              "nome_normalizado": "VICTOR DE ALMEIDA RIBEIRO",
+              "situacao": ""
             },
             {
               "numero": 35,
               "nome": "VINICIUS LUCAS EVIOLANTO",
-              "nome_normalizado": "VINICIUS LUCAS EVIOLANTO"
+              "nome_normalizado": "VINICIUS LUCAS EVIOLANTO",
+              "situacao": ""
             },
             {
               "numero": 36,
               "nome": "VITORIA EDUARDA BARREIRO DA SILVA",
-              "nome_normalizado": "VITORIA EDUARDA BARREIRO DA SILVA"
+              "nome_normalizado": "VITORIA EDUARDA BARREIRO DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 37,
               "nome": "YOHAN DA SILVA WACHHOLZ DE OLIVEIRA",
-              "nome_normalizado": "YOHAN DA SILVA WACHHOLZ DE OLIVEIRA"
+              "nome_normalizado": "YOHAN DA SILVA WACHHOLZ DE OLIVEIRA",
+              "situacao": ""
             },
             {
               "numero": 38,
               "nome": "NATHANY APARECIDA DO NASCIMENTO",
-              "nome_normalizado": "NATHANY APARECIDA DO NASCIMENTO"
+              "nome_normalizado": "NATHANY APARECIDA DO NASCIMENTO",
+              "situacao": ""
             },
             {
               "numero": 39,
               "nome": "JOÃO VINICIUS SOARES PEREIRA",
-              "nome_normalizado": "JOAO VINICIUS SOARES PEREIRA"
+              "nome_normalizado": "JOAO VINICIUS SOARES PEREIRA",
+              "situacao": ""
             }
           ]
         },
@@ -211,217 +250,260 @@
             {
               "numero": 1,
               "nome": "ANA CAROLINA DE SOUZA BRASIL",
-              "nome_normalizado": "ANA CAROLINA DE SOUZA BRASIL"
+              "nome_normalizado": "ANA CAROLINA DE SOUZA BRASIL",
+              "situacao": ""
             },
             {
               "numero": 2,
               "nome": "ANY KIMBERLLIN DE SOUZA VEIGA ALBINO",
-              "nome_normalizado": "ANY KIMBERLLIN DE SOUZA VEIGA ALBINO"
+              "nome_normalizado": "ANY KIMBERLLIN DE SOUZA VEIGA ALBINO",
+              "situacao": ""
             },
             {
               "numero": 3,
               "nome": "BEATRIZ MARTINS DOS SANTOS",
-              "nome_normalizado": "BEATRIZ MARTINS DOS SANTOS"
+              "nome_normalizado": "BEATRIZ MARTINS DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 4,
               "nome": "BRAYAN CUBINSKI DE SOUZA NICA",
-              "nome_normalizado": "BRAYAN CUBINSKI DE SOUZA NICA"
+              "nome_normalizado": "BRAYAN CUBINSKI DE SOUZA NICA",
+              "situacao": ""
             },
             {
               "numero": 5,
               "nome": "CASSIO HENRIQUE FRANÇA",
-              "nome_normalizado": "CASSIO HENRIQUE FRANCA"
+              "nome_normalizado": "CASSIO HENRIQUE FRANCA",
+              "situacao": ""
             },
             {
               "numero": 6,
               "nome": "DANIEL VINICIUS CORREIA OLIVERI",
-              "nome_normalizado": "DANIEL VINICIUS CORREIA OLIVERI"
+              "nome_normalizado": "DANIEL VINICIUS CORREIA OLIVERI",
+              "situacao": "Transf"
             },
             {
               "numero": 7,
               "nome": "ELIEZER PONTES PEREIRA",
-              "nome_normalizado": "ELIEZER PONTES PEREIRA"
+              "nome_normalizado": "ELIEZER PONTES PEREIRA",
+              "situacao": "Reman"
             },
             {
               "numero": 8,
               "nome": "EMANUELE FERREIRA DE LIMA",
-              "nome_normalizado": "EMANUELE FERREIRA DE LIMA"
+              "nome_normalizado": "EMANUELE FERREIRA DE LIMA",
+              "situacao": ""
             },
             {
               "numero": 9,
               "nome": "EMILY CIBELI TEIXEIRA JORGE",
-              "nome_normalizado": "EMILY CIBELI TEIXEIRA JORGE"
+              "nome_normalizado": "EMILY CIBELI TEIXEIRA JORGE",
+              "situacao": ""
             },
             {
               "numero": 10,
               "nome": "EVELYN MACHADO BOAVENTURA DA ROSA",
-              "nome_normalizado": "EVELYN MACHADO BOAVENTURA DA ROSA"
+              "nome_normalizado": "EVELYN MACHADO BOAVENTURA DA ROSA",
+              "situacao": ""
             },
             {
               "numero": 11,
               "nome": "GABRIEL HENRIQUE LEAL DE SOUZA SILVA",
-              "nome_normalizado": "GABRIEL HENRIQUE LEAL DE SOUZA SILVA"
+              "nome_normalizado": "GABRIEL HENRIQUE LEAL DE SOUZA SILVA",
+              "situacao": ""
             },
             {
               "numero": 12,
               "nome": "GABRIEL HENRIQUE VIQUNHA",
-              "nome_normalizado": "GABRIEL HENRIQUE VIQUNHA"
+              "nome_normalizado": "GABRIEL HENRIQUE VIQUNHA",
+              "situacao": ""
             },
             {
               "numero": 13,
               "nome": "GIOVANNA LOPES PRADO",
-              "nome_normalizado": "GIOVANNA LOPES PRADO"
+              "nome_normalizado": "GIOVANNA LOPES PRADO",
+              "situacao": "Transf"
             },
             {
               "numero": 14,
               "nome": "ISABELA MIRANDA DA CONCEIÇÃO",
-              "nome_normalizado": "ISABELA MIRANDA DA CONCEICAO"
+              "nome_normalizado": "ISABELA MIRANDA DA CONCEICAO",
+              "situacao": ""
             },
             {
               "numero": 15,
               "nome": "ISABELLA FERNANDES DE QUEIROZ",
-              "nome_normalizado": "ISABELLA FERNANDES DE QUEIROZ"
+              "nome_normalizado": "ISABELLA FERNANDES DE QUEIROZ",
+              "situacao": ""
             },
             {
               "numero": 16,
               "nome": "JHONYS BRUNO DE PAULA FABIANO",
-              "nome_normalizado": "JHONYS BRUNO DE PAULA FABIANO"
+              "nome_normalizado": "JHONYS BRUNO DE PAULA FABIANO",
+              "situacao": ""
             },
             {
               "numero": 17,
               "nome": "JOAO BATISTA VIEIRA DOS SANTOS",
-              "nome_normalizado": "JOAO BATISTA VIEIRA DOS SANTOS"
+              "nome_normalizado": "JOAO BATISTA VIEIRA DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 18,
               "nome": "KAUÃ HENRICK AYROSO DOS SANTOS",
-              "nome_normalizado": "KAUA HENRICK AYROSO DOS SANTOS"
+              "nome_normalizado": "KAUA HENRICK AYROSO DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 19,
               "nome": "KAUANE EDUARDA DE SOUZA DA SILVA",
-              "nome_normalizado": "KAUANE EDUARDA DE SOUZA DA SILVA"
+              "nome_normalizado": "KAUANE EDUARDA DE SOUZA DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 20,
               "nome": "KAUAN KLEM GONÇALVES DA CRUZ",
-              "nome_normalizado": "KAUAN KLEM GONCALVES DA CRUZ"
+              "nome_normalizado": "KAUAN KLEM GONCALVES DA CRUZ",
+              "situacao": ""
             },
             {
               "numero": 21,
               "nome": "KEILA DOS REIS KLEM",
-              "nome_normalizado": "KEILA DOS REIS KLEM"
+              "nome_normalizado": "KEILA DOS REIS KLEM",
+              "situacao": ""
             },
             {
               "numero": 22,
               "nome": "KEVIN MATHEUS DE CRISTO",
-              "nome_normalizado": "KEVIN MATHEUS DE CRISTO"
+              "nome_normalizado": "KEVIN MATHEUS DE CRISTO",
+              "situacao": "Transf"
             },
             {
               "numero": 23,
               "nome": "LUANA PEREIRA ZEFERINO",
-              "nome_normalizado": "LUANA PEREIRA ZEFERINO"
+              "nome_normalizado": "LUANA PEREIRA ZEFERINO",
+              "situacao": ""
             },
             {
               "numero": 24,
               "nome": "LUANA YASMIN PELLENZ SANTOS",
-              "nome_normalizado": "LUANA YASMIN PELLENZ SANTOS"
+              "nome_normalizado": "LUANA YASMIN PELLENZ SANTOS",
+              "situacao": ""
             },
             {
               "numero": 25,
               "nome": "MARIA CRISTINA RODRIGUES FONSECA",
-              "nome_normalizado": "MARIA CRISTINA RODRIGUES FONSECA"
+              "nome_normalizado": "MARIA CRISTINA RODRIGUES FONSECA",
+              "situacao": ""
             },
             {
               "numero": 26,
               "nome": "MARIA EDUARDA INGATAIN DUARTE",
-              "nome_normalizado": "MARIA EDUARDA INGATAIN DUARTE"
+              "nome_normalizado": "MARIA EDUARDA INGATAIN DUARTE",
+              "situacao": ""
             },
             {
               "numero": 27,
               "nome": "MARIA RITA DE CASSIA VIEIRA DOS SANTOS",
-              "nome_normalizado": "MARIA RITA DE CASSIA VIEIRA DOS SANTOS"
+              "nome_normalizado": "MARIA RITA DE CASSIA VIEIRA DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 28,
               "nome": "MATHEUS HENRIQUE STAKOWIAN DE OLIVEIRA",
-              "nome_normalizado": "MATHEUS HENRIQUE STAKOWIAN DE OLIVEIRA"
+              "nome_normalizado": "MATHEUS HENRIQUE STAKOWIAN DE OLIVEIRA",
+              "situacao": ""
             },
             {
               "numero": 29,
               "nome": "MATHEUS PEREIRA DA ROCHA",
-              "nome_normalizado": "MATHEUS PEREIRA DA ROCHA"
+              "nome_normalizado": "MATHEUS PEREIRA DA ROCHA",
+              "situacao": ""
             },
             {
               "numero": 30,
               "nome": "MATHEUS RODRIGUES FERNANDES",
-              "nome_normalizado": "MATHEUS RODRIGUES FERNANDES"
+              "nome_normalizado": "MATHEUS RODRIGUES FERNANDES",
+              "situacao": ""
             },
             {
               "numero": 31,
               "nome": "MICHEL ROQUE VEIGA",
-              "nome_normalizado": "MICHEL ROQUE VEIGA"
+              "nome_normalizado": "MICHEL ROQUE VEIGA",
+              "situacao": ""
             },
             {
               "numero": 32,
               "nome": "MONIK DE FREITAS SANTOS",
-              "nome_normalizado": "MONIK DE FREITAS SANTOS"
+              "nome_normalizado": "MONIK DE FREITAS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 33,
               "nome": "RICHARD LUCAS NASCIMENTO DE OLIVEIRA",
-              "nome_normalizado": "RICHARD LUCAS NASCIMENTO DE OLIVEIRA"
+              "nome_normalizado": "RICHARD LUCAS NASCIMENTO DE OLIVEIRA",
+              "situacao": ""
             },
             {
               "numero": 34,
               "nome": "RYAN VICTOR FERREIRA",
-              "nome_normalizado": "RYAN VICTOR FERREIRA"
+              "nome_normalizado": "RYAN VICTOR FERREIRA",
+              "situacao": ""
             },
             {
               "numero": 35,
               "nome": "SAMANTA MOREIRA CASSANIGA",
-              "nome_normalizado": "SAMANTA MOREIRA CASSANIGA"
+              "nome_normalizado": "SAMANTA MOREIRA CASSANIGA",
+              "situacao": ""
             },
             {
               "numero": 36,
               "nome": "SAMILI VITORIA FERNANDES CAVALHEIRO",
-              "nome_normalizado": "SAMILI VITORIA FERNANDES CAVALHEIRO"
+              "nome_normalizado": "SAMILI VITORIA FERNANDES CAVALHEIRO",
+              "situacao": ""
             },
             {
               "numero": 37,
               "nome": "THIAGO DE CAMARGO OLIVEIRA",
-              "nome_normalizado": "THIAGO DE CAMARGO OLIVEIRA"
+              "nome_normalizado": "THIAGO DE CAMARGO OLIVEIRA",
+              "situacao": ""
             },
             {
               "numero": 38,
               "nome": "VANESSA KIARA BALBINO",
-              "nome_normalizado": "VANESSA KIARA BALBINO"
+              "nome_normalizado": "VANESSA KIARA BALBINO",
+              "situacao": ""
             },
             {
               "numero": 39,
               "nome": "VICTOR ROGÉRIO CONRADO SPRADA",
-              "nome_normalizado": "VICTOR ROGERIO CONRADO SPRADA"
+              "nome_normalizado": "VICTOR ROGERIO CONRADO SPRADA",
+              "situacao": ""
             },
             {
               "numero": 40,
               "nome": "VITOR GONÇALVES URECK",
-              "nome_normalizado": "VITOR GONCALVES URECK"
+              "nome_normalizado": "VITOR GONCALVES URECK",
+              "situacao": ""
             },
             {
               "numero": 41,
               "nome": "YURI GUSTAVO ELISIO",
-              "nome_normalizado": "YURI GUSTAVO ELISIO"
+              "nome_normalizado": "YURI GUSTAVO ELISIO",
+              "situacao": ""
             },
             {
               "numero": 42,
               "nome": "YURI RUDINEI KALICHAK VAZ",
-              "nome_normalizado": "YURI RUDINEI KALICHAK VAZ"
+              "nome_normalizado": "YURI RUDINEI KALICHAK VAZ",
+              "situacao": ""
             },
             {
               "numero": 43,
               "nome": "RODRIGO DA SILVA KARNOSKI",
-              "nome_normalizado": "RODRIGO DA SILVA KARNOSKI"
+              "nome_normalizado": "RODRIGO DA SILVA KARNOSKI",
+              "situacao": ""
             }
           ]
         },
@@ -432,232 +514,278 @@
             {
               "numero": 1,
               "nome": "ALAN GABRIEL PERTILE DE SOUZA",
-              "nome_normalizado": "ALAN GABRIEL PERTILE DE SOUZA"
+              "nome_normalizado": "ALAN GABRIEL PERTILE DE SOUZA",
+              "situacao": ""
             },
             {
               "numero": 2,
               "nome": "ALEXANDRE DE LIMA",
-              "nome_normalizado": "ALEXANDRE DE LIMA"
+              "nome_normalizado": "ALEXANDRE DE LIMA",
+              "situacao": ""
             },
             {
               "numero": 3,
               "nome": "ANA TALIA DA SILVA PIRES",
-              "nome_normalizado": "ANA TALIA DA SILVA PIRES"
+              "nome_normalizado": "ANA TALIA DA SILVA PIRES",
+              "situacao": ""
             },
             {
               "numero": 4,
               "nome": "BRUNO BONILLA SILVA",
-              "nome_normalizado": "BRUNO BONILLA SILVA"
+              "nome_normalizado": "BRUNO BONILLA SILVA",
+              "situacao": ""
             },
             {
               "numero": 5,
               "nome": "CAIO EDUARDO DE ANDRADE",
-              "nome_normalizado": "CAIO EDUARDO DE ANDRADE"
+              "nome_normalizado": "CAIO EDUARDO DE ANDRADE",
+              "situacao": ""
             },
             {
               "numero": 6,
               "nome": "CAUÃ BATISTA LOURENÇO",
-              "nome_normalizado": "CAUA BATISTA LOURENCO"
+              "nome_normalizado": "CAUA BATISTA LOURENCO",
+              "situacao": "Transf"
             },
             {
               "numero": 7,
               "nome": "CELSO LUIZ SANTOS NETO",
-              "nome_normalizado": "CELSO LUIZ SANTOS NETO"
+              "nome_normalizado": "CELSO LUIZ SANTOS NETO",
+              "situacao": ""
             },
             {
               "numero": 8,
               "nome": "DAFFENY MARIA CORREIA",
-              "nome_normalizado": "DAFFENY MARIA CORREIA"
+              "nome_normalizado": "DAFFENY MARIA CORREIA",
+              "situacao": ""
             },
             {
               "numero": 9,
               "nome": "EDUARDA RAFAELA BATISTA DE PAULA",
-              "nome_normalizado": "EDUARDA RAFAELA BATISTA DE PAULA"
+              "nome_normalizado": "EDUARDA RAFAELA BATISTA DE PAULA",
+              "situacao": ""
             },
             {
               "numero": 10,
               "nome": "EDUARDO SANTOS DA SILVA",
-              "nome_normalizado": "EDUARDO SANTOS DA SILVA"
+              "nome_normalizado": "EDUARDO SANTOS DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 11,
               "nome": "ELIEZER PONTES PEREIRA",
-              "nome_normalizado": "ELIEZER PONTES PEREIRA"
+              "nome_normalizado": "ELIEZER PONTES PEREIRA",
+              "situacao": ""
             },
             {
               "numero": 12,
               "nome": "EMANUEL KRESSAN DE CAMARGOS",
-              "nome_normalizado": "EMANUEL KRESSAN DE CAMARGOS"
+              "nome_normalizado": "EMANUEL KRESSAN DE CAMARGOS",
+              "situacao": "Transf"
             },
             {
               "numero": 13,
               "nome": "EMANUELLY VITORIA GOMES DOS SANTOS",
-              "nome_normalizado": "EMANUELLY VITORIA GOMES DOS SANTOS"
+              "nome_normalizado": "EMANUELLY VITORIA GOMES DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 14,
               "nome": "FERNANDO DURÃES CHAVES",
-              "nome_normalizado": "FERNANDO DURAES CHAVES"
+              "nome_normalizado": "FERNANDO DURAES CHAVES",
+              "situacao": "Transf"
             },
             {
               "numero": 15,
               "nome": "JEFFERSON ESTEVES DO NASCIMENTO",
-              "nome_normalizado": "JEFFERSON ESTEVES DO NASCIMENTO"
+              "nome_normalizado": "JEFFERSON ESTEVES DO NASCIMENTO",
+              "situacao": ""
             },
             {
               "numero": 16,
               "nome": "JENIFER LUANA LISBOA DOS SANTOS",
-              "nome_normalizado": "JENIFER LUANA LISBOA DOS SANTOS"
+              "nome_normalizado": "JENIFER LUANA LISBOA DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 17,
               "nome": "JHONN ELVIS TESLUK DA CRUZ",
-              "nome_normalizado": "JHONN ELVIS TESLUK DA CRUZ"
+              "nome_normalizado": "JHONN ELVIS TESLUK DA CRUZ",
+              "situacao": ""
             },
             {
               "numero": 18,
               "nome": "JOÃO VICTOR VASCONCELLOS SANTOS",
-              "nome_normalizado": "JOAO VICTOR VASCONCELLOS SANTOS"
+              "nome_normalizado": "JOAO VICTOR VASCONCELLOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 19,
               "nome": "JOSÉ EDUARDO DOS SANTOS PEREIRA",
-              "nome_normalizado": "JOSE EDUARDO DOS SANTOS PEREIRA"
+              "nome_normalizado": "JOSE EDUARDO DOS SANTOS PEREIRA",
+              "situacao": "Transf"
             },
             {
               "numero": 20,
               "nome": "JULIANA BRANCO RODRIGUES DA LUZ",
-              "nome_normalizado": "JULIANA BRANCO RODRIGUES DA LUZ"
+              "nome_normalizado": "JULIANA BRANCO RODRIGUES DA LUZ",
+              "situacao": ""
             },
             {
               "numero": 21,
               "nome": "KETHYLIN VITORIA DOS SANTOS CRISPIM",
-              "nome_normalizado": "KETHYLIN VITORIA DOS SANTOS CRISPIM"
+              "nome_normalizado": "KETHYLIN VITORIA DOS SANTOS CRISPIM",
+              "situacao": ""
             },
             {
               "numero": 22,
               "nome": "LUAN DA SILVA KARNOSKI",
-              "nome_normalizado": "LUAN DA SILVA KARNOSKI"
+              "nome_normalizado": "LUAN DA SILVA KARNOSKI",
+              "situacao": ""
             },
             {
               "numero": 23,
               "nome": "LUCAS DE SOUZA INGATAIN",
-              "nome_normalizado": "LUCAS DE SOUZA INGATAIN"
+              "nome_normalizado": "LUCAS DE SOUZA INGATAIN",
+              "situacao": ""
             },
             {
               "numero": 24,
               "nome": "MARCELO MARQUES DE ABREU",
-              "nome_normalizado": "MARCELO MARQUES DE ABREU"
+              "nome_normalizado": "MARCELO MARQUES DE ABREU",
+              "situacao": ""
             },
             {
               "numero": 25,
               "nome": "MARIANA CASSIA GREIN DE BARROS",
-              "nome_normalizado": "MARIANA CASSIA GREIN DE BARROS"
+              "nome_normalizado": "MARIANA CASSIA GREIN DE BARROS",
+              "situacao": "Transf"
             },
             {
               "numero": 26,
               "nome": "MATHEUS EDUARDO DO CARMO",
-              "nome_normalizado": "MATHEUS EDUARDO DO CARMO"
+              "nome_normalizado": "MATHEUS EDUARDO DO CARMO",
+              "situacao": ""
             },
             {
               "numero": 27,
               "nome": "MATHEUS SILVEIRA DE DEUS",
-              "nome_normalizado": "MATHEUS SILVEIRA DE DEUS"
+              "nome_normalizado": "MATHEUS SILVEIRA DE DEUS",
+              "situacao": ""
             },
             {
               "numero": 28,
               "nome": "MATHEUS VEIGA TERVISAN PAIANO",
-              "nome_normalizado": "MATHEUS VEIGA TERVISAN PAIANO"
+              "nome_normalizado": "MATHEUS VEIGA TERVISAN PAIANO",
+              "situacao": ""
             },
             {
               "numero": 29,
               "nome": "NATALY CRISTINE RODRIGUES DE NOVAES",
-              "nome_normalizado": "NATALY CRISTINE RODRIGUES DE NOVAES"
+              "nome_normalizado": "NATALY CRISTINE RODRIGUES DE NOVAES",
+              "situacao": ""
             },
             {
               "numero": 30,
               "nome": "NICOLAS DE MOURA DA SILVA",
-              "nome_normalizado": "NICOLAS DE MOURA DA SILVA"
+              "nome_normalizado": "NICOLAS DE MOURA DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 31,
               "nome": "NILSON DOS SANTOS CORDEIRO",
-              "nome_normalizado": "NILSON DOS SANTOS CORDEIRO"
+              "nome_normalizado": "NILSON DOS SANTOS CORDEIRO",
+              "situacao": ""
             },
             {
               "numero": 32,
               "nome": "PEDRO HENRIQUE SIEBERT LIMA",
-              "nome_normalizado": "PEDRO HENRIQUE SIEBERT LIMA"
+              "nome_normalizado": "PEDRO HENRIQUE SIEBERT LIMA",
+              "situacao": ""
             },
             {
               "numero": 33,
               "nome": "PIETRO KRESSAN DE CAMARGOS",
-              "nome_normalizado": "PIETRO KRESSAN DE CAMARGOS"
+              "nome_normalizado": "PIETRO KRESSAN DE CAMARGOS",
+              "situacao": "Transf"
             },
             {
               "numero": 34,
               "nome": "RAFAEL DA SILVA KARNOSKI",
-              "nome_normalizado": "RAFAEL DA SILVA KARNOSKI"
+              "nome_normalizado": "RAFAEL DA SILVA KARNOSKI",
+              "situacao": ""
             },
             {
               "numero": 35,
               "nome": "RICHARD WALACE RAMOS TAVARES",
-              "nome_normalizado": "RICHARD WALACE RAMOS TAVARES"
+              "nome_normalizado": "RICHARD WALACE RAMOS TAVARES",
+              "situacao": ""
             },
             {
               "numero": 36,
               "nome": "THIFANNY NAYARA DE SOUZA ANTUNES",
-              "nome_normalizado": "THIFANNY NAYARA DE SOUZA ANTUNES"
+              "nome_normalizado": "THIFANNY NAYARA DE SOUZA ANTUNES",
+              "situacao": ""
             },
             {
               "numero": 37,
               "nome": "VICTORIA ERCILIA COSTA DA ROSA",
-              "nome_normalizado": "VICTORIA ERCILIA COSTA DA ROSA"
+              "nome_normalizado": "VICTORIA ERCILIA COSTA DA ROSA",
+              "situacao": ""
             },
             {
               "numero": 38,
               "nome": "VITOR ANTÔNIO DE OLIVEIRA SANTOS",
-              "nome_normalizado": "VITOR ANTONIO DE OLIVEIRA SANTOS"
+              "nome_normalizado": "VITOR ANTONIO DE OLIVEIRA SANTOS",
+              "situacao": ""
             },
             {
               "numero": 39,
               "nome": "VITOR GABRIEL CAMARGO GODINHO",
-              "nome_normalizado": "VITOR GABRIEL CAMARGO GODINHO"
+              "nome_normalizado": "VITOR GABRIEL CAMARGO GODINHO",
+              "situacao": ""
             },
             {
               "numero": 40,
               "nome": "VITOR VINICIUS BASSANI DA SILVA",
-              "nome_normalizado": "VITOR VINICIUS BASSANI DA SILVA"
+              "nome_normalizado": "VITOR VINICIUS BASSANI DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 41,
               "nome": "YASMYN VITÓRIA RODRIGUES",
-              "nome_normalizado": "YASMYN VITORIA RODRIGUES"
+              "nome_normalizado": "YASMYN VITORIA RODRIGUES",
+              "situacao": "Transf"
             },
             {
               "numero": 42,
               "nome": "NELSON BUENO BALDUINO",
-              "nome_normalizado": "NELSON BUENO BALDUINO"
+              "nome_normalizado": "NELSON BUENO BALDUINO",
+              "situacao": ""
             },
             {
               "numero": 43,
               "nome": "ELISAMA NASCIMENTO DE LIMA",
-              "nome_normalizado": "ELISAMA NASCIMENTO DE LIMA"
+              "nome_normalizado": "ELISAMA NASCIMENTO DE LIMA",
+              "situacao": ""
             },
             {
               "numero": 44,
               "nome": "YURE HENRIQUE LUCIO DA SILVA",
-              "nome_normalizado": "YURE HENRIQUE LUCIO DA SILVA"
+              "nome_normalizado": "YURE HENRIQUE LUCIO DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 45,
               "nome": "VICTOR ALVES MEDEIROS CARVALHO ASSUNÇÃO",
-              "nome_normalizado": "VICTOR ALVES MEDEIROS CARVALHO ASSUNCAO"
+              "nome_normalizado": "VICTOR ALVES MEDEIROS CARVALHO ASSUNCAO",
+              "situacao": ""
             },
             {
               "numero": 46,
               "nome": "RODRIGO DA SILVA KARNOSKI",
-              "nome_normalizado": "RODRIGO DA SILVA KARNOSKI"
+              "nome_normalizado": "RODRIGO DA SILVA KARNOSKI",
+              "situacao": "Reman"
             }
           ]
         },
@@ -668,217 +796,260 @@
             {
               "numero": 1,
               "nome": "ALANA CAMILA LINDEMANN DA SILVA",
-              "nome_normalizado": "ALANA CAMILA LINDEMANN DA SILVA"
+              "nome_normalizado": "ALANA CAMILA LINDEMANN DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 2,
               "nome": "ANA LETICIA MAIA APARECIDO",
-              "nome_normalizado": "ANA LETICIA MAIA APARECIDO"
+              "nome_normalizado": "ANA LETICIA MAIA APARECIDO",
+              "situacao": ""
             },
             {
               "numero": 3,
               "nome": "ANA TEREZA DE AZEVEDO",
-              "nome_normalizado": "ANA TEREZA DE AZEVEDO"
+              "nome_normalizado": "ANA TEREZA DE AZEVEDO",
+              "situacao": ""
             },
             {
               "numero": 4,
               "nome": "ANNA GABRIELLA DOS SANTOS LOURENÇO",
-              "nome_normalizado": "ANNA GABRIELLA DOS SANTOS LOURENCO"
+              "nome_normalizado": "ANNA GABRIELLA DOS SANTOS LOURENCO",
+              "situacao": ""
             },
             {
               "numero": 5,
               "nome": "BRAYAN EDUARDO SIRVESTI GONÇALVES",
-              "nome_normalizado": "BRAYAN EDUARDO SIRVESTI GONCALVES"
+              "nome_normalizado": "BRAYAN EDUARDO SIRVESTI GONCALVES",
+              "situacao": ""
             },
             {
               "numero": 6,
               "nome": "CAUAN EDUARDO GONÇALVES DE SOUZA",
-              "nome_normalizado": "CAUAN EDUARDO GONCALVES DE SOUZA"
+              "nome_normalizado": "CAUAN EDUARDO GONCALVES DE SOUZA",
+              "situacao": ""
             },
             {
               "numero": 7,
               "nome": "DANIEL MARTINS DOS SANTOS",
-              "nome_normalizado": "DANIEL MARTINS DOS SANTOS"
+              "nome_normalizado": "DANIEL MARTINS DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 8,
               "nome": "DAVI FELISBERTO VON SCHEIDT",
-              "nome_normalizado": "DAVI FELISBERTO VON SCHEIDT"
+              "nome_normalizado": "DAVI FELISBERTO VON SCHEIDT",
+              "situacao": ""
             },
             {
               "numero": 9,
               "nome": "DIOGO LEONARDO GONÇALVES WALTER",
-              "nome_normalizado": "DIOGO LEONARDO GONCALVES WALTER"
+              "nome_normalizado": "DIOGO LEONARDO GONCALVES WALTER",
+              "situacao": ""
             },
             {
               "numero": 10,
               "nome": "EDUARDO BRAZETTI DE OLIVEIRA",
-              "nome_normalizado": "EDUARDO BRAZETTI DE OLIVEIRA"
+              "nome_normalizado": "EDUARDO BRAZETTI DE OLIVEIRA",
+              "situacao": ""
             },
             {
               "numero": 11,
               "nome": "EDUARDO PEREIRA",
-              "nome_normalizado": "EDUARDO PEREIRA"
+              "nome_normalizado": "EDUARDO PEREIRA",
+              "situacao": ""
             },
             {
               "numero": 12,
               "nome": "EMILY NICOLLY DA SILVA SANTOS",
-              "nome_normalizado": "EMILY NICOLLY DA SILVA SANTOS"
+              "nome_normalizado": "EMILY NICOLLY DA SILVA SANTOS",
+              "situacao": ""
             },
             {
               "numero": 13,
               "nome": "ERIC DAVI RODRIGUES BORGES",
-              "nome_normalizado": "ERIC DAVI RODRIGUES BORGES"
+              "nome_normalizado": "ERIC DAVI RODRIGUES BORGES",
+              "situacao": ""
             },
             {
               "numero": 14,
               "nome": "FABRICIO DOS SANTOS ESPINDOLA",
-              "nome_normalizado": "FABRICIO DOS SANTOS ESPINDOLA"
+              "nome_normalizado": "FABRICIO DOS SANTOS ESPINDOLA",
+              "situacao": ""
             },
             {
               "numero": 15,
               "nome": "GABRYEL WALLACE CHELIS",
-              "nome_normalizado": "GABRYEL WALLACE CHELIS"
+              "nome_normalizado": "GABRYEL WALLACE CHELIS",
+              "situacao": ""
             },
             {
               "numero": 16,
               "nome": "GUILHERME CYCHOCKI ROSA",
-              "nome_normalizado": "GUILHERME CYCHOCKI ROSA"
+              "nome_normalizado": "GUILHERME CYCHOCKI ROSA",
+              "situacao": ""
             },
             {
               "numero": 17,
               "nome": "GUSTHAVO EMANUEL DE OLIVEIRA DA SILVA",
-              "nome_normalizado": "GUSTHAVO EMANUEL DE OLIVEIRA DA SILVA"
+              "nome_normalizado": "GUSTHAVO EMANUEL DE OLIVEIRA DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 18,
               "nome": "HENRIKY GABRIEL URECH DE OLIVEIRA",
-              "nome_normalizado": "HENRIKY GABRIEL URECH DE OLIVEIRA"
+              "nome_normalizado": "HENRIKY GABRIEL URECH DE OLIVEIRA",
+              "situacao": ""
             },
             {
               "numero": 19,
               "nome": "ISABELLA REGINA DOS SANTOS",
-              "nome_normalizado": "ISABELLA REGINA DOS SANTOS"
+              "nome_normalizado": "ISABELLA REGINA DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 20,
               "nome": "JANIELLY ANJOS DOS SANTOS",
-              "nome_normalizado": "JANIELLY ANJOS DOS SANTOS"
+              "nome_normalizado": "JANIELLY ANJOS DOS SANTOS",
+              "situacao": "Transf"
             },
             {
               "numero": 21,
               "nome": "JHENNIFER DE ALMEIDA DE SOUZA",
-              "nome_normalizado": "JHENNIFER DE ALMEIDA DE SOUZA"
+              "nome_normalizado": "JHENNIFER DE ALMEIDA DE SOUZA",
+              "situacao": ""
             },
             {
               "numero": 22,
               "nome": "JHONATAN CARNEIRO ORCHANHESKI",
-              "nome_normalizado": "JHONATAN CARNEIRO ORCHANHESKI"
+              "nome_normalizado": "JHONATAN CARNEIRO ORCHANHESKI",
+              "situacao": ""
             },
             {
               "numero": 23,
               "nome": "JOÃO AUGUSTO ANDREATTA",
-              "nome_normalizado": "JOAO AUGUSTO ANDREATTA"
+              "nome_normalizado": "JOAO AUGUSTO ANDREATTA",
+              "situacao": ""
             },
             {
               "numero": 24,
               "nome": "JOAO PEDRO KOVALSKI BRAGA",
-              "nome_normalizado": "JOAO PEDRO KOVALSKI BRAGA"
+              "nome_normalizado": "JOAO PEDRO KOVALSKI BRAGA",
+              "situacao": ""
             },
             {
               "numero": 25,
               "nome": "JUAN CHRISTIAN RIBAS DOS SANTOS",
-              "nome_normalizado": "JUAN CHRISTIAN RIBAS DOS SANTOS"
+              "nome_normalizado": "JUAN CHRISTIAN RIBAS DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 26,
               "nome": "JULIANI VITORIA RAMOS SOUZA",
-              "nome_normalizado": "JULIANI VITORIA RAMOS SOUZA"
+              "nome_normalizado": "JULIANI VITORIA RAMOS SOUZA",
+              "situacao": ""
             },
             {
               "numero": 27,
               "nome": "KAUANI MARIA DA SILVA",
-              "nome_normalizado": "KAUANI MARIA DA SILVA"
+              "nome_normalizado": "KAUANI MARIA DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 28,
               "nome": "KETLINN LUIZA NIESPRODZINSKI CAMARGO MOTA",
-              "nome_normalizado": "KETLINN LUIZA NIESPRODZINSKI CAMARGO MOTA"
+              "nome_normalizado": "KETLINN LUIZA NIESPRODZINSKI CAMARGO MOTA",
+              "situacao": ""
             },
             {
               "numero": 29,
               "nome": "LARISSA DA SILVA MAGALHAES SANTOS",
-              "nome_normalizado": "LARISSA DA SILVA MAGALHAES SANTOS"
+              "nome_normalizado": "LARISSA DA SILVA MAGALHAES SANTOS",
+              "situacao": ""
             },
             {
               "numero": 30,
               "nome": "LUCAS FELIPE DA SILVA",
-              "nome_normalizado": "LUCAS FELIPE DA SILVA"
+              "nome_normalizado": "LUCAS FELIPE DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 31,
               "nome": "MARIA LUIZA ROSA DE SOUZA",
-              "nome_normalizado": "MARIA LUIZA ROSA DE SOUZA"
+              "nome_normalizado": "MARIA LUIZA ROSA DE SOUZA",
+              "situacao": ""
             },
             {
               "numero": 32,
               "nome": "MATHEUS EDUARDO BISPO DA SILVA",
-              "nome_normalizado": "MATHEUS EDUARDO BISPO DA SILVA"
+              "nome_normalizado": "MATHEUS EDUARDO BISPO DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 33,
               "nome": "MILENA GONCALVES URECK",
-              "nome_normalizado": "MILENA GONCALVES URECK"
+              "nome_normalizado": "MILENA GONCALVES URECK",
+              "situacao": ""
             },
             {
               "numero": 34,
               "nome": "NELSON EDUARDO WLASENKO VIEIRA",
-              "nome_normalizado": "NELSON EDUARDO WLASENKO VIEIRA"
+              "nome_normalizado": "NELSON EDUARDO WLASENKO VIEIRA",
+              "situacao": ""
             },
             {
               "numero": 35,
               "nome": "PEDRO HENRIQUE PEREIRA MIRANDA",
-              "nome_normalizado": "PEDRO HENRIQUE PEREIRA MIRANDA"
+              "nome_normalizado": "PEDRO HENRIQUE PEREIRA MIRANDA",
+              "situacao": ""
             },
             {
               "numero": 36,
               "nome": "RAFAELLE MACHADO PIRES",
-              "nome_normalizado": "RAFAELLE MACHADO PIRES"
+              "nome_normalizado": "RAFAELLE MACHADO PIRES",
+              "situacao": ""
             },
             {
               "numero": 37,
               "nome": "RYAN MATHEUS DE MOURA DAS NEVES",
-              "nome_normalizado": "RYAN MATHEUS DE MOURA DAS NEVES"
+              "nome_normalizado": "RYAN MATHEUS DE MOURA DAS NEVES",
+              "situacao": ""
             },
             {
               "numero": 38,
               "nome": "SARAH CRISTINA DOS SANTOS LARA",
-              "nome_normalizado": "SARAH CRISTINA DOS SANTOS LARA"
+              "nome_normalizado": "SARAH CRISTINA DOS SANTOS LARA",
+              "situacao": ""
             },
             {
               "numero": 39,
               "nome": "VITOR GONÇALVES MARTINS",
-              "nome_normalizado": "VITOR GONCALVES MARTINS"
+              "nome_normalizado": "VITOR GONCALVES MARTINS",
+              "situacao": ""
             },
             {
               "numero": 40,
               "nome": "WEDISON DUBENA PACHECO",
-              "nome_normalizado": "WEDISON DUBENA PACHECO"
+              "nome_normalizado": "WEDISON DUBENA PACHECO",
+              "situacao": ""
             },
             {
               "numero": 41,
               "nome": "YASMIN ALVES DOS SANTOS",
-              "nome_normalizado": "YASMIN ALVES DOS SANTOS"
+              "nome_normalizado": "YASMIN ALVES DOS SANTOS",
+              "situacao": "Transf"
             },
             {
               "numero": 42,
               "nome": "KÉZIA RICARDO DOS SANTOS",
-              "nome_normalizado": "KEZIA RICARDO DOS SANTOS"
+              "nome_normalizado": "KEZIA RICARDO DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 43,
               "nome": "ISRAEL PEDRO DIAS SANTOS",
-              "nome_normalizado": "ISRAEL PEDRO DIAS SANTOS"
+              "nome_normalizado": "ISRAEL PEDRO DIAS SANTOS",
+              "situacao": ""
             }
           ]
         }
@@ -894,142 +1065,170 @@
             {
               "numero": 1,
               "nome": "CRISTIAN FERREIRA DA SILVA",
-              "nome_normalizado": "CRISTIAN FERREIRA DA SILVA"
+              "nome_normalizado": "CRISTIAN FERREIRA DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 2,
               "nome": "DANIELA ALEXANDRA ZAMBRANO CRESPO",
-              "nome_normalizado": "DANIELA ALEXANDRA ZAMBRANO CRESPO"
+              "nome_normalizado": "DANIELA ALEXANDRA ZAMBRANO CRESPO",
+              "situacao": ""
             },
             {
               "numero": 3,
               "nome": "DIRAN OLIVEIRA DA PAIXÃO FILHO",
-              "nome_normalizado": "DIRAN OLIVEIRA DA PAIXAO FILHO"
+              "nome_normalizado": "DIRAN OLIVEIRA DA PAIXAO FILHO",
+              "situacao": ""
             },
             {
               "numero": 4,
               "nome": "EDUARDO RHEYMOND RODRIGUES RIBEIRO",
-              "nome_normalizado": "EDUARDO RHEYMOND RODRIGUES RIBEIRO"
+              "nome_normalizado": "EDUARDO RHEYMOND RODRIGUES RIBEIRO",
+              "situacao": ""
             },
             {
               "numero": 5,
               "nome": "EMERSON GABRIEL LOPES",
-              "nome_normalizado": "EMERSON GABRIEL LOPES"
+              "nome_normalizado": "EMERSON GABRIEL LOPES",
+              "situacao": ""
             },
             {
               "numero": 6,
               "nome": "ESTERLINE JOSEPH",
-              "nome_normalizado": "ESTERLINE JOSEPH"
+              "nome_normalizado": "ESTERLINE JOSEPH",
+              "situacao": ""
             },
             {
               "numero": 7,
               "nome": "GUILHERME SPIELER ORTIZ",
-              "nome_normalizado": "GUILHERME SPIELER ORTIZ"
+              "nome_normalizado": "GUILHERME SPIELER ORTIZ",
+              "situacao": ""
             },
             {
               "numero": 8,
               "nome": "HENRYCK GABRIEL CANDIDO SORIÃO",
-              "nome_normalizado": "HENRYCK GABRIEL CANDIDO SORIAO"
+              "nome_normalizado": "HENRYCK GABRIEL CANDIDO SORIAO",
+              "situacao": ""
             },
             {
               "numero": 9,
               "nome": "JEAN FERRY POLYNICE",
-              "nome_normalizado": "JEAN FERRY POLYNICE"
+              "nome_normalizado": "JEAN FERRY POLYNICE",
+              "situacao": ""
             },
             {
               "numero": 10,
               "nome": "JOÃO VINICIUS SOARES PEREIRA",
-              "nome_normalizado": "JOAO VINICIUS SOARES PEREIRA"
+              "nome_normalizado": "JOAO VINICIUS SOARES PEREIRA",
+              "situacao": "Transf"
             },
             {
               "numero": 11,
               "nome": "JULIA DA SILVA FRANÇA",
-              "nome_normalizado": "JULIA DA SILVA FRANCA"
+              "nome_normalizado": "JULIA DA SILVA FRANCA",
+              "situacao": ""
             },
             {
               "numero": 12,
               "nome": "KAUÃ SILVERIO DE GOIS",
-              "nome_normalizado": "KAUA SILVERIO DE GOIS"
+              "nome_normalizado": "KAUA SILVERIO DE GOIS",
+              "situacao": ""
             },
             {
               "numero": 13,
               "nome": "KAUWÂNDRICK DA SILVA ORGANEK",
-              "nome_normalizado": "KAUWANDRICK DA SILVA ORGANEK"
+              "nome_normalizado": "KAUWANDRICK DA SILVA ORGANEK",
+              "situacao": ""
             },
             {
               "numero": 14,
               "nome": "LUANNE HIGA LICNERSKI",
-              "nome_normalizado": "LUANNE HIGA LICNERSKI"
+              "nome_normalizado": "LUANNE HIGA LICNERSKI",
+              "situacao": ""
             },
             {
               "numero": 15,
               "nome": "LUCAS FERNANDO ADRIANO",
-              "nome_normalizado": "LUCAS FERNANDO ADRIANO"
+              "nome_normalizado": "LUCAS FERNANDO ADRIANO",
+              "situacao": ""
             },
             {
               "numero": 16,
               "nome": "MARIANNE COSTA DE LIMA",
-              "nome_normalizado": "MARIANNE COSTA DE LIMA"
+              "nome_normalizado": "MARIANNE COSTA DE LIMA",
+              "situacao": ""
             },
             {
               "numero": 17,
               "nome": "MARINA SANTOS RIBEIRO",
-              "nome_normalizado": "MARINA SANTOS RIBEIRO"
+              "nome_normalizado": "MARINA SANTOS RIBEIRO",
+              "situacao": ""
             },
             {
               "numero": 18,
               "nome": "MATHEUS RODRIGUES COELHO",
-              "nome_normalizado": "MATHEUS RODRIGUES COELHO"
+              "nome_normalizado": "MATHEUS RODRIGUES COELHO",
+              "situacao": ""
             },
             {
               "numero": 19,
               "nome": "MAYARA CRISTINA DA SILVA FERREIRA",
-              "nome_normalizado": "MAYARA CRISTINA DA SILVA FERREIRA"
+              "nome_normalizado": "MAYARA CRISTINA DA SILVA FERREIRA",
+              "situacao": ""
             },
             {
               "numero": 20,
               "nome": "RENAN DO CARMO VENTURA",
-              "nome_normalizado": "RENAN DO CARMO VENTURA"
+              "nome_normalizado": "RENAN DO CARMO VENTURA",
+              "situacao": ""
             },
             {
               "numero": 21,
               "nome": "VINÍCIUS BERNARDELLI PEREIRA",
-              "nome_normalizado": "VINICIUS BERNARDELLI PEREIRA"
+              "nome_normalizado": "VINICIUS BERNARDELLI PEREIRA",
+              "situacao": "Transf"
             },
             {
               "numero": 22,
               "nome": "YASMIM MARILISE NASCIMENTO PAP",
-              "nome_normalizado": "YASMIM MARILISE NASCIMENTO PAP"
+              "nome_normalizado": "YASMIM MARILISE NASCIMENTO PAP",
+              "situacao": ""
             },
             {
               "numero": 23,
               "nome": "ROBERT CAMILO DO PRADO",
-              "nome_normalizado": "ROBERT CAMILO DO PRADO"
+              "nome_normalizado": "ROBERT CAMILO DO PRADO",
+              "situacao": "Transf"
             },
             {
               "numero": 24,
               "nome": "PEDRO HENRIQUE VANZELI",
-              "nome_normalizado": "PEDRO HENRIQUE VANZELI"
+              "nome_normalizado": "PEDRO HENRIQUE VANZELI",
+              "situacao": ""
             },
             {
               "numero": 25,
               "nome": "GELDIANE VICTORIA DA SILVA FERREIRA",
-              "nome_normalizado": "GELDIANE VICTORIA DA SILVA FERREIRA"
+              "nome_normalizado": "GELDIANE VICTORIA DA SILVA FERREIRA",
+              "situacao": ""
             },
             {
               "numero": 26,
               "nome": "NYCOLLE FERRAZ DA SILVA",
-              "nome_normalizado": "NYCOLLE FERRAZ DA SILVA"
+              "nome_normalizado": "NYCOLLE FERRAZ DA SILVA",
+              "situacao": "Transf"
             },
             {
               "numero": 27,
               "nome": "ROBERT CAMILO DO PRADO",
-              "nome_normalizado": "ROBERT CAMILO DO PRADO"
+              "nome_normalizado": "ROBERT CAMILO DO PRADO",
+              "situacao": ""
             },
             {
               "numero": 28,
               "nome": "NYCOLLE FERRAZ DA SILVA",
-              "nome_normalizado": "NYCOLLE FERRAZ DA SILVA"
+              "nome_normalizado": "NYCOLLE FERRAZ DA SILVA",
+              "situacao": ""
             }
           ]
         },
@@ -1040,202 +1239,242 @@
             {
               "numero": 1,
               "nome": "ANTHONY SANTOS DE OLIVEIRA",
-              "nome_normalizado": "ANTHONY SANTOS DE OLIVEIRA"
+              "nome_normalizado": "ANTHONY SANTOS DE OLIVEIRA",
+              "situacao": ""
             },
             {
               "numero": 2,
               "nome": "ARYANE DA SILVA MARTINS",
-              "nome_normalizado": "ARYANE DA SILVA MARTINS"
+              "nome_normalizado": "ARYANE DA SILVA MARTINS",
+              "situacao": ""
             },
             {
               "numero": 3,
               "nome": "DAVI CONSTANTE RODRIGUES",
-              "nome_normalizado": "DAVI CONSTANTE RODRIGUES"
+              "nome_normalizado": "DAVI CONSTANTE RODRIGUES",
+              "situacao": ""
             },
             {
               "numero": 4,
               "nome": "DIOGO RODRIGUES LINS",
-              "nome_normalizado": "DIOGO RODRIGUES LINS"
+              "nome_normalizado": "DIOGO RODRIGUES LINS",
+              "situacao": ""
             },
             {
               "numero": 5,
               "nome": "DJOULIE VILSAINT",
-              "nome_normalizado": "DJOULIE VILSAINT"
+              "nome_normalizado": "DJOULIE VILSAINT",
+              "situacao": ""
             },
             {
               "numero": 6,
               "nome": "DOUGLAS HENRIQUE MENDONÇA FREITAS",
-              "nome_normalizado": "DOUGLAS HENRIQUE MENDONCA FREITAS"
+              "nome_normalizado": "DOUGLAS HENRIQUE MENDONCA FREITAS",
+              "situacao": ""
             },
             {
               "numero": 7,
               "nome": "EDIÉLI RHAYANE DE BARROS DE MATTOS",
-              "nome_normalizado": "EDIELI RHAYANE DE BARROS DE MATTOS"
+              "nome_normalizado": "EDIELI RHAYANE DE BARROS DE MATTOS",
+              "situacao": ""
             },
             {
               "numero": 8,
               "nome": "EMANUELLY CRISTINA ANTUNES NENEMANN",
-              "nome_normalizado": "EMANUELLY CRISTINA ANTUNES NENEMANN"
+              "nome_normalizado": "EMANUELLY CRISTINA ANTUNES NENEMANN",
+              "situacao": "Transf"
             },
             {
               "numero": 9,
               "nome": "EMANUELLY PAULINA STEGER BOTELHO PEREIRA",
-              "nome_normalizado": "EMANUELLY PAULINA STEGER BOTELHO PEREIRA"
+              "nome_normalizado": "EMANUELLY PAULINA STEGER BOTELHO PEREIRA",
+              "situacao": ""
             },
             {
               "numero": 10,
               "nome": "GABRIEL SILVA DOS SANTOS",
-              "nome_normalizado": "GABRIEL SILVA DOS SANTOS"
+              "nome_normalizado": "GABRIEL SILVA DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 11,
               "nome": "GUILHERME MATEUS PEIXOTO MARCOS",
-              "nome_normalizado": "GUILHERME MATEUS PEIXOTO MARCOS"
+              "nome_normalizado": "GUILHERME MATEUS PEIXOTO MARCOS",
+              "situacao": ""
             },
             {
               "numero": 12,
               "nome": "HAGATHA CRISTIANE SILVA PEROTTO",
-              "nome_normalizado": "HAGATHA CRISTIANE SILVA PEROTTO"
+              "nome_normalizado": "HAGATHA CRISTIANE SILVA PEROTTO",
+              "situacao": ""
             },
             {
               "numero": 13,
               "nome": "HENDRICK EDUARDO SILVA DE OLIVEIRA",
-              "nome_normalizado": "HENDRICK EDUARDO SILVA DE OLIVEIRA"
+              "nome_normalizado": "HENDRICK EDUARDO SILVA DE OLIVEIRA",
+              "situacao": ""
             },
             {
               "numero": 14,
               "nome": "HENRIQUE SILVA WEBER",
-              "nome_normalizado": "HENRIQUE SILVA WEBER"
+              "nome_normalizado": "HENRIQUE SILVA WEBER",
+              "situacao": ""
             },
             {
               "numero": 15,
               "nome": "ISABELLA DOS SANTOS DA PAIXÃO",
-              "nome_normalizado": "ISABELLA DOS SANTOS DA PAIXAO"
+              "nome_normalizado": "ISABELLA DOS SANTOS DA PAIXAO",
+              "situacao": ""
             },
             {
               "numero": 16,
               "nome": "JOAO VICTOR DA SILVA",
-              "nome_normalizado": "JOAO VICTOR DA SILVA"
+              "nome_normalizado": "JOAO VICTOR DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 17,
               "nome": "JOÃO VICTOR TABORDA",
-              "nome_normalizado": "JOAO VICTOR TABORDA"
+              "nome_normalizado": "JOAO VICTOR TABORDA",
+              "situacao": "Reman"
             },
             {
               "numero": 18,
               "nome": "KAUA FELIPE MOTTA",
-              "nome_normalizado": "KAUA FELIPE MOTTA"
+              "nome_normalizado": "KAUA FELIPE MOTTA",
+              "situacao": ""
             },
             {
               "numero": 19,
               "nome": "KAUAN OLIVEIRA BERNARDO",
-              "nome_normalizado": "KAUAN OLIVEIRA BERNARDO"
+              "nome_normalizado": "KAUAN OLIVEIRA BERNARDO",
+              "situacao": ""
             },
             {
               "numero": 20,
               "nome": "KLEBER HENRIQUE MENDES LOPES",
-              "nome_normalizado": "KLEBER HENRIQUE MENDES LOPES"
+              "nome_normalizado": "KLEBER HENRIQUE MENDES LOPES",
+              "situacao": ""
             },
             {
               "numero": 21,
               "nome": "LEONARDO ALMEIDA ANTUNES",
-              "nome_normalizado": "LEONARDO ALMEIDA ANTUNES"
+              "nome_normalizado": "LEONARDO ALMEIDA ANTUNES",
+              "situacao": ""
             },
             {
               "numero": 22,
               "nome": "LIVIA MOREIRA POLITÓ",
-              "nome_normalizado": "LIVIA MOREIRA POLITO"
+              "nome_normalizado": "LIVIA MOREIRA POLITO",
+              "situacao": ""
             },
             {
               "numero": 23,
               "nome": "LUIZ GUSTAVO PINHEIRO DA CONCEICAO",
-              "nome_normalizado": "LUIZ GUSTAVO PINHEIRO DA CONCEICAO"
+              "nome_normalizado": "LUIZ GUSTAVO PINHEIRO DA CONCEICAO",
+              "situacao": ""
             },
             {
               "numero": 24,
               "nome": "MARIA EDUARDA MARIANO DE CARVALHO",
-              "nome_normalizado": "MARIA EDUARDA MARIANO DE CARVALHO"
+              "nome_normalizado": "MARIA EDUARDA MARIANO DE CARVALHO",
+              "situacao": ""
             },
             {
               "numero": 25,
               "nome": "MARIANA DE LARA DOS SANTOS",
-              "nome_normalizado": "MARIANA DE LARA DOS SANTOS"
+              "nome_normalizado": "MARIANA DE LARA DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 26,
               "nome": "MATHEUS WALLACE MARTINS TREMARIN",
-              "nome_normalizado": "MATHEUS WALLACE MARTINS TREMARIN"
+              "nome_normalizado": "MATHEUS WALLACE MARTINS TREMARIN",
+              "situacao": ""
             },
             {
               "numero": 27,
               "nome": "MILENA GABRIELY VASQUES DA ROCHA",
-              "nome_normalizado": "MILENA GABRIELY VASQUES DA ROCHA"
+              "nome_normalizado": "MILENA GABRIELY VASQUES DA ROCHA",
+              "situacao": ""
             },
             {
               "numero": 28,
               "nome": "NICOLAS RODRIGUES FERREIRA",
-              "nome_normalizado": "NICOLAS RODRIGUES FERREIRA"
+              "nome_normalizado": "NICOLAS RODRIGUES FERREIRA",
+              "situacao": ""
             },
             {
               "numero": 29,
               "nome": "NOEMI SANTOS DE OLIVEIRA",
-              "nome_normalizado": "NOEMI SANTOS DE OLIVEIRA"
+              "nome_normalizado": "NOEMI SANTOS DE OLIVEIRA",
+              "situacao": ""
             },
             {
               "numero": 30,
               "nome": "OSCAR EMIL ABSALON MONTANO",
-              "nome_normalizado": "OSCAR EMIL ABSALON MONTANO"
+              "nome_normalizado": "OSCAR EMIL ABSALON MONTANO",
+              "situacao": ""
             },
             {
               "numero": 31,
               "nome": "SHAYANE LETICIA DOS SANTOS DE OLIVEIRA",
-              "nome_normalizado": "SHAYANE LETICIA DOS SANTOS DE OLIVEIRA"
+              "nome_normalizado": "SHAYANE LETICIA DOS SANTOS DE OLIVEIRA",
+              "situacao": ""
             },
             {
               "numero": 32,
               "nome": "STEFANIE VITORIA TIMOTIO DA SILVA CARNEIRO",
-              "nome_normalizado": "STEFANIE VITORIA TIMOTIO DA SILVA CARNEIRO"
+              "nome_normalizado": "STEFANIE VITORIA TIMOTIO DA SILVA CARNEIRO",
+              "situacao": ""
             },
             {
               "numero": 33,
               "nome": "VINICIUS MARQUES VIEZEL",
-              "nome_normalizado": "VINICIUS MARQUES VIEZEL"
+              "nome_normalizado": "VINICIUS MARQUES VIEZEL",
+              "situacao": ""
             },
             {
               "numero": 34,
               "nome": "VINICIUS MARTINS FAGUNDES",
-              "nome_normalizado": "VINICIUS MARTINS FAGUNDES"
+              "nome_normalizado": "VINICIUS MARTINS FAGUNDES",
+              "situacao": ""
             },
             {
               "numero": 35,
               "nome": "YAGO VYTOR SOARES LEITE",
-              "nome_normalizado": "YAGO VYTOR SOARES LEITE"
+              "nome_normalizado": "YAGO VYTOR SOARES LEITE",
+              "situacao": ""
             },
             {
               "numero": 36,
               "nome": "YASMIN VITORIA DOS SANTOS",
-              "nome_normalizado": "YASMIN VITORIA DOS SANTOS"
+              "nome_normalizado": "YASMIN VITORIA DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 37,
               "nome": "HELLYN ADRIANE SANTOS CAETANO",
-              "nome_normalizado": "HELLYN ADRIANE SANTOS CAETANO"
+              "nome_normalizado": "HELLYN ADRIANE SANTOS CAETANO",
+              "situacao": ""
             },
             {
               "numero": 38,
               "nome": "NATHALY RIANA PEREIRA DE SOUZA",
-              "nome_normalizado": "NATHALY RIANA PEREIRA DE SOUZA"
+              "nome_normalizado": "NATHALY RIANA PEREIRA DE SOUZA",
+              "situacao": ""
             },
             {
               "numero": 39,
               "nome": "ISABELY MEHL MACHADO DE OLIVEIRA",
-              "nome_normalizado": "ISABELY MEHL MACHADO DE OLIVEIRA"
+              "nome_normalizado": "ISABELY MEHL MACHADO DE OLIVEIRA",
+              "situacao": ""
             },
             {
               "numero": 40,
               "nome": "JESSICA IZABELA NARDINI DE BRITO",
-              "nome_normalizado": "JESSICA IZABELA NARDINI DE BRITO"
+              "nome_normalizado": "JESSICA IZABELA NARDINI DE BRITO",
+              "situacao": ""
             }
           ]
         },
@@ -1246,207 +1485,248 @@
             {
               "numero": 1,
               "nome": "AMANDA VICTORIA TEIXEIRA",
-              "nome_normalizado": "AMANDA VICTORIA TEIXEIRA"
+              "nome_normalizado": "AMANDA VICTORIA TEIXEIRA",
+              "situacao": ""
             },
             {
               "numero": 2,
               "nome": "ANTHONY GABRIEL CASTILHOS DA ROSA",
-              "nome_normalizado": "ANTHONY GABRIEL CASTILHOS DA ROSA"
+              "nome_normalizado": "ANTHONY GABRIEL CASTILHOS DA ROSA",
+              "situacao": ""
             },
             {
               "numero": 3,
               "nome": "CIBELE CRISTINA DE OLIVEIRA FRANÇA",
-              "nome_normalizado": "CIBELE CRISTINA DE OLIVEIRA FRANCA"
+              "nome_normalizado": "CIBELE CRISTINA DE OLIVEIRA FRANCA",
+              "situacao": ""
             },
             {
               "numero": 4,
               "nome": "CRISTOPHER ALVES NUNES DE MIRANDA",
-              "nome_normalizado": "CRISTOPHER ALVES NUNES DE MIRANDA"
+              "nome_normalizado": "CRISTOPHER ALVES NUNES DE MIRANDA",
+              "situacao": ""
             },
             {
               "numero": 5,
               "nome": "DANYS JULIAN CERMENO CRUZ",
-              "nome_normalizado": "DANYS JULIAN CERMENO CRUZ"
+              "nome_normalizado": "DANYS JULIAN CERMENO CRUZ",
+              "situacao": ""
             },
             {
               "numero": 6,
               "nome": "DÉRIK GABRIEL DOS SANTOS RIBAS",
-              "nome_normalizado": "DERIK GABRIEL DOS SANTOS RIBAS"
+              "nome_normalizado": "DERIK GABRIEL DOS SANTOS RIBAS",
+              "situacao": ""
             },
             {
               "numero": 7,
               "nome": "GABRIEL DA LUZ KARAM",
-              "nome_normalizado": "GABRIEL DA LUZ KARAM"
+              "nome_normalizado": "GABRIEL DA LUZ KARAM",
+              "situacao": ""
             },
             {
               "numero": 8,
               "nome": "GABRIEL RIBEIRO",
-              "nome_normalizado": "GABRIEL RIBEIRO"
+              "nome_normalizado": "GABRIEL RIBEIRO",
+              "situacao": ""
             },
             {
               "numero": 9,
               "nome": "GIZELE SACRAMENTO ALVES",
-              "nome_normalizado": "GIZELE SACRAMENTO ALVES"
+              "nome_normalizado": "GIZELE SACRAMENTO ALVES",
+              "situacao": ""
             },
             {
               "numero": 10,
               "nome": "GUSTAVO DE FRANÇA MATOS",
-              "nome_normalizado": "GUSTAVO DE FRANCA MATOS"
+              "nome_normalizado": "GUSTAVO DE FRANCA MATOS",
+              "situacao": ""
             },
             {
               "numero": 11,
               "nome": "GUSTAVO HENRIQUE DA SILVA OLIVEIRA",
-              "nome_normalizado": "GUSTAVO HENRIQUE DA SILVA OLIVEIRA"
+              "nome_normalizado": "GUSTAVO HENRIQUE DA SILVA OLIVEIRA",
+              "situacao": ""
             },
             {
               "numero": 12,
               "nome": "HELLYN ADRIANE SANTOS CAETANO",
-              "nome_normalizado": "HELLYN ADRIANE SANTOS CAETANO"
+              "nome_normalizado": "HELLYN ADRIANE SANTOS CAETANO",
+              "situacao": "Transf"
             },
             {
               "numero": 13,
               "nome": "HENRIQUE ANGELO DURÇO",
-              "nome_normalizado": "HENRIQUE ANGELO DURCO"
+              "nome_normalizado": "HENRIQUE ANGELO DURCO",
+              "situacao": ""
             },
             {
               "numero": 14,
               "nome": "ISABELY MEHL MACHADO DE OLIVEIRA",
-              "nome_normalizado": "ISABELY MEHL MACHADO DE OLIVEIRA"
+              "nome_normalizado": "ISABELY MEHL MACHADO DE OLIVEIRA",
+              "situacao": "Transf"
             },
             {
               "numero": 15,
               "nome": "JOAO HENRIQUE VIEIRA",
-              "nome_normalizado": "JOAO HENRIQUE VIEIRA"
+              "nome_normalizado": "JOAO HENRIQUE VIEIRA",
+              "situacao": ""
             },
             {
               "numero": 16,
               "nome": "JOÃO VITOR OLIVEIRA DE LIMA",
-              "nome_normalizado": "JOAO VITOR OLIVEIRA DE LIMA"
+              "nome_normalizado": "JOAO VITOR OLIVEIRA DE LIMA",
+              "situacao": ""
             },
             {
               "numero": 17,
               "nome": "JULIA PERBONI",
-              "nome_normalizado": "JULIA PERBONI"
+              "nome_normalizado": "JULIA PERBONI",
+              "situacao": ""
             },
             {
               "numero": 18,
               "nome": "KAROLINY CARVALHO IEGER",
-              "nome_normalizado": "KAROLINY CARVALHO IEGER"
+              "nome_normalizado": "KAROLINY CARVALHO IEGER",
+              "situacao": ""
             },
             {
               "numero": 19,
               "nome": "KETELIN FERNANDA LEE BARBATO",
-              "nome_normalizado": "KETELIN FERNANDA LEE BARBATO"
+              "nome_normalizado": "KETELIN FERNANDA LEE BARBATO",
+              "situacao": ""
             },
             {
               "numero": 20,
               "nome": "LUCAS GABRIEL DE SOUZA COELHO",
-              "nome_normalizado": "LUCAS GABRIEL DE SOUZA COELHO"
+              "nome_normalizado": "LUCAS GABRIEL DE SOUZA COELHO",
+              "situacao": ""
             },
             {
               "numero": 21,
               "nome": "LUDMILLA DE MORAES MIRANDA",
-              "nome_normalizado": "LUDMILLA DE MORAES MIRANDA"
+              "nome_normalizado": "LUDMILLA DE MORAES MIRANDA",
+              "situacao": ""
             },
             {
               "numero": 22,
               "nome": "LUIZE GABRIELI DA ROSA LIMA",
-              "nome_normalizado": "LUIZE GABRIELI DA ROSA LIMA"
+              "nome_normalizado": "LUIZE GABRIELI DA ROSA LIMA",
+              "situacao": ""
             },
             {
               "numero": 23,
               "nome": "LYANDRA DE JESUS DOS SANTOS",
-              "nome_normalizado": "LYANDRA DE JESUS DOS SANTOS"
+              "nome_normalizado": "LYANDRA DE JESUS DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 24,
               "nome": "MARIA EDUARDA GOMES",
-              "nome_normalizado": "MARIA EDUARDA GOMES"
+              "nome_normalizado": "MARIA EDUARDA GOMES",
+              "situacao": ""
             },
             {
               "numero": 25,
               "nome": "MARIA LETICIA DE SOUZA FERREIRA",
-              "nome_normalizado": "MARIA LETICIA DE SOUZA FERREIRA"
+              "nome_normalizado": "MARIA LETICIA DE SOUZA FERREIRA",
+              "situacao": ""
             },
             {
               "numero": 26,
               "nome": "MATHEUS PRAIZNER ALVES",
-              "nome_normalizado": "MATHEUS PRAIZNER ALVES"
+              "nome_normalizado": "MATHEUS PRAIZNER ALVES",
+              "situacao": ""
             },
             {
               "numero": 27,
               "nome": "MILENA KELLY RECKELBERG",
-              "nome_normalizado": "MILENA KELLY RECKELBERG"
+              "nome_normalizado": "MILENA KELLY RECKELBERG",
+              "situacao": ""
             },
             {
               "numero": 28,
               "nome": "MYGUEL RODRIGUES DOS SANTOS",
-              "nome_normalizado": "MYGUEL RODRIGUES DOS SANTOS"
+              "nome_normalizado": "MYGUEL RODRIGUES DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 29,
               "nome": "NAELY KAMYLA DE OLIVEIRA BUENO",
-              "nome_normalizado": "NAELY KAMYLA DE OLIVEIRA BUENO"
+              "nome_normalizado": "NAELY KAMYLA DE OLIVEIRA BUENO",
+              "situacao": ""
             },
             {
               "numero": 30,
               "nome": "NATÃ LOPES TORRES",
-              "nome_normalizado": "NATA LOPES TORRES"
+              "nome_normalizado": "NATA LOPES TORRES",
+              "situacao": ""
             },
             {
               "numero": 31,
               "nome": "NATALYA MIRANDA CACERES",
-              "nome_normalizado": "NATALYA MIRANDA CACERES"
+              "nome_normalizado": "NATALYA MIRANDA CACERES",
+              "situacao": ""
             },
             {
               "numero": 32,
               "nome": "NATHALY RIANA PEREIRA DE SOUZA",
-              "nome_normalizado": "NATHALY RIANA PEREIRA DE SOUZA"
+              "nome_normalizado": "NATHALY RIANA PEREIRA DE SOUZA",
+              "situacao": "Transf"
             },
             {
               "numero": 33,
               "nome": "PEDRO AUGUSTO DIAS MACHADO",
-              "nome_normalizado": "PEDRO AUGUSTO DIAS MACHADO"
+              "nome_normalizado": "PEDRO AUGUSTO DIAS MACHADO",
+              "situacao": ""
             },
             {
               "numero": 34,
               "nome": "SOFIA CASTRO MAY",
-              "nome_normalizado": "SOFIA CASTRO MAY"
+              "nome_normalizado": "SOFIA CASTRO MAY",
+              "situacao": ""
             },
             {
               "numero": 35,
               "nome": "VINICIUS GABRIEL BAIA DE OLIVEIRA",
-              "nome_normalizado": "VINICIUS GABRIEL BAIA DE OLIVEIRA"
+              "nome_normalizado": "VINICIUS GABRIEL BAIA DE OLIVEIRA",
+              "situacao": ""
             },
             {
               "numero": 36,
               "nome": "WESLEY ALESSANDRO RIBEIRO PADILHA",
-              "nome_normalizado": "WESLEY ALESSANDRO RIBEIRO PADILHA"
+              "nome_normalizado": "WESLEY ALESSANDRO RIBEIRO PADILHA",
+              "situacao": ""
             },
             {
               "numero": 37,
               "nome": "YAGO VANDERLEI BUENO CABRAL",
-              "nome_normalizado": "YAGO VANDERLEI BUENO CABRAL"
+              "nome_normalizado": "YAGO VANDERLEI BUENO CABRAL",
+              "situacao": ""
             },
             {
               "numero": 38,
               "nome": "EDUARDO VICENTE DOS SANTOS",
-              "nome_normalizado": "EDUARDO VICENTE DOS SANTOS"
+              "nome_normalizado": "EDUARDO VICENTE DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 39,
               "nome": "PAMELA RIBEIRO PINTO",
-              "nome_normalizado": "PAMELA RIBEIRO PINTO"
+              "nome_normalizado": "PAMELA RIBEIRO PINTO",
+              "situacao": ""
             },
             {
               "numero": 40,
               "nome": "DJENIKA CHARLE",
-              "nome_normalizado": "DJENIKA CHARLE"
+              "nome_normalizado": "DJENIKA CHARLE",
+              "situacao": ""
             },
             {
               "numero": 41,
               "nome": "DIEUNELSON DIEUNORD SAINT LOUIS",
-              "nome_normalizado": "DIEUNELSON DIEUNORD SAINT LOUIS"
+              "nome_normalizado": "DIEUNELSON DIEUNORD SAINT LOUIS",
+              "situacao": ""
             }
           ]
         },
@@ -1457,207 +1737,248 @@
             {
               "numero": 1,
               "nome": "AMANDA VICTORIA TEIXEIRA",
-              "nome_normalizado": "AMANDA VICTORIA TEIXEIRA"
+              "nome_normalizado": "AMANDA VICTORIA TEIXEIRA",
+              "situacao": ""
             },
             {
               "numero": 2,
               "nome": "ANTHONY GABRIEL CASTILHOS DA ROSA",
-              "nome_normalizado": "ANTHONY GABRIEL CASTILHOS DA ROSA"
+              "nome_normalizado": "ANTHONY GABRIEL CASTILHOS DA ROSA",
+              "situacao": ""
             },
             {
               "numero": 3,
               "nome": "CIBELE CRISTINA DE OLIVEIRA FRANÇA",
-              "nome_normalizado": "CIBELE CRISTINA DE OLIVEIRA FRANCA"
+              "nome_normalizado": "CIBELE CRISTINA DE OLIVEIRA FRANCA",
+              "situacao": ""
             },
             {
               "numero": 4,
               "nome": "CRISTOPHER ALVES NUNES DE MIRANDA",
-              "nome_normalizado": "CRISTOPHER ALVES NUNES DE MIRANDA"
+              "nome_normalizado": "CRISTOPHER ALVES NUNES DE MIRANDA",
+              "situacao": ""
             },
             {
               "numero": 5,
               "nome": "DANYS JULIAN CERMENO CRUZ",
-              "nome_normalizado": "DANYS JULIAN CERMENO CRUZ"
+              "nome_normalizado": "DANYS JULIAN CERMENO CRUZ",
+              "situacao": ""
             },
             {
               "numero": 6,
               "nome": "DÉRIK GABRIEL DOS SANTOS RIBAS",
-              "nome_normalizado": "DERIK GABRIEL DOS SANTOS RIBAS"
+              "nome_normalizado": "DERIK GABRIEL DOS SANTOS RIBAS",
+              "situacao": ""
             },
             {
               "numero": 7,
               "nome": "GABRIEL DA LUZ KARAM",
-              "nome_normalizado": "GABRIEL DA LUZ KARAM"
+              "nome_normalizado": "GABRIEL DA LUZ KARAM",
+              "situacao": ""
             },
             {
               "numero": 8,
               "nome": "GABRIEL RIBEIRO",
-              "nome_normalizado": "GABRIEL RIBEIRO"
+              "nome_normalizado": "GABRIEL RIBEIRO",
+              "situacao": ""
             },
             {
               "numero": 9,
               "nome": "GIZELE SACRAMENTO ALVES",
-              "nome_normalizado": "GIZELE SACRAMENTO ALVES"
+              "nome_normalizado": "GIZELE SACRAMENTO ALVES",
+              "situacao": ""
             },
             {
               "numero": 10,
               "nome": "GUSTAVO DE FRANÇA MATOS",
-              "nome_normalizado": "GUSTAVO DE FRANCA MATOS"
+              "nome_normalizado": "GUSTAVO DE FRANCA MATOS",
+              "situacao": ""
             },
             {
               "numero": 11,
               "nome": "GUSTAVO HENRIQUE DA SILVA OLIVEIRA",
-              "nome_normalizado": "GUSTAVO HENRIQUE DA SILVA OLIVEIRA"
+              "nome_normalizado": "GUSTAVO HENRIQUE DA SILVA OLIVEIRA",
+              "situacao": ""
             },
             {
               "numero": 12,
               "nome": "HELLYN ADRIANE SANTOS CAETANO",
-              "nome_normalizado": "HELLYN ADRIANE SANTOS CAETANO"
+              "nome_normalizado": "HELLYN ADRIANE SANTOS CAETANO",
+              "situacao": "Transf"
             },
             {
               "numero": 13,
               "nome": "HENRIQUE ANGELO DURÇO",
-              "nome_normalizado": "HENRIQUE ANGELO DURCO"
+              "nome_normalizado": "HENRIQUE ANGELO DURCO",
+              "situacao": ""
             },
             {
               "numero": 14,
               "nome": "ISABELY MEHL MACHADO DE OLIVEIRA",
-              "nome_normalizado": "ISABELY MEHL MACHADO DE OLIVEIRA"
+              "nome_normalizado": "ISABELY MEHL MACHADO DE OLIVEIRA",
+              "situacao": "Transf"
             },
             {
               "numero": 15,
               "nome": "JOAO HENRIQUE VIEIRA",
-              "nome_normalizado": "JOAO HENRIQUE VIEIRA"
+              "nome_normalizado": "JOAO HENRIQUE VIEIRA",
+              "situacao": ""
             },
             {
               "numero": 16,
               "nome": "JOÃO VITOR OLIVEIRA DE LIMA",
-              "nome_normalizado": "JOAO VITOR OLIVEIRA DE LIMA"
+              "nome_normalizado": "JOAO VITOR OLIVEIRA DE LIMA",
+              "situacao": ""
             },
             {
               "numero": 17,
               "nome": "JULIA PERBONI",
-              "nome_normalizado": "JULIA PERBONI"
+              "nome_normalizado": "JULIA PERBONI",
+              "situacao": ""
             },
             {
               "numero": 18,
               "nome": "KAROLINY CARVALHO IEGER",
-              "nome_normalizado": "KAROLINY CARVALHO IEGER"
+              "nome_normalizado": "KAROLINY CARVALHO IEGER",
+              "situacao": ""
             },
             {
               "numero": 19,
               "nome": "KETELIN FERNANDA LEE BARBATO",
-              "nome_normalizado": "KETELIN FERNANDA LEE BARBATO"
+              "nome_normalizado": "KETELIN FERNANDA LEE BARBATO",
+              "situacao": ""
             },
             {
               "numero": 20,
               "nome": "LUCAS GABRIEL DE SOUZA COELHO",
-              "nome_normalizado": "LUCAS GABRIEL DE SOUZA COELHO"
+              "nome_normalizado": "LUCAS GABRIEL DE SOUZA COELHO",
+              "situacao": ""
             },
             {
               "numero": 21,
               "nome": "LUDMILLA DE MORAES MIRANDA",
-              "nome_normalizado": "LUDMILLA DE MORAES MIRANDA"
+              "nome_normalizado": "LUDMILLA DE MORAES MIRANDA",
+              "situacao": ""
             },
             {
               "numero": 22,
               "nome": "LUIZE GABRIELI DA ROSA LIMA",
-              "nome_normalizado": "LUIZE GABRIELI DA ROSA LIMA"
+              "nome_normalizado": "LUIZE GABRIELI DA ROSA LIMA",
+              "situacao": ""
             },
             {
               "numero": 23,
               "nome": "LYANDRA DE JESUS DOS SANTOS",
-              "nome_normalizado": "LYANDRA DE JESUS DOS SANTOS"
+              "nome_normalizado": "LYANDRA DE JESUS DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 24,
               "nome": "MARIA EDUARDA GOMES",
-              "nome_normalizado": "MARIA EDUARDA GOMES"
+              "nome_normalizado": "MARIA EDUARDA GOMES",
+              "situacao": ""
             },
             {
               "numero": 25,
               "nome": "MARIA LETICIA DE SOUZA FERREIRA",
-              "nome_normalizado": "MARIA LETICIA DE SOUZA FERREIRA"
+              "nome_normalizado": "MARIA LETICIA DE SOUZA FERREIRA",
+              "situacao": ""
             },
             {
               "numero": 26,
               "nome": "MATHEUS PRAIZNER ALVES",
-              "nome_normalizado": "MATHEUS PRAIZNER ALVES"
+              "nome_normalizado": "MATHEUS PRAIZNER ALVES",
+              "situacao": ""
             },
             {
               "numero": 27,
               "nome": "MILENA KELLY RECKELBERG",
-              "nome_normalizado": "MILENA KELLY RECKELBERG"
+              "nome_normalizado": "MILENA KELLY RECKELBERG",
+              "situacao": ""
             },
             {
               "numero": 28,
               "nome": "MYGUEL RODRIGUES DOS SANTOS",
-              "nome_normalizado": "MYGUEL RODRIGUES DOS SANTOS"
+              "nome_normalizado": "MYGUEL RODRIGUES DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 29,
               "nome": "NAELY KAMYLA DE OLIVEIRA BUENO",
-              "nome_normalizado": "NAELY KAMYLA DE OLIVEIRA BUENO"
+              "nome_normalizado": "NAELY KAMYLA DE OLIVEIRA BUENO",
+              "situacao": ""
             },
             {
               "numero": 30,
               "nome": "NATÃ LOPES TORRES",
-              "nome_normalizado": "NATA LOPES TORRES"
+              "nome_normalizado": "NATA LOPES TORRES",
+              "situacao": ""
             },
             {
               "numero": 31,
               "nome": "NATALYA MIRANDA CACERES",
-              "nome_normalizado": "NATALYA MIRANDA CACERES"
+              "nome_normalizado": "NATALYA MIRANDA CACERES",
+              "situacao": ""
             },
             {
               "numero": 32,
               "nome": "NATHALY RIANA PEREIRA DE SOUZA",
-              "nome_normalizado": "NATHALY RIANA PEREIRA DE SOUZA"
+              "nome_normalizado": "NATHALY RIANA PEREIRA DE SOUZA",
+              "situacao": "Transf"
             },
             {
               "numero": 33,
               "nome": "PEDRO AUGUSTO DIAS MACHADO",
-              "nome_normalizado": "PEDRO AUGUSTO DIAS MACHADO"
+              "nome_normalizado": "PEDRO AUGUSTO DIAS MACHADO",
+              "situacao": ""
             },
             {
               "numero": 34,
               "nome": "SOFIA CASTRO MAY",
-              "nome_normalizado": "SOFIA CASTRO MAY"
+              "nome_normalizado": "SOFIA CASTRO MAY",
+              "situacao": ""
             },
             {
               "numero": 35,
               "nome": "VINICIUS GABRIEL BAIA DE OLIVEIRA",
-              "nome_normalizado": "VINICIUS GABRIEL BAIA DE OLIVEIRA"
+              "nome_normalizado": "VINICIUS GABRIEL BAIA DE OLIVEIRA",
+              "situacao": ""
             },
             {
               "numero": 36,
               "nome": "WESLEY ALESSANDRO RIBEIRO PADILHA",
-              "nome_normalizado": "WESLEY ALESSANDRO RIBEIRO PADILHA"
+              "nome_normalizado": "WESLEY ALESSANDRO RIBEIRO PADILHA",
+              "situacao": ""
             },
             {
               "numero": 37,
               "nome": "YAGO VANDERLEI BUENO CABRAL",
-              "nome_normalizado": "YAGO VANDERLEI BUENO CABRAL"
+              "nome_normalizado": "YAGO VANDERLEI BUENO CABRAL",
+              "situacao": ""
             },
             {
               "numero": 38,
               "nome": "EDUARDO VICENTE DOS SANTOS",
-              "nome_normalizado": "EDUARDO VICENTE DOS SANTOS"
+              "nome_normalizado": "EDUARDO VICENTE DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 39,
               "nome": "PAMELA RIBEIRO PINTO",
-              "nome_normalizado": "PAMELA RIBEIRO PINTO"
+              "nome_normalizado": "PAMELA RIBEIRO PINTO",
+              "situacao": ""
             },
             {
               "numero": 40,
               "nome": "DJENIKA CHARLE",
-              "nome_normalizado": "DJENIKA CHARLE"
+              "nome_normalizado": "DJENIKA CHARLE",
+              "situacao": ""
             },
             {
               "numero": 41,
               "nome": "DIEUNELSON DIEUNORD SAINT LOUIS",
-              "nome_normalizado": "DIEUNELSON DIEUNORD SAINT LOUIS"
+              "nome_normalizado": "DIEUNELSON DIEUNORD SAINT LOUIS",
+              "situacao": ""
             }
           ]
         },
@@ -1668,137 +1989,164 @@
             {
               "numero": 1,
               "nome": "CRISTIAN FERREIRA DA SILVA",
-              "nome_normalizado": "CRISTIAN FERREIRA DA SILVA"
+              "nome_normalizado": "CRISTIAN FERREIRA DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 2,
               "nome": "DANIELA ALEXANDRA ZAMBRANO CRESPO",
-              "nome_normalizado": "DANIELA ALEXANDRA ZAMBRANO CRESPO"
+              "nome_normalizado": "DANIELA ALEXANDRA ZAMBRANO CRESPO",
+              "situacao": ""
             },
             {
               "numero": 3,
               "nome": "DIRAN OLIVEIRA DA PAIXÃO FILHO",
-              "nome_normalizado": "DIRAN OLIVEIRA DA PAIXAO FILHO"
+              "nome_normalizado": "DIRAN OLIVEIRA DA PAIXAO FILHO",
+              "situacao": ""
             },
             {
               "numero": 4,
               "nome": "EDUARDO RHEYMOND RODRIGUES RIBEIRO",
-              "nome_normalizado": "EDUARDO RHEYMOND RODRIGUES RIBEIRO"
+              "nome_normalizado": "EDUARDO RHEYMOND RODRIGUES RIBEIRO",
+              "situacao": ""
             },
             {
               "numero": 5,
               "nome": "EMERSON GABRIEL LOPES",
-              "nome_normalizado": "EMERSON GABRIEL LOPES"
+              "nome_normalizado": "EMERSON GABRIEL LOPES",
+              "situacao": ""
             },
             {
               "numero": 6,
               "nome": "ESTERLINE JOSEPH",
-              "nome_normalizado": "ESTERLINE JOSEPH"
+              "nome_normalizado": "ESTERLINE JOSEPH",
+              "situacao": ""
             },
             {
               "numero": 7,
               "nome": "GUILHERME SPIELER ORTIZ",
-              "nome_normalizado": "GUILHERME SPIELER ORTIZ"
+              "nome_normalizado": "GUILHERME SPIELER ORTIZ",
+              "situacao": ""
             },
             {
               "numero": 8,
               "nome": "HENRYCK GABRIEL CANDIDO SORIÃO",
-              "nome_normalizado": "HENRYCK GABRIEL CANDIDO SORIAO"
+              "nome_normalizado": "HENRYCK GABRIEL CANDIDO SORIAO",
+              "situacao": ""
             },
             {
               "numero": 9,
               "nome": "JEAN FERRY POLYNICE",
-              "nome_normalizado": "JEAN FERRY POLYNICE"
+              "nome_normalizado": "JEAN FERRY POLYNICE",
+              "situacao": ""
             },
             {
               "numero": 10,
               "nome": "JOÃO VINICIUS SOARES PEREIRA",
-              "nome_normalizado": "JOAO VINICIUS SOARES PEREIRA"
+              "nome_normalizado": "JOAO VINICIUS SOARES PEREIRA",
+              "situacao": "Transf"
             },
             {
               "numero": 11,
               "nome": "JULIA DA SILVA FRANÇA",
-              "nome_normalizado": "JULIA DA SILVA FRANCA"
+              "nome_normalizado": "JULIA DA SILVA FRANCA",
+              "situacao": ""
             },
             {
               "numero": 12,
               "nome": "KAUÃ SILVERIO DE GOIS",
-              "nome_normalizado": "KAUA SILVERIO DE GOIS"
+              "nome_normalizado": "KAUA SILVERIO DE GOIS",
+              "situacao": ""
             },
             {
               "numero": 13,
               "nome": "KAUWÂNDRICK DA SILVA ORGANEK",
-              "nome_normalizado": "KAUWANDRICK DA SILVA ORGANEK"
+              "nome_normalizado": "KAUWANDRICK DA SILVA ORGANEK",
+              "situacao": ""
             },
             {
               "numero": 14,
               "nome": "LUANNE HIGA LICNERSKI",
-              "nome_normalizado": "LUANNE HIGA LICNERSKI"
+              "nome_normalizado": "LUANNE HIGA LICNERSKI",
+              "situacao": ""
             },
             {
               "numero": 15,
               "nome": "LUCAS FERNANDO ADRIANO",
-              "nome_normalizado": "LUCAS FERNANDO ADRIANO"
+              "nome_normalizado": "LUCAS FERNANDO ADRIANO",
+              "situacao": ""
             },
             {
               "numero": 16,
               "nome": "MARIANNE COSTA DE LIMA",
-              "nome_normalizado": "MARIANNE COSTA DE LIMA"
+              "nome_normalizado": "MARIANNE COSTA DE LIMA",
+              "situacao": ""
             },
             {
               "numero": 17,
               "nome": "MARINA SANTOS RIBEIRO",
-              "nome_normalizado": "MARINA SANTOS RIBEIRO"
+              "nome_normalizado": "MARINA SANTOS RIBEIRO",
+              "situacao": ""
             },
             {
               "numero": 18,
               "nome": "MATHEUS RODRIGUES COELHO",
-              "nome_normalizado": "MATHEUS RODRIGUES COELHO"
+              "nome_normalizado": "MATHEUS RODRIGUES COELHO",
+              "situacao": ""
             },
             {
               "numero": 19,
               "nome": "MAYARA CRISTINA DA SILVA FERREIRA",
-              "nome_normalizado": "MAYARA CRISTINA DA SILVA FERREIRA"
+              "nome_normalizado": "MAYARA CRISTINA DA SILVA FERREIRA",
+              "situacao": ""
             },
             {
               "numero": 20,
               "nome": "RENAN DO CARMO VENTURA",
-              "nome_normalizado": "RENAN DO CARMO VENTURA"
+              "nome_normalizado": "RENAN DO CARMO VENTURA",
+              "situacao": ""
             },
             {
               "numero": 21,
               "nome": "VINÍCIUS BERNARDELLI PEREIRA",
-              "nome_normalizado": "VINICIUS BERNARDELLI PEREIRA"
+              "nome_normalizado": "VINICIUS BERNARDELLI PEREIRA",
+              "situacao": "Transf"
             },
             {
               "numero": 22,
               "nome": "YASMIM MARILISE NASCIMENTO PAP",
-              "nome_normalizado": "YASMIM MARILISE NASCIMENTO PAP"
+              "nome_normalizado": "YASMIM MARILISE NASCIMENTO PAP",
+              "situacao": ""
             },
             {
               "numero": 24,
               "nome": "PEDRO HENRIQUE VANZELI",
-              "nome_normalizado": "PEDRO HENRIQUE VANZELI"
+              "nome_normalizado": "PEDRO HENRIQUE VANZELI",
+              "situacao": ""
             },
             {
               "numero": 25,
               "nome": "GELDIANE VICTORIA DA SILVA FERREIRA",
-              "nome_normalizado": "GELDIANE VICTORIA DA SILVA FERREIRA"
+              "nome_normalizado": "GELDIANE VICTORIA DA SILVA FERREIRA",
+              "situacao": ""
             },
             {
               "numero": 26,
               "nome": "NYCOLLE FERRAZ DA SILVA",
-              "nome_normalizado": "NYCOLLE FERRAZ DA SILVA"
+              "nome_normalizado": "NYCOLLE FERRAZ DA SILVA",
+              "situacao": "Transf"
             },
             {
               "numero": 27,
               "nome": "ROBERT CAMILO DO PRADO",
-              "nome_normalizado": "ROBERT CAMILO DO PRADO"
+              "nome_normalizado": "ROBERT CAMILO DO PRADO",
+              "situacao": ""
             },
             {
               "numero": 28,
               "nome": "NYCOLLE FERRAZ DA SILVA",
-              "nome_normalizado": "NYCOLLE FERRAZ DA SILVA"
+              "nome_normalizado": "NYCOLLE FERRAZ DA SILVA",
+              "situacao": ""
             }
           ]
         },
@@ -1809,107 +2157,128 @@
             {
               "numero": 1,
               "nome": "CAMILLY VITORIA DA SILVA FRAGOSO",
-              "nome_normalizado": "CAMILLY VITORIA DA SILVA FRAGOSO"
+              "nome_normalizado": "CAMILLY VITORIA DA SILVA FRAGOSO",
+              "situacao": ""
             },
             {
               "numero": 2,
               "nome": "CARLOS HENRIQUE VINHOTES SOARES",
-              "nome_normalizado": "CARLOS HENRIQUE VINHOTES SOARES"
+              "nome_normalizado": "CARLOS HENRIQUE VINHOTES SOARES",
+              "situacao": ""
             },
             {
               "numero": 3,
               "nome": "DEBORA MACIEL DA SILVA",
-              "nome_normalizado": "DEBORA MACIEL DA SILVA"
+              "nome_normalizado": "DEBORA MACIEL DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 4,
               "nome": "EMANUELY CARDOSO SANTIAGO",
-              "nome_normalizado": "EMANUELY CARDOSO SANTIAGO"
+              "nome_normalizado": "EMANUELY CARDOSO SANTIAGO",
+              "situacao": ""
             },
             {
               "numero": 5,
               "nome": "EMILY GABRIELA APARECIDA LARA",
-              "nome_normalizado": "EMILY GABRIELA APARECIDA LARA"
+              "nome_normalizado": "EMILY GABRIELA APARECIDA LARA",
+              "situacao": ""
             },
             {
               "numero": 6,
               "nome": "GABRIEL MACEDO BOCON",
-              "nome_normalizado": "GABRIEL MACEDO BOCON"
+              "nome_normalizado": "GABRIEL MACEDO BOCON",
+              "situacao": ""
             },
             {
               "numero": 7,
               "nome": "GEOVANA CRISTINA DA SILVA RICARDO",
-              "nome_normalizado": "GEOVANA CRISTINA DA SILVA RICARDO"
+              "nome_normalizado": "GEOVANA CRISTINA DA SILVA RICARDO",
+              "situacao": ""
             },
             {
               "numero": 8,
               "nome": "HEITOR PANSONATO MACEDO",
-              "nome_normalizado": "HEITOR PANSONATO MACEDO"
+              "nome_normalizado": "HEITOR PANSONATO MACEDO",
+              "situacao": ""
             },
             {
               "numero": 9,
               "nome": "HENRIQUE SOARES",
-              "nome_normalizado": "HENRIQUE SOARES"
+              "nome_normalizado": "HENRIQUE SOARES",
+              "situacao": ""
             },
             {
               "numero": 10,
               "nome": "IZADORA PIRES",
-              "nome_normalizado": "IZADORA PIRES"
+              "nome_normalizado": "IZADORA PIRES",
+              "situacao": ""
             },
             {
               "numero": 11,
               "nome": "MILENI AGNES RODRIGUES",
-              "nome_normalizado": "MILENI AGNES RODRIGUES"
+              "nome_normalizado": "MILENI AGNES RODRIGUES",
+              "situacao": ""
             },
             {
               "numero": 12,
               "nome": "MILKA ZULUY PEREZ VIELMA",
-              "nome_normalizado": "MILKA ZULUY PEREZ VIELMA"
+              "nome_normalizado": "MILKA ZULUY PEREZ VIELMA",
+              "situacao": ""
             },
             {
               "numero": 13,
               "nome": "PABLO HENRIQUE GONTAREK TOBIAS",
-              "nome_normalizado": "PABLO HENRIQUE GONTAREK TOBIAS"
+              "nome_normalizado": "PABLO HENRIQUE GONTAREK TOBIAS",
+              "situacao": ""
             },
             {
               "numero": 14,
               "nome": "RAISSA AGOSTINHO DA SILVA",
-              "nome_normalizado": "RAISSA AGOSTINHO DA SILVA"
+              "nome_normalizado": "RAISSA AGOSTINHO DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 15,
               "nome": "REGIS KAHE KELBERT DUTRA",
-              "nome_normalizado": "REGIS KAHE KELBERT DUTRA"
+              "nome_normalizado": "REGIS KAHE KELBERT DUTRA",
+              "situacao": ""
             },
             {
               "numero": 16,
               "nome": "SAORI BERTI DE FREITAS",
-              "nome_normalizado": "SAORI BERTI DE FREITAS"
+              "nome_normalizado": "SAORI BERTI DE FREITAS",
+              "situacao": ""
             },
             {
               "numero": 17,
               "nome": "VALESCA DE SOUZA",
-              "nome_normalizado": "VALESCA DE SOUZA"
+              "nome_normalizado": "VALESCA DE SOUZA",
+              "situacao": ""
             },
             {
               "numero": 18,
               "nome": "VICTORIA FERREIRA DOS SANTOS",
-              "nome_normalizado": "VICTORIA FERREIRA DOS SANTOS"
+              "nome_normalizado": "VICTORIA FERREIRA DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 19,
               "nome": "PEDRO JUAN BARBOSA DA COSTA",
-              "nome_normalizado": "PEDRO JUAN BARBOSA DA COSTA"
+              "nome_normalizado": "PEDRO JUAN BARBOSA DA COSTA",
+              "situacao": ""
             },
             {
               "numero": 20,
               "nome": "MARIA LUIZA MATTOZO DOS SANTOS CARMO",
-              "nome_normalizado": "MARIA LUIZA MATTOZO DOS SANTOS CARMO"
+              "nome_normalizado": "MARIA LUIZA MATTOZO DOS SANTOS CARMO",
+              "situacao": ""
             },
             {
               "numero": 21,
               "nome": "MELANIE RODRIGUEZ GUERRA",
-              "nome_normalizado": "MELANIE RODRIGUEZ GUERRA"
+              "nome_normalizado": "MELANIE RODRIGUEZ GUERRA",
+              "situacao": ""
             }
           ]
         }
@@ -1925,187 +2294,224 @@
             {
               "numero": 1,
               "nome": "AGATHA CRUZ STIHLER MEURER",
-              "nome_normalizado": "AGATHA CRUZ STIHLER MEURER"
+              "nome_normalizado": "AGATHA CRUZ STIHLER MEURER",
+              "situacao": ""
             },
             {
               "numero": 2,
               "nome": "ANA BEATRIZ BARROSO LIMA",
-              "nome_normalizado": "ANA BEATRIZ BARROSO LIMA"
+              "nome_normalizado": "ANA BEATRIZ BARROSO LIMA",
+              "situacao": ""
             },
             {
               "numero": 3,
               "nome": "ANELISE BARBOSA BORGES",
-              "nome_normalizado": "ANELISE BARBOSA BORGES"
+              "nome_normalizado": "ANELISE BARBOSA BORGES",
+              "situacao": "Transf"
             },
             {
               "numero": 4,
               "nome": "ARTHUR FLAMENCO DA SILVA",
-              "nome_normalizado": "ARTHUR FLAMENCO DA SILVA"
+              "nome_normalizado": "ARTHUR FLAMENCO DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 5,
               "nome": "CLARA D'AMBROSO DE PAULA",
-              "nome_normalizado": "CLARA D'AMBROSO DE PAULA"
+              "nome_normalizado": "CLARA D'AMBROSO DE PAULA",
+              "situacao": ""
             },
             {
               "numero": 6,
               "nome": "DEBORAH LILIANE FAUSTINO",
-              "nome_normalizado": "DEBORAH LILIANE FAUSTINO"
+              "nome_normalizado": "DEBORAH LILIANE FAUSTINO",
+              "situacao": ""
             },
             {
               "numero": 7,
               "nome": "EDUARD ANDRES MACHADO OLIVEROS",
-              "nome_normalizado": "EDUARD ANDRES MACHADO OLIVEROS"
+              "nome_normalizado": "EDUARD ANDRES MACHADO OLIVEROS",
+              "situacao": ""
             },
             {
               "numero": 8,
               "nome": "EDUARDO LANDGRAF CHEN",
-              "nome_normalizado": "EDUARDO LANDGRAF CHEN"
+              "nome_normalizado": "EDUARDO LANDGRAF CHEN",
+              "situacao": ""
             },
             {
               "numero": 9,
               "nome": "FELIPE AUGUSTO DA SILVA",
-              "nome_normalizado": "FELIPE AUGUSTO DA SILVA"
+              "nome_normalizado": "FELIPE AUGUSTO DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 10,
               "nome": "GABRIEL RODRIGUES DOS REIS",
-              "nome_normalizado": "GABRIEL RODRIGUES DOS REIS"
+              "nome_normalizado": "GABRIEL RODRIGUES DOS REIS",
+              "situacao": ""
             },
             {
               "numero": 11,
               "nome": "HIGOR VERNICK BARTH",
-              "nome_normalizado": "HIGOR VERNICK BARTH"
+              "nome_normalizado": "HIGOR VERNICK BARTH",
+              "situacao": ""
             },
             {
               "numero": 12,
               "nome": "ISABELLY SANTOS AMARAL",
-              "nome_normalizado": "ISABELLY SANTOS AMARAL"
+              "nome_normalizado": "ISABELLY SANTOS AMARAL",
+              "situacao": ""
             },
             {
               "numero": 13,
               "nome": "JHONN KRYSTOPHER MARQUES FURTADO",
-              "nome_normalizado": "JHONN KRYSTOPHER MARQUES FURTADO"
+              "nome_normalizado": "JHONN KRYSTOPHER MARQUES FURTADO",
+              "situacao": ""
             },
             {
               "numero": 14,
               "nome": "JULIANA LARISSA BRITTES DE OLIVEIRA",
-              "nome_normalizado": "JULIANA LARISSA BRITTES DE OLIVEIRA"
+              "nome_normalizado": "JULIANA LARISSA BRITTES DE OLIVEIRA",
+              "situacao": ""
             },
             {
               "numero": 15,
               "nome": "JULIO SIQUEIRA BORMANN",
-              "nome_normalizado": "JULIO SIQUEIRA BORMANN"
+              "nome_normalizado": "JULIO SIQUEIRA BORMANN",
+              "situacao": ""
             },
             {
               "numero": 16,
               "nome": "KEIRRISON SANTOS DE SOUZA",
-              "nome_normalizado": "KEIRRISON SANTOS DE SOUZA"
+              "nome_normalizado": "KEIRRISON SANTOS DE SOUZA",
+              "situacao": ""
             },
             {
               "numero": 17,
               "nome": "KLAUS ANDREAS HOREVITCH LEITE",
-              "nome_normalizado": "KLAUS ANDREAS HOREVITCH LEITE"
+              "nome_normalizado": "KLAUS ANDREAS HOREVITCH LEITE",
+              "situacao": ""
             },
             {
               "numero": 18,
               "nome": "LEANDRO MEIRA DOS SANTOS",
-              "nome_normalizado": "LEANDRO MEIRA DOS SANTOS"
+              "nome_normalizado": "LEANDRO MEIRA DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 19,
               "nome": "LEONARDO WILLIAN PADILHA",
-              "nome_normalizado": "LEONARDO WILLIAN PADILHA"
+              "nome_normalizado": "LEONARDO WILLIAN PADILHA",
+              "situacao": ""
             },
             {
               "numero": 20,
               "nome": "LOUISE VICTORIA KINSELER NOGUEIRA",
-              "nome_normalizado": "LOUISE VICTORIA KINSELER NOGUEIRA"
+              "nome_normalizado": "LOUISE VICTORIA KINSELER NOGUEIRA",
+              "situacao": ""
             },
             {
               "numero": 21,
               "nome": "LUCAS DIMAS PEREIRA VENANCIO DE OLIVEIRA",
-              "nome_normalizado": "LUCAS DIMAS PEREIRA VENANCIO DE OLIVEIRA"
+              "nome_normalizado": "LUCAS DIMAS PEREIRA VENANCIO DE OLIVEIRA",
+              "situacao": ""
             },
             {
               "numero": 22,
               "nome": "LUCAS GABRIEL PAIVA",
-              "nome_normalizado": "LUCAS GABRIEL PAIVA"
+              "nome_normalizado": "LUCAS GABRIEL PAIVA",
+              "situacao": ""
             },
             {
               "numero": 23,
               "nome": "LUCAS ONEDA DANELICHEN",
-              "nome_normalizado": "LUCAS ONEDA DANELICHEN"
+              "nome_normalizado": "LUCAS ONEDA DANELICHEN",
+              "situacao": ""
             },
             {
               "numero": 24,
               "nome": "MAIANA KELY LEFUNDES ROCHA SANTOS",
-              "nome_normalizado": "MAIANA KELY LEFUNDES ROCHA SANTOS"
+              "nome_normalizado": "MAIANA KELY LEFUNDES ROCHA SANTOS",
+              "situacao": ""
             },
             {
               "numero": 25,
               "nome": "MAYARA NICAELLE DA SILVA DE MACEDO",
-              "nome_normalizado": "MAYARA NICAELLE DA SILVA DE MACEDO"
+              "nome_normalizado": "MAYARA NICAELLE DA SILVA DE MACEDO",
+              "situacao": ""
             },
             {
               "numero": 26,
               "nome": "MAYCKE DOS SANTOS PINHEIRO",
-              "nome_normalizado": "MAYCKE DOS SANTOS PINHEIRO"
+              "nome_normalizado": "MAYCKE DOS SANTOS PINHEIRO",
+              "situacao": ""
             },
             {
               "numero": 27,
               "nome": "MURILO LINZMEYER BECH",
-              "nome_normalizado": "MURILO LINZMEYER BECH"
+              "nome_normalizado": "MURILO LINZMEYER BECH",
+              "situacao": ""
             },
             {
               "numero": 28,
               "nome": "NICOLAS RODRIGUES DOS SANTOS",
-              "nome_normalizado": "NICOLAS RODRIGUES DOS SANTOS"
+              "nome_normalizado": "NICOLAS RODRIGUES DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 29,
               "nome": "NICOLLAS SEIXAS PINTO",
-              "nome_normalizado": "NICOLLAS SEIXAS PINTO"
+              "nome_normalizado": "NICOLLAS SEIXAS PINTO",
+              "situacao": ""
             },
             {
               "numero": 30,
               "nome": "NYCOLAS DOS SANTOS DO NASCIMENTO",
-              "nome_normalizado": "NYCOLAS DOS SANTOS DO NASCIMENTO"
+              "nome_normalizado": "NYCOLAS DOS SANTOS DO NASCIMENTO",
+              "situacao": "Transf"
             },
             {
               "numero": 31,
               "nome": "SHASTELYN CARDENAS REYES",
-              "nome_normalizado": "SHASTELYN CARDENAS REYES"
+              "nome_normalizado": "SHASTELYN CARDENAS REYES",
+              "situacao": ""
             },
             {
               "numero": 32,
               "nome": "SHEILA MARTINS BARBOSA",
-              "nome_normalizado": "SHEILA MARTINS BARBOSA"
+              "nome_normalizado": "SHEILA MARTINS BARBOSA",
+              "situacao": ""
             },
             {
               "numero": 33,
               "nome": "TARSO MATHIAS CONSOLI",
-              "nome_normalizado": "TARSO MATHIAS CONSOLI"
+              "nome_normalizado": "TARSO MATHIAS CONSOLI",
+              "situacao": ""
             },
             {
               "numero": 34,
               "nome": "VICTOR DE OLIVEIRA BONFIM",
-              "nome_normalizado": "VICTOR DE OLIVEIRA BONFIM"
+              "nome_normalizado": "VICTOR DE OLIVEIRA BONFIM",
+              "situacao": ""
             },
             {
               "numero": 35,
               "nome": "VICTOR GIOVANE NETO BENTO",
-              "nome_normalizado": "VICTOR GIOVANE NETO BENTO"
+              "nome_normalizado": "VICTOR GIOVANE NETO BENTO",
+              "situacao": ""
             },
             {
               "numero": 36,
               "nome": "YUVIANA VICTORIA JIMENEZ ACOSTA",
-              "nome_normalizado": "YUVIANA VICTORIA JIMENEZ ACOSTA"
+              "nome_normalizado": "YUVIANA VICTORIA JIMENEZ ACOSTA",
+              "situacao": ""
             },
             {
               "numero": 37,
               "nome": "PEDRO ALVES BANDEIRA",
-              "nome_normalizado": "PEDRO ALVES BANDEIRA"
+              "nome_normalizado": "PEDRO ALVES BANDEIRA",
+              "situacao": ""
             }
           ]
         },
@@ -2116,192 +2522,229 @@
             {
               "numero": 1,
               "nome": "ALAX GIOCONDO CORREA",
-              "nome_normalizado": "ALAX GIOCONDO CORREA"
+              "nome_normalizado": "ALAX GIOCONDO CORREA",
+              "situacao": ""
             },
             {
               "numero": 2,
               "nome": "ANA EMANUELLE DE SOUZA",
-              "nome_normalizado": "ANA EMANUELLE DE SOUZA"
+              "nome_normalizado": "ANA EMANUELLE DE SOUZA",
+              "situacao": ""
             },
             {
               "numero": 3,
               "nome": "ANA LUIZA CRUZ FERREIRA",
-              "nome_normalizado": "ANA LUIZA CRUZ FERREIRA"
+              "nome_normalizado": "ANA LUIZA CRUZ FERREIRA",
+              "situacao": ""
             },
             {
               "numero": 4,
               "nome": "AUGUSTO CEZAR ROSA ALVES",
-              "nome_normalizado": "AUGUSTO CEZAR ROSA ALVES"
+              "nome_normalizado": "AUGUSTO CEZAR ROSA ALVES",
+              "situacao": ""
             },
             {
               "numero": 5,
               "nome": "BEATRIZ TAVARES DE LIMA",
-              "nome_normalizado": "BEATRIZ TAVARES DE LIMA"
+              "nome_normalizado": "BEATRIZ TAVARES DE LIMA",
+              "situacao": ""
             },
             {
               "numero": 6,
               "nome": "BRAYAN JHONATAN DA SILVA",
-              "nome_normalizado": "BRAYAN JHONATAN DA SILVA"
+              "nome_normalizado": "BRAYAN JHONATAN DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 7,
               "nome": "CAUAN LEONARDO RODRIGUES BIESDORF",
-              "nome_normalizado": "CAUAN LEONARDO RODRIGUES BIESDORF"
+              "nome_normalizado": "CAUAN LEONARDO RODRIGUES BIESDORF",
+              "situacao": ""
             },
             {
               "numero": 8,
               "nome": "CHRISTOPHER HENRIQUE PAULO DE MELO",
-              "nome_normalizado": "CHRISTOPHER HENRIQUE PAULO DE MELO"
+              "nome_normalizado": "CHRISTOPHER HENRIQUE PAULO DE MELO",
+              "situacao": ""
             },
             {
               "numero": 9,
               "nome": "ERICK GABRIEL DE FREITAS SANTIAGO",
-              "nome_normalizado": "ERICK GABRIEL DE FREITAS SANTIAGO"
+              "nome_normalizado": "ERICK GABRIEL DE FREITAS SANTIAGO",
+              "situacao": ""
             },
             {
               "numero": 10,
               "nome": "FERNANDA AMARAL DA SILVA",
-              "nome_normalizado": "FERNANDA AMARAL DA SILVA"
+              "nome_normalizado": "FERNANDA AMARAL DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 11,
               "nome": "FIORELLA CAROLINA MARTINEZ SALAZAR",
-              "nome_normalizado": "FIORELLA CAROLINA MARTINEZ SALAZAR"
+              "nome_normalizado": "FIORELLA CAROLINA MARTINEZ SALAZAR",
+              "situacao": ""
             },
             {
               "numero": 12,
               "nome": "GABRIELA MARTINS DA SILVA",
-              "nome_normalizado": "GABRIELA MARTINS DA SILVA"
+              "nome_normalizado": "GABRIELA MARTINS DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 13,
               "nome": "GABRIELE APARECIDA GUERRA DA SILVA",
-              "nome_normalizado": "GABRIELE APARECIDA GUERRA DA SILVA"
+              "nome_normalizado": "GABRIELE APARECIDA GUERRA DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 14,
               "nome": "GABRIEL FELIPE RODRIGUES PORTELA",
-              "nome_normalizado": "GABRIEL FELIPE RODRIGUES PORTELA"
+              "nome_normalizado": "GABRIEL FELIPE RODRIGUES PORTELA",
+              "situacao": "Transf"
             },
             {
               "numero": 15,
               "nome": "GABRIELY AMANDA RODRIGUES DA SILVA BACURAU",
-              "nome_normalizado": "GABRIELY AMANDA RODRIGUES DA SILVA BACURAU"
+              "nome_normalizado": "GABRIELY AMANDA RODRIGUES DA SILVA BACURAU",
+              "situacao": ""
             },
             {
               "numero": 16,
               "nome": "GIOVANNA AMORIM PEREIRA",
-              "nome_normalizado": "GIOVANNA AMORIM PEREIRA"
+              "nome_normalizado": "GIOVANNA AMORIM PEREIRA",
+              "situacao": ""
             },
             {
               "numero": 17,
               "nome": "GUSTAVO FIRMINO DE SOUZA",
-              "nome_normalizado": "GUSTAVO FIRMINO DE SOUZA"
+              "nome_normalizado": "GUSTAVO FIRMINO DE SOUZA",
+              "situacao": ""
             },
             {
               "numero": 18,
               "nome": "GUSTAVO SANSHES DE LIMA",
-              "nome_normalizado": "GUSTAVO SANSHES DE LIMA"
+              "nome_normalizado": "GUSTAVO SANSHES DE LIMA",
+              "situacao": ""
             },
             {
               "numero": 19,
               "nome": "GUSTAVO SANTOS SOARES",
-              "nome_normalizado": "GUSTAVO SANTOS SOARES"
+              "nome_normalizado": "GUSTAVO SANTOS SOARES",
+              "situacao": ""
             },
             {
               "numero": 20,
               "nome": "HELENA LAO SALVADOR",
-              "nome_normalizado": "HELENA LAO SALVADOR"
+              "nome_normalizado": "HELENA LAO SALVADOR",
+              "situacao": ""
             },
             {
               "numero": 21,
               "nome": "ISABELY BERTOLDI",
-              "nome_normalizado": "ISABELY BERTOLDI"
+              "nome_normalizado": "ISABELY BERTOLDI",
+              "situacao": ""
             },
             {
               "numero": 22,
               "nome": "KAUAN DE MORAES DIAS",
-              "nome_normalizado": "KAUAN DE MORAES DIAS"
+              "nome_normalizado": "KAUAN DE MORAES DIAS",
+              "situacao": ""
             },
             {
               "numero": 23,
               "nome": "LAURA VITÓRIA DA SILVA DE OLIVEIRA",
-              "nome_normalizado": "LAURA VITORIA DA SILVA DE OLIVEIRA"
+              "nome_normalizado": "LAURA VITORIA DA SILVA DE OLIVEIRA",
+              "situacao": ""
             },
             {
               "numero": 24,
               "nome": "LUCAS AMORIM BENTES",
-              "nome_normalizado": "LUCAS AMORIM BENTES"
+              "nome_normalizado": "LUCAS AMORIM BENTES",
+              "situacao": ""
             },
             {
               "numero": 25,
               "nome": "MAICON LEANDRO VIEIRA",
-              "nome_normalizado": "MAICON LEANDRO VIEIRA"
+              "nome_normalizado": "MAICON LEANDRO VIEIRA",
+              "situacao": ""
             },
             {
               "numero": 26,
               "nome": "MANOELLA BARBOZA XAVIER",
-              "nome_normalizado": "MANOELLA BARBOZA XAVIER"
+              "nome_normalizado": "MANOELLA BARBOZA XAVIER",
+              "situacao": ""
             },
             {
               "numero": 27,
               "nome": "MARIA CLARA FERNANDES MIRANDA ESTEVAM",
-              "nome_normalizado": "MARIA CLARA FERNANDES MIRANDA ESTEVAM"
+              "nome_normalizado": "MARIA CLARA FERNANDES MIRANDA ESTEVAM",
+              "situacao": ""
             },
             {
               "numero": 28,
               "nome": "MATEUS MARTINS DOS SANTOS",
-              "nome_normalizado": "MATEUS MARTINS DOS SANTOS"
+              "nome_normalizado": "MATEUS MARTINS DOS SANTOS",
+              "situacao": ""
             },
             {
               "numero": 29,
               "nome": "MATHEUS HENRIQUE DA SILVA",
-              "nome_normalizado": "MATHEUS HENRIQUE DA SILVA"
+              "nome_normalizado": "MATHEUS HENRIQUE DA SILVA",
+              "situacao": ""
             },
             {
               "numero": 30,
               "nome": "PEDRO HENRIQUE RIBEIRO DE MEIRA",
-              "nome_normalizado": "PEDRO HENRIQUE RIBEIRO DE MEIRA"
+              "nome_normalizado": "PEDRO HENRIQUE RIBEIRO DE MEIRA",
+              "situacao": ""
             },
             {
               "numero": 31,
               "nome": "RUAN GABRIEL DOMINGUES DA ROSA",
-              "nome_normalizado": "RUAN GABRIEL DOMINGUES DA ROSA"
+              "nome_normalizado": "RUAN GABRIEL DOMINGUES DA ROSA",
+              "situacao": ""
             },
             {
               "numero": 32,
               "nome": "SARA LUZ DA SILVA CAIADO",
-              "nome_normalizado": "SARA LUZ DA SILVA CAIADO"
+              "nome_normalizado": "SARA LUZ DA SILVA CAIADO",
+              "situacao": ""
             },
             {
               "numero": 33,
               "nome": "VICTOR GABRIEL MAIA COSTA PINTO",
-              "nome_normalizado": "VICTOR GABRIEL MAIA COSTA PINTO"
+              "nome_normalizado": "VICTOR GABRIEL MAIA COSTA PINTO",
+              "situacao": ""
             },
             {
               "numero": 34,
               "nome": "VICTOR PEREIRA SILVA",
-              "nome_normalizado": "VICTOR PEREIRA SILVA"
+              "nome_normalizado": "VICTOR PEREIRA SILVA",
+              "situacao": ""
             },
             {
               "numero": 35,
               "nome": "VITOR DE OLIVEIRA RAMOS",
-              "nome_normalizado": "VITOR DE OLIVEIRA RAMOS"
+              "nome_normalizado": "VITOR DE OLIVEIRA RAMOS",
+              "situacao": ""
             },
             {
               "numero": 36,
               "nome": "YASMIN KARINE RODRIGUES",
-              "nome_normalizado": "YASMIN KARINE RODRIGUES"
+              "nome_normalizado": "YASMIN KARINE RODRIGUES",
+              "situacao": ""
             },
             {
               "numero": 37,
               "nome": "ANJELLYNA CHAVES DE OLIVEIRA",
-              "nome_normalizado": "ANJELLYNA CHAVES DE OLIVEIRA"
+              "nome_normalizado": "ANJELLYNA CHAVES DE OLIVEIRA",
+              "situacao": ""
             }
           ]
         }
       ]
     }
   ],
-  "ultima_atualizacao": "23/03/2026 16:38"
+  "ultima_atualizacao": "23/03/2026 20:01"
 }
