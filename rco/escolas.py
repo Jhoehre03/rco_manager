@@ -58,7 +58,21 @@ def get_escolas(browser):
 
 
 def get_alunos(browser):
+    """
+    Retorna a lista de alunos da turma atualmente aberta no RCO.
+    """
     wait = WebDriverWait(browser, 10)
+
+    # Clica na aba Alunos
+    try:
+        aba_alunos = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//a[contains(@class,'nav-link') and normalize-space(text())='Alunos']")
+        ))
+        browser.execute_script("arguments[0].click()", aba_alunos)
+        time.sleep(2)
+    except:
+        pass
+
     wait.until(EC.presence_of_element_located(
         (By.ID, "table-transition-alunos")
     ))
@@ -71,12 +85,12 @@ def get_alunos(browser):
     for linha in linhas:
         numero = linha.get_attribute("data-pk")
         try:
-            nome = linha.find_element(
+            nome_el = linha.find_element(
                 By.CSS_SELECTOR, "div.text-nowrap"
             )
-            nome_texto = linha.find_element(
-                By.CSS_SELECTOR, "div.text-nowrap"
-            ).get_attribute("textContent").strip()
+            nome_texto = browser.execute_script(
+                "return arguments[0].textContent", nome_el
+            ).strip()
         except:
             continue
 
