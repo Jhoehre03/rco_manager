@@ -1,0 +1,80 @@
+{
+  "escolas": [
+    {
+      "nome": "ALGATE LICKFELD MAUS, C E PROFA-EF M",
+      "turmas": [
+        {
+          "turma": "3ª Série - Noite - A",
+          "disciplina": "FISICA",
+          "alunos": []
+        },
+        {
+          "turma": "1ª série - Noite - A",
+          "disciplina": "EDUCACAO FINANCEIRA",
+          "alunos": []
+        },
+        {
+          "turma": "1ª série - Noite - B",
+          "disciplina": "EDUCACAO FINANCEIRA",
+          "alunos": []
+        },
+        {
+          "turma": "2ª série - Noite - A",
+          "disciplina": "FISICA",
+          "alunos": []
+        }
+      ]
+    },
+    {
+      "nome": "IVANETE M DE SOUZA, C E-EF M N P",
+      "turmas": [
+        {
+          "turma": "3ª Série - Manhã - C",
+          "disciplina": "FISICA",
+          "alunos": []
+        },
+        {
+          "turma": "2ª série - Manhã - A",
+          "disciplina": "FISICA",
+          "alunos": []
+        },
+        {
+          "turma": "2ª série - Manhã - C",
+          "disciplina": "FISICA",
+          "alunos": []
+        },
+        {
+          "turma": "2ª série - Manhã - C",
+          "disciplina": "FISICA E TECNOCIENCIA",
+          "alunos": []
+        },
+        {
+          "turma": "3ª Série - Manhã - C",
+          "disciplina": "FISICA II",
+          "alunos": []
+        },
+        {
+          "turma": "ET GN - 2ª série - Tarde - K",
+          "disciplina": "FISICA",
+          "alunos": []
+        }
+      ]
+    },
+    {
+      "nome": "OTTILIA H DA SILVA, C E PROFA-EF M PROF",
+      "turmas": [
+        {
+          "turma": "2ª série - Manhã - A",
+          "disciplina": "FISICA",
+          "alunos": []
+        },
+        {
+          "turma": "ET GN - 2ª série - Manhã - B",
+          "disciplina": "FISICA",
+          "alunos": []
+        }
+      ]
+    }
+  ],
+  "ultima_atualizacao": "23/03/2026 12:45"
+}
