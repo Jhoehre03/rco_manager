@@ -1,76 +1,98 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import unicodedata
+import time
+
+
+def get_texto(browser, elemento):
+    """Lê texto via JavaScript — necessário para o RCO."""
+    return browser.execute_script(
+        "return arguments[0].textContent", elemento
+    ).strip()
 
 
 def get_escolas_turmas(browser):
-    """
-    Retorna lista de escolas com suas turmas e disciplinas.
-    """
-    wait = WebDriverWait(browser, 10)
-
-    wait.until(EC.presence_of_all_elements_located(
-        (By.CLASS_NAME, "card-header")
-    ))
+    wait = WebDriverWait(browser, 15)
+    wait.until(EC.presence_of_element_located((By.CLASS_NAME, "card-header")))
+    time.sleep(5)
 
     resultado = []
 
-    # Cada card representa uma escola
-    cards_escola = browser.find_elements(By.CSS_SELECTOR, "div.card")
+    turmas_bodies = browser.find_elements(
+        By.XPATH,
+        "//div[contains(@class,'card-body') and .//div[contains(@class,'d-flex') and contains(@class,'font-weight-bold')]]"
+    )
 
-    for card in cards_escola:
-        # Pega o nome da escola no card-header direto
+    for body in turmas_bodies:
         try:
-            header = card.find_element(By.CSS_SELECTOR, "div.card-header")
-            nome_escola = header.text.strip()
+            escola = get_texto(browser, body.find_element(
+                By.XPATH,
+                "./ancestor::div[contains(@class,'card')][last()]//div[@class='card-header'][1]"
+            )).split("\n")[0].strip()
         except:
-            continue
+            escola = "Desconhecida"
 
-        # Filtra entradas que não são escolas (ex: "2026-1")
-        if not nome_escola or nome_escola[:4].replace("-", "").isdigit():
-            continue
+        divs = body.find_elements(By.XPATH, "div")
+        textos = [get_texto(browser, d) for d in divs]
+        textos = [t for t in textos if t and "Tri" not in t]
 
-        # Pega as turmas dentro do card
-        turmas_elementos = card.find_elements(By.CSS_SELECTOR, "div.p-1")
-
-        for turma_el in turmas_elementos:
-            divs = turma_el.find_elements(By.CLASS_NAME, "d-flex")
-            textos = [d.text.strip() for d in divs if d.text.strip()]
-
-            if len(textos) >= 2:
-                resultado.append({
-                    "escola": nome_escola,
-                    "turma": textos[1] if len(textos) > 2 else textos[0],
-                    "disciplina": textos[2] if len(textos) > 2 else textos[1],
-                })
+        if len(textos) >= 3:
+            resultado.append({
+                "escola": escola,
+                "nivel": textos[0],
+                "turma": textos[1],
+                "disciplina": textos[2],
+            })
 
     return resultado
 
 
 def get_escolas(browser):
-    """
-    Retorna só os nomes das escolas.
-    """
-    wait = WebDriverWait(browser, 10)
+    turmas = get_escolas_turmas(browser)
+    escolas = []
+    for t in turmas:
+        if t["escola"] not in escolas:
+            escolas.append(t["escola"])
+    return escolas
 
-    wait.until(EC.presence_of_all_elements_located(
-        (By.CLASS_NAME, "card-header")
+
+def get_alunos(browser):
+    wait = WebDriverWait(browser, 10)
+    wait.until(EC.presence_of_element_located(
+        (By.ID, "table-transition-alunos")
     ))
 
-    cards_escola = browser.find_elements(By.CSS_SELECTOR, "div.card")
-    escolas = []
+    linhas = browser.find_elements(
+        By.CSS_SELECTOR, "#table-transition-alunos tbody tr"
+    )
 
-    for card in cards_escola:
+    alunos = []
+    for linha in linhas:
+        numero = linha.get_attribute("data-pk")
         try:
-            header = card.find_element(By.CSS_SELECTOR, "div.card-header")
-            nome_escola = header.text.strip()
+            nome = linha.find_element(
+                By.CSS_SELECTOR, "div.text-nowrap"
+            )
+            nome_texto = linha.find_element(
+                By.CSS_SELECTOR, "div.text-nowrap"
+            ).get_attribute("textContent").strip()
         except:
             continue
 
-        if not nome_escola or nome_escola[:4].replace("-", "").isdigit():
-            continue
+        if nome_texto and numero:
+            alunos.append({
+                "numero": int(numero),
+                "nome": nome_texto,
+                "nome_normalizado": normalizar(nome_texto)
+            })
 
-        if nome_escola not in escolas:
-            escolas.append(nome_escola)
+    return alunos
 
-    return escolas
+
+def normalizar(nome):
+    return unicodedata.normalize('NFKD', nome)\
+           .encode('ASCII', 'ignore')\
+           .decode('ASCII')\
+           .upper()\
+           .strip()
