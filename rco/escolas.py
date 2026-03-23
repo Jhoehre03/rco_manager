@@ -82,12 +82,11 @@ def get_alunos(browser):
     )
 
     alunos = []
+
     for linha in linhas:
         numero = linha.get_attribute("data-pk")
         try:
-            nome_el = linha.find_element(
-                By.CSS_SELECTOR, "div.text-nowrap"
-            )
+            nome_el = linha.find_element(By.CSS_SELECTOR, "div.text-nowrap")
             nome_texto = browser.execute_script(
                 "return arguments[0].textContent", nome_el
             ).strip()
@@ -95,10 +94,21 @@ def get_alunos(browser):
             continue
 
         if nome_texto and numero:
+            # Situação fica em td[aria-colindex="3"], separado do nome
+            situacao = ""
+            try:
+                sit_td = linha.find_element(By.CSS_SELECTOR, "td[aria-colindex='3']")
+                situacao = browser.execute_script(
+                    "return arguments[0].textContent", sit_td
+                ).strip()
+            except Exception:
+                pass
+
             alunos.append({
                 "numero": int(numero),
                 "nome": nome_texto,
-                "nome_normalizado": normalizar(nome_texto)
+                "nome_normalizado": normalizar(nome_texto),
+                "situacao": situacao,
             })
 
     return alunos
