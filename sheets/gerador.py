@@ -174,7 +174,7 @@ def _trimestre_ranges(nome_aba, turma_data, config, tri_num):
     # Linha 3 — cabeçalhos
     # ------------------------------------------------------------------
     ranges.append({"range": f"{p}A3",
-                   "values": [["Aluno", "", "Média 1", "Média 2", "Média 3", "Média", "Nº"]]})
+                   "values": [["Aluno", "Situação", "ATV 1", "ATV 2", "ATV 3", "Média", "Nº"]]})
 
     nota_cols_por_grupo = {}   # avaliacao → [col_letter, ...]
     ativ_col_por_grupo  = {}   # avaliacao → col_letter
@@ -198,6 +198,8 @@ def _trimestre_ranges(nome_aba, turma_data, config, tri_num):
 
         ranges.append({"range": f"{p}G{row}", "values": [[aluno["numero"]]]})
         ranges.append({"range": f"{p}A{row}", "values": [[aluno["nome"]]]})
+        situacao_texto = aluno.get("situacao", "").strip() or "Regular"
+        ranges.append({"range": f"{p}B{row}", "values": [[situacao_texto]]})
 
         # Nota = 100 + penalidade do VLOOKUP na célula Ocorrencias ao lado
         for i, col in enumerate(colunas):
@@ -379,6 +381,15 @@ def gerar_diario(turma_data, config, pasta_id):
     for ws in [ws_tri1, ws_tri2, ws_tri3]:
         format_requests.extend(_requests_validacao(ws.id, colunas, num_alunos))
         format_requests.extend(_requests_ocultar_inativos(ws.id, alunos_ord))
+        format_requests.append({
+            "updateSheetProperties": {
+                "properties": {
+                    "sheetId": ws.id,
+                    "gridProperties": {"frozenColumnCount": COL_FIXAS},
+                },
+                "fields": "gridProperties.frozenColumnCount",
+            }
+        })
 
     sheets.spreadsheets().batchUpdate(
         spreadsheetId=sheet_id,
