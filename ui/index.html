@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>RCO Manager</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      color: #1a202c;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR ─────────────────────────────── */
+    .sidebar {
+      width: 220px;
+      min-width: 220px;
+      background: #1a2744;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-logo {
+      padding: 22px 20px 18px;
+      border-bottom: 1px solid #2d3f6b;
+    }
+    .sidebar-logo h1 { color: #fff; font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+    .sidebar-logo span { color: #6b7fa8; font-size: 11px; }
+
+    nav { flex: 1; padding: 12px 0; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 11px 20px;
+      color: #8a9bbf;
+      cursor: pointer;
+      font-size: 13.5px;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: #c5d0e8; }
+    .nav-item.active { background: rgba(255,255,255,0.08); color: #fff; border-left-color: #3b82f6; }
+    .nav-icon { width: 17px; height: 17px; flex-shrink: 0; }
+
+    /* ── MAIN ────────────────────────────────── */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* ── TOPBAR ──────────────────────────────── */
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0 24px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .topbar-title { font-size: 15px; font-weight: 600; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .status-pill.conectado  { background: #d1fae5; color: #065f46; }
+    .status-pill.desconectado { background: #fee2e2; color: #991b1b; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .status-pill.conectado  .status-dot { background: #10b981; }
+    .status-pill.desconectado .status-dot { background: #ef4444; }
+
+    /* ── CONTENT ─────────────────────────────── */
+    .content { flex: 1; overflow-y: auto; padding: 22px 24px; }
+
+    /* ── METRIC CARDS ────────────────────────── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .card-label {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+    }
+    .card-value { font-size: 30px; font-weight: 700; color: #0f172a; line-height: 1; }
+    .card-sub   { font-size: 12px; color: #94a3b8; margin-top: 5px; }
+
+    /* ── ACTION BUTTONS ──────────────────────── */
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .btn-action {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 14px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.15s;
+      text-align: left;
+    }
+    .btn-action:hover  { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; }
+    .btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+    .btn-icon.blue   { background: #dbeafe; }
+    .btn-icon.green  { background: #d1fae5; }
+    .btn-icon.purple { background: #ede9fe; }
+    .btn-icon.orange { background: #ffedd5; }
+    .btn-action-text div:last-child { font-size: 11px; color: #94a3b8; font-weight: 400; margin-top: 2px; }
+
+    /* ── TURMA LIST ──────────────────────────── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .section-title { font-size: 13px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .turmas-list {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+    .turma-row {
+      display: flex;
+      align-items: center;
+      padding: 13px 20px;
+      border-bottom: 1px solid #f1f5f9;
+      gap: 14px;
+    }
+    .turma-row:last-child { border-bottom: none; }
+    .turma-row:hover { background: #f8fafc; }
+
+    .turma-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      background: #dbeafe;
+      color: #1d4ed8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .turma-info { flex: 1; min-width: 0; }
+    .turma-nome   { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .turma-escola { font-size: 11px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+
+    .turma-badges { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .badge { padding: 3px 9px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+    .badge-disc     { background: #e0e7ff; color: #3730a3; }
+    .badge-count    { background: #f1f5f9; color: #475569; }
+    .badge-inativos { background: #fee2e2; color: #991b1b; }
+
+    /* ── BUTTONS ─────────────────────────────── */
+    .btn {
+      padding: 7px 15px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+    .btn-primary { background: #3b82f6; color: #fff; }
+    .btn-primary:hover { background: #2563eb; }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-sm { padding: 6px 13px; font-size: 12px; }
+
+    /* ── SPINNER ─────────────────────────────── */
+    .spinner {
+      display: inline-block;
+      width: 13px;
+      height: 13px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── MISC ────────────────────────────────── */
+    .empty       { text-align: center; padding: 48px 24px; color: #94a3b8; font-size: 13px; }
+    .placeholder { display: flex; align-items: center; justify-content: center; height: 280px; color: #94a3b8; font-size: 14px; }
+
+    /* ── TOAST ───────────────────────────────── */
+    #toast-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 999; }
+    .toast {
+      background: #1e293b;
+      color: #f8fafc;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+      animation: slideIn 0.2s ease;
+      max-width: 320px;
+    }
+    .toast.success { background: #064e3b; }
+    .toast.error   { background: #7f1d1d; }
+    @keyframes slideIn { from { transform: translateX(110px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  </style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<!-- ── SIDEBAR ──────────────────────────────── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h1>RCO Manager</h1>
+    <span>Painel de Controle</span>
+  </div>
+  <nav>
+    <div class="nav-item active" data-section="dashboard" onclick="navegar(this)">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M4 6h16M4 10h16M4 14h10"/>
+      </svg>
+      Dashboard
+    </div>
+    <div class="nav-item" data-section="comentarios" onclick="navegar(this)">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.9 9.9 0 01-4.6-1.13L3 21l2.25-4A7.96 7.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+      </svg>
+      Comentários
+    </div>
+    <div class="nav-item" data-section="alunos" onclick="navegar(this)">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m4-4a4 4 0 100-8 4 4 0 000 8z"/>
+      </svg>
+      Alunos
+    </div>
+    <div class="nav-item" data-section="notas" onclick="navegar(this)">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+      </svg>
+      Notas
+    </div>
+    <div class="nav-item" data-section="planilhas" onclick="navegar(this)">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M3 10h18M3 14h18M10 4l-2 16M14 4l-2 16"/>
+      </svg>
+      Planilhas
+    </div>
+  </nav>
+</aside>
+
+<!-- ── MAIN ─────────────────────────────────── -->
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-title" id="topbar-title">Dashboard</span>
+    <div class="topbar-right">
+      <div id="chrome-status" class="status-pill desconectado">
+        <div class="status-dot"></div>
+        <span id="chrome-status-text">Chrome desconectado</span>
+      </div>
+      <button class="btn btn-primary btn-sm" id="btn-conectar" onclick="conectarChrome()">
+        Conectar Chrome
+      </button>
+    </div>
+  </header>
+
+  <div class="content" id="content">
+    <div class="empty">Carregando...</div>
+  </div>
+</div>
+
+<script>
+  const TITULOS = {
+    dashboard:   'Dashboard',
+    comentarios: 'Comentários',
+    alunos:      'Alunos',
+    notas:       'Notas',
+    planilhas:   'Planilhas',
+  };
+
+  let state = {
+    chrome: false,
+    status: { ultima_atualizacao: 'Nunca' },
+    turmas: [],
+    secao: 'dashboard',
+  };
+
+  // ── NAVEGAÇÃO ────────────────────────────────
+  function navegar(el) {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+    state.secao = el.dataset.section;
+    document.getElementById('topbar-title').textContent = TITULOS[state.secao];
+    renderSecao();
+  }
+
+  function renderSecao() {
+    if (state.secao === 'dashboard') renderDashboard();
+    else document.getElementById('content').innerHTML =
+      `<div class="placeholder">Em desenvolvimento</div>`;
+  }
+
+  // ── CHROME ───────────────────────────────────
+  async function conectarChrome() {
+    const btn = document.getElementById('btn-conectar');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Conectando...';
+    try {
+      const res = await window.pywebview.api.conectar_chrome();
+      if (res.ok) {
+        state.chrome = true;
+        const pill = document.getElementById('chrome-status');
+        pill.className = 'status-pill conectado';
+        pill.innerHTML = '<div class="status-dot"></div><span>Chrome conectado</span>';
+        btn.textContent = 'Reconectar';
+        toast('Conectado: ' + res.titulo, 'success');
+        await carregarDados();
+      } else {
+        toast('Erro: ' + res.erro, 'error');
+        btn.textContent = 'Conectar Chrome';
+      }
+    } catch (e) {
+      toast('Falha ao conectar', 'error');
+      btn.textContent = 'Conectar Chrome';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ── DADOS ────────────────────────────────────
+  async function carregarDados() {
+    try {
+      const [turmas, status] = await Promise.all([
+        window.pywebview.api.get_turmas(),
+        window.pywebview.api.get_status(),
+      ]);
+      state.turmas = turmas;
+      state.status = status;
+      if (state.secao === 'dashboard') renderDashboard();
+    } catch (e) {
+      toast('Erro ao carregar dados', 'error');
+    }
+  }
+
+  // ── ATUALIZAR BANCO ───────────────────────────
+  async function atualizarBanco(trimestre, btn) {
+    if (!state.chrome) { toast('Conecte o Chrome primeiro', 'error'); return; }
+    btn.disabled = true;
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner" style="border-top-color:#1d4ed8;border-color:rgba(29,78,216,.2)"></span>Atualizando...';
+    try {
+      const res = await window.pywebview.api.atualizar_banco(trimestre);
+      if (res.ok) {
+        toast('Banco atualizado com sucesso!', 'success');
+        await carregarDados();
+      } else {
+        toast('Erro: ' + res.erro, 'error');
+      }
+    } catch (e) {
+      toast('Erro inesperado', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = orig;
+    }
+  }
+
+  // ── RENDER DASHBOARD ─────────────────────────
+  function renderDashboard() {
+    const { turmas, status } = state;
+    const totalAtivos   = turmas.reduce((s, t) => s + t.ativos,   0);
+    const totalInativos = turmas.reduce((s, t) => s + t.inativos, 0);
+
+    document.getElementById('content').innerHTML = `
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-label">Turmas</div>
+          <div class="card-value">${turmas.length}</div>
+          <div class="card-sub">cadastradas no sistema</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Alunos Ativos</div>
+          <div class="card-value">${totalAtivos}</div>
+          <div class="card-sub">${totalInativos} inativo(s) ocult${totalInativos === 1 ? 'o' : 'os'} na planilha</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Última Atualização</div>
+          <div class="card-value" style="font-size:15px;padding-top:8px">${status.ultima_atualizacao || '—'}</div>
+          <div class="card-sub">dados.json</div>
+        </div>
+      </div>
+
+      <div class="actions-grid">
+        <button class="btn-action" onclick="atualizarBanco('1º Tri', this)">
+          <div class="btn-icon blue">↻</div>
+          <div class="btn-action-text">
+            <div>Atualizar Banco</div>
+            <div>1º Trimestre</div>
+          </div>
+        </button>
+        <button class="btn-action" onclick="toast('Em desenvolvimento','')">
+          <div class="btn-icon green">⊞</div>
+          <div class="btn-action-text">
+            <div>Gerar Planilhas</div>
+            <div>Google Sheets</div>
+          </div>
+        </button>
+        <button class="btn-action" onclick="toast('Em desenvolvimento','')">
+          <div class="btn-icon purple">✎</div>
+          <div class="btn-action-text">
+            <div>Lançar Notas</div>
+            <div>Avaliações</div>
+          </div>
+        </button>
+        <button class="btn-action" onclick="toast('Em desenvolvimento','')">
+          <div class="btn-icon orange">✉</div>
+          <div class="btn-action-text">
+            <div>Lançar Comentários</div>
+            <div>Frequência</div>
+          </div>
+        </button>
+      </div>
+
+      <div class="section-header">
+        <span class="section-title">Turmas Cadastradas</span>
+      </div>
+      <div class="turmas-list">
+        ${turmas.length === 0
+          ? '<div class="empty">Nenhuma turma cadastrada. Conecte o Chrome e clique em Atualizar Banco.</div>'
+          : turmas.map(renderTurmaRow).join('')}
+      </div>
+    `;
+  }
+
+  function renderTurmaRow(t) {
+    const iniciais = t.disciplina.slice(0, 2).toUpperCase();
+    return `
+      <div class="turma-row">
+        <div class="turma-avatar">${iniciais}</div>
+        <div class="turma-info">
+          <div class="turma-nome">${t.turma}</div>
+          <div class="turma-escola">${t.escola}</div>
+        </div>
+        <div class="turma-badges">
+          <span class="badge badge-disc">${t.disciplina}</span>
+          <span class="badge badge-count">${t.ativos} aluno${t.ativos !== 1 ? 's' : ''}</span>
+          ${t.inativos > 0
+            ? `<span class="badge badge-inativos">${t.inativos} inativo${t.inativos > 1 ? 's' : ''}</span>`
+            : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  // ── TOAST ────────────────────────────────────
+  function toast(msg, tipo) {
+    const el = document.createElement('div');
+    el.className = 'toast' + (tipo ? ' ' + tipo : '');
+    el.textContent = msg;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => el.remove(), 3500);
+  }
+
+  // ── INIT ─────────────────────────────────────
+  window.addEventListener('pywebviewready', carregarDados);
+</script>
+</body>
+</html>
