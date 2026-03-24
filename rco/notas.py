@@ -237,3 +237,114 @@ def preencher_notas(browser, notas):
         browser.execute_script(
             "arguments[0].dispatchEvent(new Event('change', {bubbles: true}))", campo
         )
+
+
+def abrir_frequencia_dia(browser, data):
+    """
+    Na lista de aulas da tela de frequência, clica no botão Alterar da linha
+    correspondente à data informada.
+
+    Args:
+        data: string "DD/MM/AAAA"
+    """
+    wait = WebDriverWait(browser, 15)
+    _aguardar_sem_overlay(browser)
+
+    # Cada linha do tbody representa uma aula; a data fica na primeira célula.
+    # O botão de editar é a[title="Alterar"] na mesma linha.
+    btn = wait.until(EC.element_to_be_clickable((
+        By.XPATH,
+        f"//tbody/tr[td[contains(.,'{data}')]]//a[@title='Alterar']"
+    )))
+    browser.execute_script("arguments[0].click()", btn)
+
+    # Aguarda tela "Alterar Aula" carregar (tabela de alunos aparece)
+    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "tbody tr")))
+
+
+def lancar_comentario_aluno(browser, numero, comentario):
+    """
+    Abre o modal de observações do aluno pelo número de chamada,
+    preenche o comentário e confirma.
+
+    Args:
+        numero:     número de chamada do aluno (int ou string)
+        comentario: texto a lançar
+    """
+    wait = WebDriverWait(browser, 15)
+
+    # Encontra a linha pelo número de chamada (coluna span com o número)
+    linha = wait.until(EC.presence_of_element_located((
+        By.XPATH,
+        f"//tbody/tr[td/span[normalize-space(text())='{numero}']]"
+    )))
+
+    # Clica no ícone de observações da linha
+    link_obs = linha.find_element(By.CSS_SELECTOR, "a[title='Observações']")
+    browser.execute_script("arguments[0].click()", link_obs)
+
+    # Aguarda o modal abrir — id do conteúdo segue padrão obs-{id_aluno}___BV_modal_content_
+    modal_content = wait.until(EC.visibility_of_element_located(
+        (By.CSS_SELECTOR, "div[id^='obs-'][id$='___BV_modal_content_']")
+    ))
+
+    # Extrai o id_aluno do atributo id do modal
+    modal_id = modal_content.get_attribute("id")
+    id_aluno = modal_id.removeprefix("obs-").removesuffix("___BV_modal_content_")
+
+    # Preenche o textarea com send_keys para triggerar a reatividade Vue
+    textarea = wait.until(EC.element_to_be_clickable((By.ID, f"observacao-{id_aluno}-1")))
+    textarea.click()
+    textarea.clear()
+    textarea.send_keys(comentario)
+    time.sleep(0.5)
+
+    # Aguarda o botão OK habilitar — footer é <footer>, não <div>
+    btn_ok = wait.until(EC.element_to_be_clickable(
+        (By.CSS_SELECTOR, f"[id='obs-{id_aluno}___BV_modal_footer_'] .btn-primary")
+    ))
+    browser.execute_script("arguments[0].click()", btn_ok)
+
+    # Aguarda o modal fechar
+    wait.until(EC.invisibility_of_element_located(
+        (By.CSS_SELECTOR, f"[id='obs-{id_aluno}___BV_modal_content_']")
+    ))
+
+
+def salvar_frequencia(browser):
+    """Clica no botão 'Alterar' fora de qualquer modal para salvar a frequência."""
+    wait = WebDriverWait(browser, 15)
+
+    btn = wait.until(EC.element_to_be_clickable(
+        (By.XPATH,
+         "//button[contains(@class,'btn-primary') and "
+         "(contains(.,'Alterar') or contains(.,'Salvar'))]"
+         "[not(ancestor::div[contains(@class,'modal')])]")
+    ))
+    browser.execute_script("arguments[0].click()", btn)
+
+
+def lancar_comentarios_aula(browser, data, comentarios):
+    """
+    Abre a frequência do dia e lança comentários para cada aluno.
+
+    Args:
+        data:        string "DD/MM/AAAA"
+        comentarios: lista de dicts {numero, nome, comentario}
+                     numero: número de chamada do aluno
+    """
+    abrir_frequencia_dia(browser, data)
+
+    # Aguarda a tabela de alunos carregar completamente
+    wait = WebDriverWait(browser, 15)
+    wait.until(EC.presence_of_element_located(
+        (By.XPATH, "//tbody/tr[td/span]")
+    ))
+    time.sleep(1)
+
+    for item in comentarios:
+        print(f"  Lançando comentário: {item['nome']}")
+        lancar_comentario_aluno(browser, item["numero"], item["comentario"])
+
+    salvar_frequencia(browser)
+    print(f"Frequência do dia {data} salva.")
