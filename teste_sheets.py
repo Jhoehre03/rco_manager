@@ -35,5 +35,6 @@ print(f"Disciplina: {turma_data['disciplina']}")
 print(f"Alunos:     {len(turma_data['alunos'])}")
 print()
 
-url = gerar_diario(turma_data, config, PASTA_ID)
-print(f"\nAcesse: {url}")
+resultado = gerar_diario(turma_data, config, PASTA_ID)
+print(f"\nAcesse: {resultado['url']}")
+print(f"ID:     {resultado['id']}")

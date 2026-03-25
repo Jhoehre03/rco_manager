@@ -241,7 +241,8 @@
               "nome_normalizado": "JOAO VINICIUS SOARES PEREIRA",
               "situacao": ""
             }
-          ]
+          ],
+          "planilha_id": "1GzvNDIz4Tk6a0o9Z9QKU64UrF30TjP6gUAFH_sDj31g"
         },
         {
           "turma": "1ª série - Noite - A",
@@ -505,7 +506,8 @@
               "nome_normalizado": "RODRIGO DA SILVA KARNOSKI",
               "situacao": ""
             }
-          ]
+          ],
+          "planilha_id": "1mZ_3c1FfDpFVs5F7amxoYy9kFMwVP_SRwG3NOAsj0Uw"
         },
         {
           "turma": "1ª série - Noite - B",
@@ -787,7 +789,8 @@
               "nome_normalizado": "RODRIGO DA SILVA KARNOSKI",
               "situacao": "Reman"
             }
-          ]
+          ],
+          "planilha_id": "1Gs5MhR8i4or2OxnqmFjHZQJrSbG0SUWhp0_qAcnyO_E"
         },
         {
           "turma": "2ª série - Noite - A",
@@ -1051,7 +1054,8 @@
               "nome_normalizado": "ISRAEL PEDRO DIAS SANTOS",
               "situacao": ""
             }
-          ]
+          ],
+          "planilha_id": "1xI4Iv1VyGQ1oCEjq8U9s-uJSxj_HjF7ACBJ6VJS3pcM"
         }
       ]
     },
@@ -1230,7 +1234,8 @@
               "nome_normalizado": "NYCOLLE FERRAZ DA SILVA",
               "situacao": ""
             }
-          ]
+          ],
+          "planilha_id": "160FIaPOouXxmodHO7sJUwiQ3ACyAe1jfA5bMbb9BGn0"
         },
         {
           "turma": "2ª série - Manhã - A",
@@ -1476,7 +1481,8 @@
               "nome_normalizado": "JESSICA IZABELA NARDINI DE BRITO",
               "situacao": ""
             }
-          ]
+          ],
+          "planilha_id": "17M51WbzjDtkm8-FWyC9MvUCSACPcffEpmQEkdL92Ktc"
         },
         {
           "turma": "2ª série - Manhã - C",
@@ -1728,7 +1734,8 @@
               "nome_normalizado": "DIEUNELSON DIEUNORD SAINT LOUIS",
               "situacao": ""
             }
-          ]
+          ],
+          "planilha_id": "1b0uYi9jfjl7616WyLSXyPHaqAc0aGlgczykwfr6fMNQ"
         },
         {
           "turma": "2ª série - Manhã - C",
@@ -1980,7 +1987,8 @@
               "nome_normalizado": "DIEUNELSON DIEUNORD SAINT LOUIS",
               "situacao": ""
             }
-          ]
+          ],
+          "planilha_id": "1dJD6F5rVGr4jAU0i_atN6183RVsKU46h5bp5eguuTWY"
         },
         {
           "turma": "3ª Série - Manhã - C",
@@ -2746,5 +2754,5 @@
       ]
     }
   ],
-  "ultima_atualizacao": "24/03/2026 18:04"
+  "ultima_atualizacao": "25/03/2026 13:50"
 }
