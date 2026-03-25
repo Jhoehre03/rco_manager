@@ -227,6 +227,47 @@
     .empty       { text-align: center; padding: 48px 24px; color: #94a3b8; font-size: 13px; }
     .placeholder { display: flex; align-items: center; justify-content: center; height: 280px; color: #94a3b8; font-size: 14px; }
 
+    /* ── FORM CARD ───────────────────────────── */
+    .form-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      margin-bottom: 20px;
+    }
+    .form-row { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+    .form-group select,
+    .form-group input[type="text"] {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 13px;
+      color: #1a202c;
+      outline: none;
+      background: #fff;
+      min-width: 160px;
+    }
+    .form-group select:focus,
+    .form-group input[type="text"]:focus { border-color: #3b82f6; }
+    .form-group.wide select { min-width: 280px; }
+
+    /* ── OCORRÊNCIAS LIST ─────────────────────── */
+    .ocorr-list { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); overflow: hidden; margin-bottom: 16px; }
+    .ocorr-row { display: flex; align-items: flex-start; padding: 13px 20px; border-bottom: 1px solid #f1f5f9; gap: 14px; }
+    .ocorr-row:last-child { border-bottom: none; }
+    .ocorr-check { margin-top: 3px; width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; accent-color: #3b82f6; }
+    .ocorr-info { flex: 1; min-width: 0; }
+    .ocorr-nome { font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+    .ocorr-badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; background: #fef3c7; color: #92400e; margin-bottom: 6px; }
+    .ocorr-textarea { width: 100%; border: 1px solid #e2e8f0; border-radius: 7px; padding: 6px 10px; font-size: 12px; font-family: inherit; color: #374151; resize: vertical; min-height: 34px; }
+    .ocorr-textarea:focus { outline: none; border-color: #3b82f6; }
+    .ocorr-num { font-size: 11px; color: #94a3b8; flex-shrink: 0; padding-top: 3px; min-width: 24px; text-align: right; }
+    .lancar-bar { display: flex; align-items: center; justify-content: space-between; background: #fff; border-radius: 12px; padding: 14px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .lancar-info { font-size: 13px; color: #64748b; }
+    .lancar-info strong { color: #1a202c; }
+
     /* ── TOAST ───────────────────────────────── */
     #toast-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 999; }
     .toast {
@@ -298,6 +339,15 @@
   <header class="topbar">
     <span class="topbar-title" id="topbar-title">Dashboard</span>
     <div class="topbar-right">
+      <div id="google-status" class="status-pill desconectado">
+        <div class="status-dot"></div>
+        <span>Google não autorizado</span>
+      </div>
+      <button class="btn btn-sm" id="btn-google"
+        style="background:#fff;border:1px solid #e2e8f0;color:#374151"
+        onclick="autorizarGoogle()">
+        Autorizar Google
+      </button>
       <div id="chrome-status" class="status-pill desconectado">
         <div class="status-dot"></div>
         <span id="chrome-status-text">Chrome desconectado</span>
@@ -339,35 +389,236 @@
   }
 
   function renderSecao() {
-    if (state.secao === 'dashboard') renderDashboard();
+    if (state.secao === 'dashboard')        renderDashboard();
+    else if (state.secao === 'comentarios') renderComentarios();
     else document.getElementById('content').innerHTML =
       `<div class="placeholder">Em desenvolvimento</div>`;
   }
 
+  // ── COMENTÁRIOS ──────────────────────────────
+  let _ocorrencias = [];   // cache da última busca
+
+  function renderComentarios() {
+    const opts = state.turmas.map(t =>
+      `<option value='${JSON.stringify({escola: t.escola, turma: t.turma, disciplina: t.disciplina})}'>
+        ${t.turma} — ${t.disciplina}
+      </option>`
+    ).join('');
+
+    document.getElementById('content').innerHTML = `
+      <div class="form-card">
+        <div class="form-row">
+          <div class="form-group wide">
+            <label>Turma</label>
+            <select id="sel-turma-c">${opts.length ? '<option value="">Selecione...</option>' + opts : '<option value="">Nenhuma turma cadastrada</option>'}</select>
+          </div>
+          <div class="form-group">
+            <label>Trimestre</label>
+            <select id="sel-tri-c">
+              <option value="1º Tri">1º Trimestre</option>
+              <option value="2º Tri">2º Trimestre</option>
+              <option value="3º Tri">3º Trimestre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Data da aula</label>
+            <input type="text" id="inp-data-c" placeholder="DD/MM/AAAA" maxlength="10">
+          </div>
+          <button class="btn btn-primary" id="btn-buscar-c" onclick="buscarOcorrencias()">Buscar</button>
+        </div>
+      </div>
+      <div id="area-ocorrencias"></div>
+    `;
+  }
+
+  async function buscarOcorrencias() {
+    const sel   = document.getElementById('sel-turma-c');
+    const data  = document.getElementById('inp-data-c').value.trim();
+    const btn   = document.getElementById('btn-buscar-c');
+    const area  = document.getElementById('area-ocorrencias');
+
+    if (!sel.value) { toast('Selecione uma turma', 'error'); return; }
+    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(data)) { toast('Data inválida — use DD/MM/AAAA', 'error'); return; }
+
+    const { escola, turma, disciplina } = JSON.parse(sel.value);
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Buscando...';
+    area.innerHTML = '';
+
+    try {
+      const res = await window.pywebview.api.get_comentarios_planilha(escola, turma, disciplina, data);
+      if (!res.ok) { toast('Erro: ' + res.erro, 'error'); return; }
+
+      _ocorrencias = res.comentarios;
+      if (_ocorrencias.length === 0) {
+        area.innerHTML = '<div class="empty">Nenhuma ocorrência encontrada para esta data.</div>';
+        return;
+      }
+      renderListaOcorrencias(escola, turma, disciplina, data);
+    } catch (e) {
+      toast('Erro inesperado', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Buscar';
+    }
+  }
+
+  function renderListaOcorrencias(escola, turma, disciplina, data) {
+    const area = document.getElementById('area-ocorrencias');
+    const trimestre = document.getElementById('sel-tri-c').value;
+    const rows = _ocorrencias.map((o, i) => `
+      <div class="ocorr-row">
+        <input type="checkbox" class="ocorr-check" id="chk-${i}" checked>
+        <div class="ocorr-num">${o.numero}</div>
+        <div class="ocorr-info">
+          <div class="ocorr-nome">${o.nome}</div>
+          <div class="ocorr-badge">${o.ocorrencia}</div>
+          <textarea class="ocorr-textarea" id="txt-${i}">${o.comentario}</textarea>
+        </div>
+      </div>
+    `).join('');
+
+    area.innerHTML = `
+      <div class="section-header" style="margin-top:4px">
+        <span class="section-title">${_ocorrencias.length} aluno(s) com ocorrências</span>
+      </div>
+      <div class="ocorr-list">${rows}</div>
+      <div class="lancar-bar">
+        <span class="lancar-info">Turma: <strong>${turma}</strong> &nbsp;·&nbsp; Data: <strong>${data}</strong></span>
+        <button class="btn btn-primary" id="btn-lancar-c"
+          onclick="lancarComentarios('${escola}','${turma}','${disciplina}','${trimestre}','${data}')">
+          Lançar no RCO
+        </button>
+      </div>
+    `;
+  }
+
+  async function lancarComentarios(escola, turma, disciplina, trimestre, data) {
+    const btn = document.getElementById('btn-lancar-c');
+
+    // Coleta apenas os itens marcados com seus textos editados
+    const selecionados = _ocorrencias
+      .map((o, i) => {
+        const checked = document.getElementById('chk-' + i)?.checked;
+        const texto   = document.getElementById('txt-' + i)?.value.trim();
+        return checked && texto ? { numero: o.numero, nome: o.nome, comentario: texto } : null;
+      })
+      .filter(Boolean);
+
+    if (selecionados.length === 0) { toast('Nenhum comentário selecionado', 'error'); return; }
+    if (!state.chrome)             { toast('Conecte o Chrome primeiro', 'error');     return; }
+
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner"></span>Lançando ${selecionados.length}...`;
+
+    try {
+      const res = await window.pywebview.api.lancar_comentarios(
+        escola, turma, disciplina, trimestre, data, selecionados
+      );
+      if (res.ok) {
+        toast(`${selecionados.length} comentário(s) lançado(s) com sucesso!`, 'success');
+      } else {
+        toast('Erro: ' + res.erro, 'error');
+      }
+    } catch (e) {
+      toast('Erro inesperado', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Lançar no RCO';
+    }
+  }
+
   // ── CHROME ───────────────────────────────────
+  // fase: 'conectar' | 'confirmar' | 'conectado'
+  let faseChrome = 'conectar';
+
+  function atualizarBotaoChrome() {
+    const btn = document.getElementById('btn-conectar');
+    if (faseChrome === 'conectar')  btn.textContent = 'Conectar Chrome';
+    if (faseChrome === 'confirmar') btn.textContent = 'Confirmar login';
+    if (faseChrome === 'conectado') btn.textContent = 'Reconectar';
+    btn.onclick = faseChrome === 'confirmar' ? confirmarLogin : conectarChrome;
+  }
+
   async function conectarChrome() {
+    const btn = document.getElementById('btn-conectar');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Abrindo...';
+    try {
+      const res = await window.pywebview.api.conectar_chrome();
+      if (res.ok && res.aguardando_login) {
+        faseChrome = 'confirmar';
+        toast('Chrome aberto! Faça login no RCO e clique em Confirmar', '');
+      } else if (!res.ok) {
+        toast('Erro: ' + res.erro, 'error');
+      }
+    } catch (e) {
+      toast('Falha ao abrir Chrome', 'error');
+    } finally {
+      btn.disabled = false;
+      atualizarBotaoChrome();
+    }
+  }
+
+  async function confirmarLogin() {
     const btn = document.getElementById('btn-conectar');
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>Conectando...';
     try {
-      const res = await window.pywebview.api.conectar_chrome();
+      const res = await window.pywebview.api.confirmar_login();
       if (res.ok) {
         state.chrome = true;
+        faseChrome = 'conectado';
         const pill = document.getElementById('chrome-status');
         pill.className = 'status-pill conectado';
         pill.innerHTML = '<div class="status-dot"></div><span>Chrome conectado</span>';
-        btn.textContent = 'Reconectar';
         toast('Conectado: ' + res.titulo, 'success');
         await carregarDados();
       } else {
-        toast('Erro: ' + res.erro, 'error');
-        btn.textContent = 'Conectar Chrome';
+        toast('Erro: ' + res.erro + ' — Verifique se já fez login no RCO.', 'error');
       }
     } catch (e) {
-      toast('Falha ao conectar', 'error');
-      btn.textContent = 'Conectar Chrome';
+      toast('Falha ao confirmar login', 'error');
     } finally {
       btn.disabled = false;
+      atualizarBotaoChrome();
+    }
+  }
+
+  // ── GOOGLE AUTH ──────────────────────────────
+  function atualizarStatusGoogle(autorizado) {
+    const pill = document.getElementById('google-status');
+    const btn  = document.getElementById('btn-google');
+    if (autorizado) {
+      pill.className = 'status-pill conectado';
+      pill.innerHTML = '<div class="status-dot"></div><span>Google autorizado</span>';
+      btn.style.display = 'none';
+    } else {
+      pill.className = 'status-pill desconectado';
+      pill.innerHTML = '<div class="status-dot"></div><span>Google não autorizado</span>';
+      btn.style.display = '';
+    }
+  }
+
+  async function autorizarGoogle() {
+    const btn = document.getElementById('btn-google');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner" style="border-top-color:#374151;border-color:rgba(0,0,0,.1)"></span>Aguardando...';
+    toast('Autorize o acesso no navegador que foi aberto', '');
+    try {
+      const res = await window.pywebview.api.autenticar_google();
+      if (res.ok && res.autorizado) {
+        atualizarStatusGoogle(true);
+        toast('Google Sheets autorizado!', 'success');
+        if (state.secao === 'dashboard') renderDashboard();
+      } else {
+        toast('Erro: ' + (res.erro || 'Autorização não concluída'), 'error');
+      }
+    } catch (e) {
+      toast('Erro ao autorizar', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Autorizar Google';
     }
   }
 
@@ -380,6 +631,7 @@
       ]);
       state.turmas = turmas;
       state.status = status;
+      atualizarStatusGoogle(status.google_autorizado);
       if (state.secao === 'dashboard') renderDashboard();
     } catch (e) {
       toast('Erro ao carregar dados', 'error');
@@ -414,7 +666,19 @@
     const totalAtivos   = turmas.reduce((s, t) => s + t.ativos,   0);
     const totalInativos = turmas.reduce((s, t) => s + t.inativos, 0);
 
-    document.getElementById('content').innerHTML = `
+    const bannerGoogle = !status.google_autorizado ? `
+      <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:13px 18px;
+                  display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:12px">
+        <span style="font-size:13px;color:#92400e">
+          <strong>Primeiro acesso:</strong> autorize o Google Sheets para gerar planilhas e ler ocorrências.
+        </span>
+        <button class="btn btn-sm" onclick="autorizarGoogle()"
+          style="background:#f59e0b;color:#fff;border:none;white-space:nowrap">
+          Autorizar Google
+        </button>
+      </div>` : '';
+
+    document.getElementById('content').innerHTML = bannerGoogle + `
       <div class="cards-grid">
         <div class="card">
           <div class="card-label">Turmas</div>
