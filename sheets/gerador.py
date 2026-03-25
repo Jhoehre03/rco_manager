@@ -311,6 +311,95 @@ def _requests_validacao(ws_id, colunas, num_alunos):
 
 
 # ---------------------------------------------------------------------------
+# Leitura de ocorrências
+# ---------------------------------------------------------------------------
+
+# Ocorrências que NÃO geram comentário (presença normal ou ausência)
+_IGNORAR = {"", "Fez a atividade", "Falta"}
+
+# Mapeamento ocorrência → frase de comentário para o diário
+_COMENTARIOS = {
+    "Não fez a atividade": "Não realizou a atividade proposta",
+    "Não terminou":        "Não concluiu a atividade proposta",
+    "Entregou com atraso": "Entregou a atividade com atraso",
+    "Muita Conversa":      "Conversa excessiva durante a aula",
+    "Celular":             "Uso de celular durante a aula",
+    "Dormindo":            "Dormindo durante a aula",
+    "Evasão(Gaseio)":      "Evasão de sala de aula (gaseio)",
+}
+
+
+def ler_ocorrencias_planilha(planilha_id, data_str):
+    """
+    Lê a planilha e retorna os alunos que têm ocorrências relevantes
+    na coluna correspondente à data informada.
+
+    Args:
+        planilha_id: ID do Google Sheets
+        data_str:    string "DD/MM/AAAA"
+
+    Returns:
+        lista de dicts {numero, nome, ocorrencia, comentario}
+    """
+    creds = _get_creds()
+    gc    = gspread.authorize(creds)
+    sh    = gc.open_by_key(planilha_id)
+
+    # Datas na planilha estão no formato "DD/MM" (sem ano), na linha 1
+    data_curta = data_str[:5]
+
+    for ws in sh.worksheets():
+        if ws.title == "Penalidades":
+            continue
+
+        linhas = ws.get_all_values()
+        if len(linhas) < 4:
+            continue
+
+        row1 = linhas[0]   # datas (DD/MM) nas colunas de nota
+        row3 = linhas[2]   # cabeçalhos: Aluno, Situação, ATV1..., Nota, Ocorrencias...
+
+        # Encontra a coluna da nota para a data alvo
+        nota_idx = next(
+            (i for i, v in enumerate(row1) if v.strip() == data_curta), None
+        )
+        if nota_idx is None:
+            continue
+
+        # Coluna de Ocorrências = coluna seguinte à Nota
+        ocorr_idx = nota_idx + 1
+        # Confirmação: verifica cabeçalho
+        if len(row3) > ocorr_idx and row3[ocorr_idx].strip() != "Ocorrencias":
+            # Procura "Ocorrencias" nas próximas 2 colunas
+            for j in range(nota_idx + 1, min(nota_idx + 3, len(row3))):
+                if row3[j].strip() == "Ocorrencias":
+                    ocorr_idx = j
+                    break
+
+        resultado = []
+        for linha in linhas[3:]:           # linhas de alunos (row 4+)
+            if not linha or not linha[0].strip():
+                continue
+            nome   = linha[0].strip()
+            numero = linha[6].strip() if len(linha) > 6 else ""
+            ocorr  = linha[ocorr_idx].strip() if len(linha) > ocorr_idx else ""
+
+            if ocorr in _IGNORAR:
+                continue
+
+            resultado.append({
+                "numero":     int(numero) if numero.isdigit() else numero,
+                "nome":       nome,
+                "ocorrencia": ocorr,
+                "comentario": _COMENTARIOS.get(ocorr, ocorr),
+            })
+
+        return resultado   # data encontrada nesta aba
+
+    return []   # data não encontrada em nenhuma aba
+
+
+# ---------------------------------------------------------------------------
 # Função principal
 # ---------------------------------------------------------------------------
 
