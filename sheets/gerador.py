@@ -311,6 +311,162 @@ def _requests_validacao(ws_id, colunas, num_alunos):
 
 
 # ---------------------------------------------------------------------------
+# Sincronização de alunos
+# ---------------------------------------------------------------------------
+
+def _ler_alunos_planilha(planilha_id):
+    """
+    Lê os alunos da primeira aba de trimestre.
+    Retorna dict: {numero: {nome, situacao, row_1based}}
+    """
+    creds = _get_creds()
+    gc    = gspread.authorize(creds)
+    sh    = gc.open_by_key(planilha_id)
+
+    for ws in sh.worksheets():
+        if ws.title == "Penalidades":
+            continue
+        linhas = ws.get_all_values()
+        result = {}
+        for i, linha in enumerate(linhas[3:], start=4):   # row 4 = alunos
+            if not linha or not linha[0].strip():
+                continue
+            num_str = linha[6].strip() if len(linha) > 6 else ""
+            if not num_str.isdigit():
+                continue
+            result[int(num_str)] = {
+                "nome":      linha[0].strip(),
+                "situacao":  linha[1].strip() if len(linha) > 1 else "",
+                "row":       i,   # 1-based
+            }
+        return result
+    return {}
+
+
+def comparar_alunos(planilha_id, alunos_json):
+    """
+    Compara dados.json com a planilha e retorna o que precisa ser sincronizado.
+    Returns: {novos, alterados, removidos}
+      novos     — alunos em dados.json que não estão na planilha
+      alterados — alunos em ambos, mas situação diferente
+                  cada item tem {numero, nome, situacao_antiga, situacao_nova, acao}
+                  acao: "ocultar" (situação inativa) | "atualizar" (ainda ativa)
+      removidos — alunos na planilha que não estão mais em dados.json
+    """
+    sheet = _ler_alunos_planilha(planilha_id)
+    json_por_num = {a["numero"]: a for a in alunos_json}
+
+    novos, alterados, removidos = [], [], []
+
+    for num, a in json_por_num.items():
+        if num not in sheet:
+            novos.append({"numero": num, "nome": a["nome"],
+                          "situacao": a.get("situacao", "")})
+        else:
+            sit_nova   = a.get("situacao", "").strip()
+            sit_antiga = sheet[num]["situacao"]
+            if sit_antiga == "Regular":
+                sit_antiga = ""
+            if sit_nova != sit_antiga:
+                acao = ("ocultar"
+                        if sit_nova and sit_nova.lower() not in SITUACOES_ATIVAS
+                        else "atualizar")
+                alterados.append({
+                    "numero":         num,
+                    "nome":           a["nome"],
+                    "situacao_antiga": sit_antiga or "Regular",
+                    "situacao_nova":   sit_nova  or "Regular",
+                    "acao":           acao,
+                })
+
+    for num, a in sheet.items():
+        if num not in json_por_num:
+            removidos.append({"numero": num, "nome": a["nome"]})
+
+    return {"novos": novos, "alterados": alterados, "removidos": removidos}
+
+
+def adicionar_aluno(planilha_id, aluno):
+    """
+    Adiciona uma nova linha de aluno (nome, situação, número) em todas as abas
+    de trimestre, logo após o último aluno existente.
+    """
+    creds = _get_creds()
+    gc    = gspread.authorize(creds)
+    sh    = gc.open_by_key(planilha_id)
+
+    situacao_texto = aluno.get("situacao", "").strip() or "Regular"
+
+    for ws in sh.worksheets():
+        if ws.title == "Penalidades":
+            continue
+        linhas = ws.get_all_values()
+        ultima = 3   # 1-based, row 3 = headers
+        for i, linha in enumerate(linhas[3:], start=4):
+            if linha and linha[0].strip():
+                ultima = i
+        nova = ultima + 1
+        ws.update([[aluno["nome"]]],           f"A{nova}", value_input_option="USER_ENTERED")
+        ws.update([[situacao_texto]],          f"B{nova}", value_input_option="USER_ENTERED")
+        ws.update([[int(aluno["numero"])]],    f"G{nova}", value_input_option="USER_ENTERED")
+
+
+def atualizar_situacao(planilha_id, numero_chamada, nova_situacao):
+    """Atualiza a coluna B (Situação) do aluno em todas as abas de trimestre."""
+    creds = _get_creds()
+    gc    = gspread.authorize(creds)
+    sh    = gc.open_by_key(planilha_id)
+
+    texto = nova_situacao.strip() or "Regular"
+
+    for ws in sh.worksheets():
+        if ws.title == "Penalidades":
+            continue
+        linhas = ws.get_all_values()
+        for i, linha in enumerate(linhas[3:], start=4):
+            if len(linha) > 6 and linha[6].strip().isdigit():
+                if int(linha[6].strip()) == numero_chamada:
+                    ws.update([[texto]], f"B{i}", value_input_option="USER_ENTERED")
+                    break
+
+
+def ocultar_aluno(planilha_id, numero_chamada):
+    """Oculta a linha do aluno em todas as abas de trimestre."""
+    creds  = _get_creds()
+    gc     = gspread.authorize(creds)
+    sheets = build("sheets", "v4", credentials=creds)
+    sh     = gc.open_by_key(planilha_id)
+
+    requests = []
+    for ws in sh.worksheets():
+        if ws.title == "Penalidades":
+            continue
+        linhas = ws.get_all_values()
+        for i, linha in enumerate(linhas[3:], start=4):   # i é 1-based
+            if len(linha) > 6 and linha[6].strip().isdigit():
+                if int(linha[6].strip()) == numero_chamada:
+                    requests.append({
+                        "updateDimensionProperties": {
+                            "range": {
+                                "sheetId":    ws.id,
+                                "dimension":  "ROWS",
+                                "startIndex": i - 1,   # 0-based
+                                "endIndex":   i,
+                            },
+                            "properties": {"hiddenByUser": True},
+                            "fields": "hiddenByUser",
+                        }
+                    })
+                    break
+
+    if requests:
+        sheets.spreadsheets().batchUpdate(
+            spreadsheetId=planilha_id,
+            body={"requests": requests},
+        ).execute()
+
+
+# ---------------------------------------------------------------------------
 # Leitura de ocorrências
 # ---------------------------------------------------------------------------
 
@@ -488,4 +644,4 @@ def gerar_diario(turma_data, config, pasta_id):
 
     url = f"https://docs.google.com/spreadsheets/d/{sheet_id}"
     print(f"Planilha criada: {url}")
-    return url
+    return {"url": url, "id": sheet_id}

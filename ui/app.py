@@ -1,11 +1,14 @@
 import os
+import json
 import subprocess
 import time
 import webview
 from database import carregar, atualizar_banco as _atualizar_banco
 from rco.auth import conectar_chrome as _conectar_chrome
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR  = os.path.dirname(os.path.abspath(__file__))
+PASTA_ID  = "1MsRODhlMhWxRkKPni5jAJlJnqi5TOLJr"
+DADOS_JSON = "dados.json"
 
 
 class Api:
@@ -19,12 +22,13 @@ class Api:
             for t in escola["turmas"]:
                 ativos = [a for a in t["alunos"] if not a.get("situacao", "").strip()]
                 turmas.append({
-                    "escola":      escola["nome"],
-                    "turma":       t["turma"],
-                    "disciplina":  t["disciplina"],
+                    "escola":       escola["nome"],
+                    "turma":        t["turma"],
+                    "disciplina":   t["disciplina"],
                     "total_alunos": len(t["alunos"]),
-                    "ativos":      len(ativos),
-                    "inativos":    len(t["alunos"]) - len(ativos),
+                    "ativos":       len(ativos),
+                    "inativos":     len(t["alunos"]) - len(ativos),
+                    "planilha_id":  t.get("planilha_id", ""),
                 })
         return turmas
 
@@ -123,6 +127,126 @@ class Api:
             return {"ok": True}
         except Exception as e:
             return {"ok": False, "erro": str(e)}
+
+    def gerar_planilha(self, escola, turma, disciplina, config):
+        """
+        Gera a planilha Google Sheets e salva o planilha_id no dados.json.
+        config: {num_aulas, data_inicio ("DD/MM/AAAA"), frequencia_semanal,
+                 avaliacoes: [{nome, valor_maximo}]}
+        """
+        try:
+            from sheets.gerador import gerar_diario
+            from datetime import date as _date
+
+            dados = carregar()
+            turma_data = None
+            turma_obj  = None
+            for e in dados.get("escolas", []):
+                if e["nome"] == escola:
+                    for t in e["turmas"]:
+                        if t["turma"] == turma and t["disciplina"] == disciplina:
+                            turma_data = {
+                                "escola":     escola,
+                                "turma":      turma,
+                                "disciplina": disciplina,
+                                "alunos":     t["alunos"],
+                            }
+                            turma_obj = t
+                            break
+
+            if not turma_data:
+                return {"ok": False, "erro": "Turma não encontrada no dados.json"}
+
+            d = config["data_inicio"].split("/")
+            config_gerador = {
+                "num_aulas":          int(config["num_aulas"]),
+                "data_inicio":        _date(int(d[2]), int(d[1]), int(d[0])),
+                "frequencia_semanal": int(config["frequencia_semanal"]),
+                "avaliacoes":         [{"valor_maximo": float(a["valor_maximo"])}
+                                       for a in config["avaliacoes"]],
+            }
+
+            resultado   = gerar_diario(turma_data, config_gerador, PASTA_ID)
+            planilha_id = resultado["id"]
+            url         = resultado["url"]
+
+            # Persiste o planilha_id sem alterar ultima_atualizacao
+            turma_obj["planilha_id"] = planilha_id
+            with open(DADOS_JSON, "w", encoding="utf-8") as f:
+                json.dump(dados, f, ensure_ascii=False, indent=2)
+
+            return {"ok": True, "link": url, "id": planilha_id}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
+    def preview_sincronizacao(self, escola, turma, disciplina):
+        try:
+            from sheets.gerador import comparar_alunos
+            dados = carregar()
+            for e in dados.get("escolas", []):
+                if e["nome"] == escola:
+                    for t in e["turmas"]:
+                        if t["turma"] == turma and t["disciplina"] == disciplina:
+                            pid = t.get("planilha_id", "")
+                            if not pid:
+                                return {"ok": False, "erro": "Planilha não cadastrada"}
+                            diff = comparar_alunos(pid, t["alunos"])
+                            return {"ok": True, **diff}
+            return {"ok": False, "erro": "Turma não encontrada"}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
+    def sincronizar_alunos(self, escola, turma, disciplina):
+        try:
+            from sheets.gerador import (comparar_alunos, adicionar_aluno,
+                                        atualizar_situacao, ocultar_aluno)
+            dados = carregar()
+            for e in dados.get("escolas", []):
+                if e["nome"] == escola:
+                    for t in e["turmas"]:
+                        if t["turma"] == turma and t["disciplina"] == disciplina:
+                            pid = t.get("planilha_id", "")
+                            if not pid:
+                                return {"ok": False, "erro": "Planilha não cadastrada"}
+
+                            diff = comparar_alunos(pid, t["alunos"])
+                            n_novos = n_atualizados = n_ocultados = 0
+
+                            for a in diff["novos"]:
+                                adicionar_aluno(pid, a)
+                                n_novos += 1
+
+                            for a in diff["alterados"]:
+                                atualizar_situacao(pid, a["numero"], a["situacao_nova"])
+                                if a["acao"] == "ocultar":
+                                    ocultar_aluno(pid, a["numero"])
+                                    n_ocultados += 1
+                                else:
+                                    n_atualizados += 1
+
+                            for a in diff["removidos"]:
+                                ocultar_aluno(pid, a["numero"])
+                                n_ocultados += 1
+
+                            return {"ok": True, "novos": n_novos,
+                                    "atualizados": n_atualizados,
+                                    "ocultados": n_ocultados}
+            return {"ok": False, "erro": "Turma não encontrada"}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
+    def abrir_planilha(self, escola, turma, disciplina):
+        dados = carregar()
+        for e in dados.get("escolas", []):
+            if e["nome"] == escola:
+                for t in e["turmas"]:
+                    if t["turma"] == turma and t["disciplina"] == disciplina:
+                        pid = t.get("planilha_id", "")
+                        if pid:
+                            link = f"https://docs.google.com/spreadsheets/d/{pid}"
+                            subprocess.Popen(["start", link], shell=True)
+                            return {"ok": True, "link": link}
+        return {"ok": False, "erro": "Planilha não cadastrada para esta turma"}
 
     def atualizar_banco(self, trimestre):
         if not self.browser:
