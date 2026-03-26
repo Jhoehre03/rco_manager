@@ -453,6 +453,88 @@
   </div>
 </div>
 
+<!-- ── MODAL LANÇAR NOTAS ────────────────────── -->
+<div id="modal-notas" class="modal-overlay hidden" onclick="if(event.target.id==='modal-notas')_fecharModalNotas()">
+  <div class="modal-box" onclick="event.stopPropagation()" style="width:700px;max-height:90vh;display:flex;flex-direction:column">
+    <div class="modal-header">
+      <h3 id="notas-modal-title">Lançar Notas</h3>
+      <button class="modal-close" onclick="_fecharModalNotas()">×</button>
+    </div>
+
+    <div class="modal-body" style="overflow-y:auto;flex:1">
+
+      <!-- Filtros -->
+      <div class="form-row-2" style="margin-bottom:14px">
+        <div class="form-group">
+          <label>Trimestre</label>
+          <div class="trimestre-pills">
+            <label class="trim-pill"><input type="radio" name="nt-trim" value="1" onchange="_ntCarregarDatas()"> 1º</label>
+            <label class="trim-pill"><input type="radio" name="nt-trim" value="2" onchange="_ntCarregarDatas()"> 2º</label>
+            <label class="trim-pill"><input type="radio" name="nt-trim" value="3" onchange="_ntCarregarDatas()"> 3º</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Avaliação</label>
+          <select id="nt-av">
+            <option value="AV1">AV1</option>
+            <option value="Recuperação 1">Recuperação 1</option>
+            <option value="AV2">AV2</option>
+            <option value="Recuperação 2">Recuperação 2</option>
+            <option value="AV3">AV3</option>
+            <option value="Recuperação 3">Recuperação 3</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row-2" style="margin-bottom:14px">
+        <div class="form-group">
+          <label>Data da avaliação</label>
+          <select id="nt-data" disabled>
+            <option value="">Selecione o trimestre primeiro</option>
+          </select>
+          <div id="nt-data-aviso" style="font-size:11px;color:#ef4444;margin-top:4px;display:none">
+            Nenhuma aula cadastrada neste trimestre
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Valor máximo</label>
+          <input type="number" id="nt-valor" step="0.5" min="0.5" max="10" placeholder="ex: 3">
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <button class="btn btn-primary" id="btn-buscar-notas" onclick="_buscarNotas()">
+          Buscar notas da planilha
+        </button>
+      </div>
+
+      <!-- Tabela de notas -->
+      <div id="nt-tabela" class="hidden">
+        <hr style="border:none;border-top:1px solid #f1f5f9;margin-bottom:14px">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="background:#f8fafc">
+              <th style="padding:7px 10px;text-align:left;border-bottom:1px solid #e2e8f0;width:40px">Nº</th>
+              <th style="padding:7px 10px;text-align:left;border-bottom:1px solid #e2e8f0">Nome</th>
+              <th style="padding:7px 10px;text-align:center;border-bottom:1px solid #e2e8f0;width:90px">Planilha</th>
+              <th style="padding:7px 10px;text-align:center;border-bottom:1px solid #e2e8f0;width:110px">RCO</th>
+            </tr>
+          </thead>
+          <tbody id="nt-tbody"></tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn" style="background:#f1f5f9;color:#374151" onclick="_fecharModalNotas()">Fechar</button>
+      <button class="btn btn-primary" id="btn-lancar-notas" disabled onclick="_lancarNotas()">
+        Lançar no RCO
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ── MODAL GERAR EM LOTE ───────────────────── -->
 <div id="modal-lote" class="modal-overlay hidden" onclick="if(event.target.id==='modal-lote')_fecharLote()">
   <div class="modal-box" onclick="event.stopPropagation()" style="width:620px;max-height:88vh;display:flex;flex-direction:column">
@@ -644,6 +726,7 @@
     if      (state.secao === 'dashboard')   renderDashboard();
     else if (state.secao === 'comentarios') renderComentarios();
     else if (state.secao === 'planilhas')   renderPlanilhas();
+    else if (state.secao === 'notas')       renderNotas();
     else document.getElementById('content').innerHTML =
       `<div class="placeholder">Em desenvolvimento</div>`;
   }
@@ -1271,6 +1354,204 @@
     }
   }
 
+  // ── NOTAS ────────────────────────────────────
+  let _ntTurma   = null;
+  let _ntAlunos  = [];   // cache após busca
+
+  function renderNotas() {
+    const rows = state.turmas.map(t => {
+      const tem = !!t.planilha_id;
+      const k   = JSON.stringify({escola:t.escola, turma:t.turma, disciplina:t.disciplina});
+      return `
+        <div class="plan-row">
+          <div class="turma-avatar">${t.disciplina.slice(0,2).toUpperCase()}</div>
+          <div class="plan-info">
+            <div class="plan-nome">${t.turma} — ${t.disciplina}</div>
+            <div class="plan-escola">${t.escola}</div>
+          </div>
+          <div class="plan-actions">
+            <span class="badge ${tem ? 'badge-ok' : 'badge-sem'}">
+              ${tem ? 'Com planilha' : 'Sem planilha'}
+            </span>
+            <button class="btn btn-primary btn-sm" ${!tem ? 'disabled title="Gere a planilha primeiro"' : ''}
+              onclick='_abrirModalNotas(${k}, "${t.turma.replace(/"/g,"")} — ${t.disciplina.replace(/"/g,"")}")'>
+              Lançar Notas
+            </button>
+          </div>
+        </div>`;
+    }).join('');
+
+    document.getElementById('content').innerHTML = `
+      <div class="section-header">
+        <span class="section-title">Lançamento de Notas</span>
+      </div>
+      <div class="turmas-list">
+        ${state.turmas.length === 0
+          ? '<div class="empty">Nenhuma turma cadastrada.</div>'
+          : rows}
+      </div>`;
+  }
+
+  function _abrirModalNotas(turmaKey, nomeTurma) {
+    _ntTurma  = typeof turmaKey === 'string' ? JSON.parse(turmaKey) : turmaKey;
+    _ntAlunos = [];
+    document.getElementById('notas-modal-title').textContent = `Notas — ${nomeTurma}`;
+    document.querySelectorAll('input[name="nt-trim"]').forEach(r => r.checked = false);
+    document.getElementById('nt-av').value    = 'AV1';
+    document.getElementById('nt-valor').value = '';
+    const sel = document.getElementById('nt-data');
+    sel.innerHTML = '<option value="">Selecione o trimestre primeiro</option>';
+    sel.disabled  = true;
+    document.getElementById('nt-data-aviso').style.display = 'none';
+    document.getElementById('nt-tabela').classList.add('hidden');
+    document.getElementById('nt-tbody').innerHTML = '';
+    document.getElementById('btn-lancar-notas').disabled = true;
+    document.getElementById('modal-notas').classList.remove('hidden');
+  }
+
+  function _fecharModalNotas() {
+    document.getElementById('modal-notas').classList.add('hidden');
+  }
+
+  async function _ntCarregarDatas() {
+    const trimEl = document.querySelector('input[name="nt-trim"]:checked');
+    if (!trimEl) return;
+    const trim    = parseInt(trimEl.value);
+    const sel     = document.getElementById('nt-data');
+    const aviso   = document.getElementById('nt-data-aviso');
+
+    sel.disabled = true;
+    sel.innerHTML = '<option value="">Carregando...</option>';
+    aviso.style.display = 'none';
+
+    // Limpa tabela ao trocar trimestre
+    document.getElementById('nt-tabela').classList.add('hidden');
+    document.getElementById('btn-lancar-notas').disabled = true;
+    _ntAlunos = [];
+
+    try {
+      const {escola, turma, disciplina} = _ntTurma;
+      const res = await window.pywebview.api.get_datas_aula(escola, turma, disciplina, trim);
+      if (!res.ok) {
+        sel.innerHTML = '<option value="">Erro ao carregar</option>';
+        return;
+      }
+      if (res.datas.length === 0) {
+        sel.innerHTML = '<option value="">—</option>';
+        aviso.style.display = '';
+        return;
+      }
+      sel.innerHTML = '<option value="">Selecione a data...</option>' +
+        res.datas.map(d => `<option value="${d}">${d}</option>`).join('');
+      sel.disabled = false;
+    } catch(e) {
+      sel.innerHTML = '<option value="">Erro</option>';
+    }
+  }
+
+  async function _buscarNotas() {
+    const trimEl = document.querySelector('input[name="nt-trim"]:checked');
+    if (!trimEl) { toast('Selecione o trimestre', 'error'); return; }
+    const trim     = parseInt(trimEl.value);
+    const coluna   = document.getElementById('nt-av').value;
+    const btn      = document.getElementById('btn-buscar-notas');
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Buscando...';
+
+    try {
+      const {escola, turma, disciplina} = _ntTurma;
+      const res = await window.pywebview.api.get_notas_planilha(escola, turma, disciplina, trim, coluna);
+      if (!res.ok) { toast('Erro: ' + res.erro, 'error'); return; }
+
+      _ntAlunos = res.alunos;
+      _renderTabelaNotas();
+      document.getElementById('nt-tabela').classList.remove('hidden');
+      document.getElementById('btn-lancar-notas').disabled = !state.chrome;
+    } catch(e) {
+      toast('Erro inesperado: ' + e, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Buscar notas da planilha';
+    }
+  }
+
+  function _renderTabelaNotas() {
+    document.getElementById('nt-tbody').innerHTML = _ntAlunos.map((a, i) => {
+      const inBadge = a.inativo
+        ? '<span style="font-size:10px;background:#fee2e2;color:#991b1b;padding:1px 6px;border-radius:10px;margin-left:6px">Inativo</span>'
+        : '';
+      return `<tr style="${a.inativo ? 'opacity:.5' : ''}">
+        <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;color:#94a3b8">${a.numero}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9">${a.nome}${inBadge}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;text-align:center;color:#64748b">
+          ${a.nota || '—'}
+        </td>
+        <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;text-align:center">
+          <input type="text" maxlength="3" ${a.inativo ? 'disabled' : ''}
+                 value="${a.nota_rco}"
+                 data-idx="${i}"
+                 oninput="_ntAlunos[${i}].nota_rco=this.value"
+                 style="width:60px;text-align:center;border:1px solid #e2e8f0;border-radius:6px;
+                        padding:3px 6px;font-size:13px;background:${a.inativo?'#f8fafc':'#fff'}">
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  async function _lancarNotas() {
+    if (!state.chrome) { toast('Conecte o Chrome primeiro', 'error'); return; }
+
+    const trimEl = document.querySelector('input[name="nt-trim"]:checked');
+    if (!trimEl) { toast('Selecione o trimestre', 'error'); return; }
+    const trim   = parseInt(trimEl.value);
+    const triStr = trim === 1 ? '1º Tri' : trim === 2 ? '2º Tri' : '3º Tri';
+
+    const tipoAv = document.getElementById('nt-av').value;
+    const data   = document.getElementById('nt-data').value;
+    const valor  = document.getElementById('nt-valor').value.trim();
+
+    if (!data) { toast('Selecione a data da avaliação', 'error'); return; }
+    if (!valor || isNaN(parseFloat(valor))) { toast('Informe o valor máximo', 'error'); return; }
+
+    // Tipo para o formulário do RCO: AV1/AV2/AV3 → "AV1"; Recuperação N → "Recuperação"
+    const tipoRco = tipoAv.startsWith('Recupera') ? 'Recuperação' : tipoAv;
+    // Valor no formato RCO (ex: 3.0 → "30")
+    const valorRco = String(Math.round(parseFloat(valor) * 10)).padStart(2, '0');
+
+    // Monta lista apenas dos alunos ativos com nota_rco preenchida
+    const notas = _ntAlunos
+      .filter(a => !a.inativo && a.nota_rco)
+      .map(a => ({
+        nome_normalizado: a.nome
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim(),
+        nota: a.nota_rco,
+      }));
+
+    if (notas.length === 0) { toast('Nenhuma nota para lançar', 'error'); return; }
+
+    const btn = document.getElementById('btn-lancar-notas');
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner"></span>Lançando ${notas.length} notas...`;
+
+    try {
+      const {escola, turma, disciplina} = _ntTurma;
+      const res = await window.pywebview.api.lancar_notas(
+        escola, turma, disciplina, triStr, tipoRco, data, valorRco, notas
+      );
+      if (res.ok) {
+        toast('Notas lançadas! Marque os conteúdos no RCO e clique em Salvar.', 'success');
+      } else {
+        toast('Erro: ' + res.erro, 'error');
+      }
+    } catch(e) {
+      toast('Erro inesperado: ' + e, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Lançar no RCO';
+    }
+  }
+
   // ── COMENTÁRIOS ──────────────────────────────
   let _ocorrencias = [];   // cache da última busca
 
@@ -1581,21 +1862,21 @@
             <div>1º Trimestre</div>
           </div>
         </button>
-        <button class="btn-action" onclick="toast('Em desenvolvimento','')">
+        <button class="btn-action" onclick="navegar(document.querySelector('[data-section=planilhas]'))">
           <div class="btn-icon green">⊞</div>
           <div class="btn-action-text">
             <div>Gerar Planilhas</div>
             <div>Google Sheets</div>
           </div>
         </button>
-        <button class="btn-action" onclick="toast('Em desenvolvimento','')">
+        <button class="btn-action" onclick="navegar(document.querySelector('[data-section=notas]'))">
           <div class="btn-icon purple">✎</div>
           <div class="btn-action-text">
             <div>Lançar Notas</div>
             <div>Avaliações</div>
           </div>
         </button>
-        <button class="btn-action" onclick="toast('Em desenvolvimento','')">
+        <button class="btn-action" onclick="navegar(document.querySelector('[data-section=comentarios]'))">
           <div class="btn-icon orange">✉</div>
           <div class="btn-action-text">
             <div>Lançar Comentários</div>

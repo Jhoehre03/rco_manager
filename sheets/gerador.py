@@ -350,6 +350,144 @@ def _requests_validacao(ws_id, colunas, num_alunos):
 
 
 # ---------------------------------------------------------------------------
+# Leitura de notas
+# ---------------------------------------------------------------------------
+
+_NOMES_ABA = {1: "1 Trimestre", 2: "2 Trimestre", 3: "3 Trimestre"}
+
+# Mapeamento tipo_av → nome do radio no RCO
+# Chave: o que o frontend envia; valor: o que preencher_formulario_avaliacao espera
+AV_TIPOS = {
+    "AV1": "AV1", "AV2": "AV2", "AV3": "AV3",
+    "Recuperação 1": "Recuperação", "Recuperação 2": "Recuperação",
+    "Recuperação 3": "Recuperação",
+}
+
+_SITUACOES_INATIVAS = {"transferido", "desistente", "cancelado", "evadido", "afastado"}
+
+
+def ler_notas_planilha(planilha_id, trimestre, coluna_av):
+    """
+    Lê a coluna de nota calculada (C, D ou E) referente a `coluna_av` na aba do trimestre.
+
+    coluna_av: nome da AV conforme cabeçalho do Sheets — ex. "AV1", "AV2", "AV3"
+               ou prefixo que combine com o header (ex. "AV1" bate com "AV1 (0-10)").
+
+    Retorna lista de dicts:
+        numero   (int)   — número de chamada
+        nome     (str)
+        nota     (str)   — valor calculado da planilha (ex. "2.5") ou "" se vazio
+        nota_rco (str)   — nota × 10 como inteiro com zero-padding (ex. "25"), "" se sem nota
+        inativo  (bool)
+    """
+    creds = _get_creds()
+    gc    = gspread.authorize(creds)
+    sh    = gc.open_by_key(planilha_id)
+
+    nome_aba = _NOMES_ABA.get(int(trimestre))
+    ws = next((w for w in sh.worksheets() if w.title == nome_aba), None)
+    if ws is None:
+        raise ValueError(f"Aba '{nome_aba}' não encontrada na planilha.")
+
+    linhas = ws.get_all_values()
+    if len(linhas) < 4:
+        return []
+
+    row3 = linhas[2]   # índice 2 = linha 3 (cabeçalhos)
+
+    # Descobre qual das colunas C/D/E (índices 2,3,4) corresponde a coluna_av
+    av_col_idx = None
+    for idx in (2, 3, 4):   # C, D, E
+        if idx >= len(row3):
+            break
+        header = row3[idx].strip()
+        if header.upper().startswith(coluna_av.upper()):
+            av_col_idx = idx
+            break
+
+    if av_col_idx is None:
+        raise ValueError(
+            f"Coluna '{coluna_av}' não encontrada na aba '{nome_aba}'. "
+            f"Cabeçalhos disponíveis: {row3[2:5]}"
+        )
+
+    resultado = []
+    for linha in linhas[3:]:
+        if not linha or not linha[0].strip():
+            continue
+        nome   = linha[0].strip()
+        sit    = linha[1].strip().lower() if len(linha) > 1 else ""
+        num_s  = linha[6].strip() if len(linha) > 6 else ""
+        if not num_s.isdigit():
+            continue
+
+        inativo = sit in _SITUACOES_INATIVAS
+
+        nota_raw = linha[av_col_idx].strip() if len(linha) > av_col_idx else ""
+        nota_raw = nota_raw.replace(",", ".")   # normaliza decimal
+
+        if nota_raw:
+            try:
+                nota_int = int(round(float(nota_raw) * 10))
+                nota_rco = str(nota_int).zfill(2)
+            except ValueError:
+                nota_rco = ""
+        else:
+            nota_rco = ""
+
+        resultado.append({
+            "numero":   int(num_s),
+            "nome":     nome,
+            "nota":     nota_raw,
+            "nota_rco": nota_rco,
+            "inativo":  inativo,
+        })
+
+    return resultado
+
+
+# ---------------------------------------------------------------------------
+# Datas de aula
+# ---------------------------------------------------------------------------
+
+def get_datas_aula(planilha_id, trimestre):
+    """
+    Lê a linha 1 da aba do trimestre e retorna as datas de aula preenchidas.
+    Retorna lista de strings "DD/MM/AAAA", ordenadas cronologicamente.
+    """
+    from datetime import datetime
+
+    creds = _get_creds()
+    gc    = gspread.authorize(creds)
+    sh    = gc.open_by_key(planilha_id)
+
+    nome_aba = _NOMES_ABA.get(int(trimestre))
+    ws = next((w for w in sh.worksheets() if w.title == nome_aba), None)
+    if ws is None:
+        raise ValueError(f"Aba '{nome_aba}' não encontrada na planilha.")
+
+    row1 = ws.row_values(1)
+
+    datas = []
+    for cell in row1[COL_AULAS_INICIO - 1:]:   # a partir da coluna H (índice 7)
+        v = cell.strip()
+        if not v:
+            continue
+        # Aceita "DD/MM" (gerado pelo gerador) ou "DD/MM/AAAA"
+        if len(v) == 5 and v[2] == "/":
+            v = v + f"/{datetime.today().year}"
+        try:
+            datetime.strptime(v, "%d/%m/%Y")
+            datas.append(v)
+        except ValueError:
+            continue
+
+    # Ordena cronologicamente e remove duplicatas
+    datas = sorted(set(datas), key=lambda d: datetime.strptime(d, "%d/%m/%Y"))
+    return datas
+
+
+# ---------------------------------------------------------------------------
 # Sincronização de alunos
 # ---------------------------------------------------------------------------
 
