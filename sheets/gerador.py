@@ -33,10 +33,10 @@ PENALIDADES = [
     ("Evasão(Gaseio)",      -200),
 ]
 
-# Colunas fixas: A=Aluno B=Situação C=AV1 D=AV2 E=AV3 F=Média G=Nº
-COL_FIXAS        = 7
-COL_AULAS_INICIO = COL_FIXAS + 1   # H = 8
-MEDIAS_COLS      = ["C", "D", "E"]
+# Colunas fixas: A=Aluno B=Situação C=ATV1 D=REC1 E=ATV2 F=REC2 G=ATV3 H=REC3 I=Nota J=Nº
+COL_FIXAS        = 10
+COL_AULAS_INICIO = COL_FIXAS + 1   # K = 11
+MEDIAS_COLS      = ["C", "D", "E", "F", "G", "H"]   # ATV1,REC1,ATV2,REC2,ATV3,REC3
 
 SITUACOES_ATIVAS = {"", "ativo", "matriculado", "cursando"}
 
@@ -145,8 +145,9 @@ def _colunas_v2(num_semanas, freq, avaliacoes, modo):
                 aula_global += 1
 
         if semana in av_por_semana:
-            colunas.append({"tipo": "av", "semana": semana,
-                            "av_idx": av_por_semana[semana]})
+            av_idx = av_por_semana[semana]
+            colunas.append({"tipo": "av",  "semana": semana, "av_idx": av_idx})
+            colunas.append({"tipo": "rec", "semana": semana, "av_idx": av_idx})
 
     return colunas
 
@@ -199,14 +200,20 @@ def _trimestre_ranges(nome_aba, turma_data, config, tri_num):
     # ------------------------------------------------------------------
     # Linha 3 — cabeçalhos fixos + cabeçalhos das colunas de aula
     # ------------------------------------------------------------------
-    av_headers = [av["nome"] for av in avaliacoes[:3]]
-    while len(av_headers) < 3:
-        av_headers.append("")
-    ranges.append({"range": f"{p}A3",
-                   "values": [["Aluno", "Situação"] + av_headers + ["Nota", "Nº"]]})
+    # C=ATV1, D=REC1, E=ATV2, F=REC2, G=ATV3, H=REC3, I=Nota, J=Nº
+    av_names = [av["nome"] for av in avaliacoes[:3]]
+    while len(av_names) < 3:
+        av_names.append("")
+    fixed_headers = ["Aluno", "Situação"]
+    for n in av_names:
+        fixed_headers.append(n)           # ATV N
+        fixed_headers.append(f"REC {n[-1]}" if n else "")  # REC N
+    fixed_headers += ["Nota", "Nº"]
+    ranges.append({"range": f"{p}A3", "values": [fixed_headers]})
 
-    av_col_letters    = {}   # av_idx  → col_letter
-    eng_cols_por_sem  = {}   # semana  → [col_letters das eng]
+    av_col_letters     = {}   # av_idx  → col_letter  (coluna da nota ATV na área dinâmica)
+    rec_col_letters    = {}   # av_idx  → col_letter  (coluna da nota REC na área dinâmica)
+    eng_cols_por_sem   = {}   # semana  → [col_letters das eng]
 
     for i, col in enumerate(colunas):
         cl = _col_letter(COL_AULAS_INICIO + i)
@@ -217,8 +224,11 @@ def _trimestre_ranges(nome_aba, turma_data, config, tri_num):
             eng_cols_por_sem.setdefault(col["semana"], []).append(cl)
         elif col["tipo"] == "av":
             av = avaliacoes[col["av_idx"]]
-            ranges.append({"range": f"{p}{cl}3", "values": [[f"{av['nome']} (0-10)"]]})
+            ranges.append({"range": f"{p}{cl}3", "values": [[f"ATV {col['av_idx']+1} (0-10)"]]})
             av_col_letters[col["av_idx"]] = cl
+        elif col["tipo"] == "rec":
+            ranges.append({"range": f"{p}{cl}3", "values": [[f"REC {col['av_idx']+1} (0-10)"]]})
+            rec_col_letters[col["av_idx"]] = cl
 
     # Períodos de engajamento por AV (semanas desde a AV anterior até esta)
     prev_semana     = 0
@@ -236,7 +246,8 @@ def _trimestre_ranges(nome_aba, turma_data, config, tri_num):
     # ------------------------------------------------------------------
     for idx, aluno in enumerate(alunos):
         row = 4 + idx
-        ranges.append({"range": f"{p}G{row}", "values": [[aluno["numero"]]]})
+        num_col = _col_letter(COL_FIXAS)   # J quando COL_FIXAS=10
+        ranges.append({"range": f"{p}{num_col}{row}", "values": [[aluno["numero"]]]})
         ranges.append({"range": f"{p}A{row}", "values": [[aluno["nome"]]]})
         situacao = aluno.get("situacao", "").strip() or "Regular"
         ranges.append({"range": f"{p}B{row}", "values": [[situacao]]})
@@ -252,41 +263,52 @@ def _trimestre_ranges(nome_aba, turma_data, config, tri_num):
                 )
                 ranges.append({"range": f"{p}{eng_cl}{row}", "values": [[formula]]})
 
-        # Fórmulas das AVs (colunas C, D, E)
+        # Fórmulas das AVs (colunas C, E, G = ATV1, ATV2, ATV3)
+        # Colunas D, F, H (REC1, REC2, REC3) ficam em branco para preenchimento manual
         for av_idx, av in enumerate(avaliacoes):
-            if av_idx >= len(MEDIAS_COLS):
+            av_cl    = av_col_letters.get(av_idx)
+            # med_col index: ATV1→C(0), ATV2→E(2), ATV3→G(4)
+            med_col_idx = av_idx * 2
+            if med_col_idx >= len(MEDIAS_COLS):
                 break
-            av_cl   = av_col_letters.get(av_idx)
-            med_col = MEDIAS_COLS[av_idx]
+            med_col = MEDIAS_COLS[med_col_idx]
             if not av_cl:
                 continue
 
-            valor_max = av["valor_maximo"]
             peso_eng  = av.get("peso_engajamento", 0.0)
-            peso_av   = av.get("peso_avaliacao",  valor_max)
             eng_cols  = av_eng_periods.get(av_idx, [])
 
             if modo == "completo" and peso_eng > 0 and eng_cols:
-                eng_args   = ";".join(f"{c}{row}" for c in eng_cols)
-                eng_part   = f"SEERRO(MÉDIA({eng_args});0)/100*{_fmt(peso_eng)}"
-                av_part    = f"{av_cl}{row}/10*{_fmt(peso_av)}"
-                formula    = (
+                eng_args = ";".join(f"{c}{row}" for c in eng_cols)
+                # eng: média/10 * peso_eng  (100% eng com peso 2 → 20)
+                # av:  nota lançada pelo professor já no valor correto
+                eng_part = f"SEERRO(MÉDIA({eng_args});0)/10*{_fmt(peso_eng)}"
+                formula  = (
                     f'=SEERRO(SE(ÉCÉL.VAZIA({av_cl}{row});"";'
-                    f'{eng_part}+{av_part});"")'
+                    f'ARRED({eng_part}+{av_cl}{row};0));"")'
                 )
             else:
+                # Nota direta — professor já lança o valor correto
                 formula = (
                     f'=SEERRO(SE(ÉCÉL.VAZIA({av_cl}{row});"";'
-                    f'{av_cl}{row}/10*{_fmt(valor_max)});"")'
+                    f'ARRED({av_cl}{row};0));"")'
                 )
             ranges.append({"range": f"{p}{med_col}{row}", "values": [[formula]]})
 
-        # Nota final (F) = soma das colunas C, D, E
-        avs_usadas = [MEDIAS_COLS[i] for i in range(min(len(avaliacoes), 3))]
-        if avs_usadas:
-            args = ";".join(f"{c}{row}" for c in avs_usadas)
-            ranges.append({"range": f"{p}F{row}",
-                           "values": [[f'=SEERRO(SOMA({args});"")']]} )
+        # Nota final (I) = soma de ATV1+ATV2+ATV3 (C, E, G)
+        # Considera REC: se REC preenchida, usa REC no lugar da ATV correspondente
+        partes_nota = []
+        for av_idx in range(min(len(avaliacoes), 3)):
+            atv_col = MEDIAS_COLS[av_idx * 2]      # C, E, G
+            rec_col = MEDIAS_COLS[av_idx * 2 + 1]  # D, F, H
+            # SE REC preenchida usa REC, senão usa ATV
+            partes_nota.append(
+                f'SE(ÉCÉL.VAZIA({rec_col}{row});SEERRO({atv_col}{row};0);{rec_col}{row})'
+            )
+        if partes_nota:
+            soma_formula = "+".join(partes_nota)
+            ranges.append({"range": f"{p}I{row}",
+                           "values": [[f'=SEERRO({soma_formula};"")']]})
 
     return ranges
 
@@ -312,6 +334,39 @@ def _requests_ocultar_inativos(ws_id, alunos):
                 },
                 "properties": {"hiddenByUser": True},
                 "fields": "hiddenByUser",
+            }
+        })
+    return requests
+
+
+def _requests_cores_cabecalho(ws_id, colunas, num_alunos):
+    """Coloração das colunas ATV (azul claro) e REC (laranja claro) na linha 3 e dados."""
+    requests = []
+    ultima_linha = 4 + num_alunos
+
+    _AZUL   = {"red": 0.776, "green": 0.871, "blue": 0.953}  # #C6DEFF aprox
+    _LARANJA = {"red": 0.988, "green": 0.871, "blue": 0.706}  # #FCDED4 aprox
+
+    for i, col in enumerate(colunas):
+        if col["tipo"] not in ("av", "rec"):
+            continue
+        col_idx = COL_AULAS_INICIO + i - 1   # 0-based
+        cor = _AZUL if col["tipo"] == "av" else _LARANJA
+        requests.append({
+            "repeatCell": {
+                "range": {
+                    "sheetId":          ws_id,
+                    "startRowIndex":    2,          # linha 3 (header)
+                    "endRowIndex":      ultima_linha,
+                    "startColumnIndex": col_idx,
+                    "endColumnIndex":   col_idx + 1,
+                },
+                "cell": {
+                    "userEnteredFormat": {
+                        "backgroundColor": cor
+                    }
+                },
+                "fields": "userEnteredFormat.backgroundColor",
             }
         })
     return requests
@@ -395,21 +450,37 @@ def ler_notas_planilha(planilha_id, trimestre, coluna_av):
 
     row3 = linhas[2]   # índice 2 = linha 3 (cabeçalhos)
 
-    # Descobre qual das colunas C/D/E (índices 2,3,4) corresponde a coluna_av
+    # Descobre a coluna que corresponde a coluna_av nas colunas fixas C–H (índices 2–7)
+    # Aceita tanto o formato novo ("ATV 1") quanto o antigo ("AV1", "AV2", "AV3")
+    _ALIASES = {
+        "ATV 1": ("ATV 1", "AV1"),
+        "REC 1": ("REC 1",),
+        "ATV 2": ("ATV 2", "AV2"),
+        "REC 2": ("REC 2",),
+        "ATV 3": ("ATV 3", "AV3"),
+        "REC 3": ("REC 3",),
+    }
+    prefixos = [p.upper() for p in _ALIASES.get(coluna_av, (coluna_av,))]
+
     av_col_idx = None
-    for idx in (2, 3, 4):   # C, D, E
-        if idx >= len(row3):
-            break
-        header = row3[idx].strip()
-        if header.upper().startswith(coluna_av.upper()):
+    for idx in range(2, min(10, len(row3))):   # C=2 … J=9
+        header = row3[idx].strip().upper()
+        if any(header.startswith(p) for p in prefixos):
             av_col_idx = idx
             break
 
     if av_col_idx is None:
         raise ValueError(
             f"Coluna '{coluna_av}' não encontrada na aba '{nome_aba}'. "
-            f"Cabeçalhos disponíveis: {row3[2:5]}"
+            f"Cabeçalhos disponíveis: {row3[2:10]}"
         )
+
+    # Número de chamada: novo formato → coluna J (índice 9); antigo → coluna G (índice 6)
+    # Detecta pelo cabeçalho "Nº" na linha 3
+    NUM_COL_IDX = next(
+        (i for i, h in enumerate(row3) if h.strip() in ("Nº", "N°", "Nº")),
+        COL_FIXAS - 1   # fallback: J
+    )
 
     resultado = []
     for linha in linhas[3:]:
@@ -417,7 +488,7 @@ def ler_notas_planilha(planilha_id, trimestre, coluna_av):
             continue
         nome   = linha[0].strip()
         sit    = linha[1].strip().lower() if len(linha) > 1 else ""
-        num_s  = linha[6].strip() if len(linha) > 6 else ""
+        num_s  = linha[NUM_COL_IDX].strip() if len(linha) > NUM_COL_IDX else ""
         if not num_s.isdigit():
             continue
 
@@ -428,8 +499,7 @@ def ler_notas_planilha(planilha_id, trimestre, coluna_av):
 
         if nota_raw:
             try:
-                nota_int = int(round(float(nota_raw) * 10))
-                nota_rco = str(nota_int).zfill(2)
+                nota_rco = str(int(round(float(nota_raw))))
             except ValueError:
                 nota_rco = ""
         else:
@@ -793,6 +863,7 @@ def gerar_diario(turma_data, config, pasta_id):
     for tri_num, ws in [(1, ws_tri1), (2, ws_tri2), (3, ws_tri3)]:
         colunas = tri_colunas[tri_num]
         format_requests.extend(_requests_validacao(ws.id, colunas, num_alunos))
+        format_requests.extend(_requests_cores_cabecalho(ws.id, colunas, num_alunos))
         format_requests.extend(_requests_ocultar_inativos(ws.id, alunos_ord))
         format_requests.append({
             "updateSheetProperties": {
@@ -801,6 +872,19 @@ def gerar_diario(turma_data, config, pasta_id):
                     "gridProperties": {"frozenColumnCount": COL_FIXAS},
                 },
                 "fields": "gridProperties.frozenColumnCount",
+            }
+        })
+        # Colunas C–J (ATV1/REC1/ATV2/REC2/ATV3/REC3/Nota/Nº) → 45 px
+        format_requests.append({
+            "updateDimensionProperties": {
+                "range": {
+                    "sheetId":    ws.id,
+                    "dimension":  "COLUMNS",
+                    "startIndex": 2,   # C
+                    "endIndex":   10,  # até J inclusive
+                },
+                "properties": {"pixelSize": 45},
+                "fields": "pixelSize",
             }
         })
 

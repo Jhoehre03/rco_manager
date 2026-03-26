@@ -374,20 +374,35 @@ class Api:
             return {"ok": False, "erro": str(e)}
 
     def get_datas_aula(self, escola, turma, disciplina, trimestre):
+        if not self.browser:
+            return {"ok": False, "chrome": False,
+                    "erro": "Chrome não conectado — conecte para ver as datas do RCO"}
         try:
-            from sheets.gerador import get_datas_aula
-            dados = carregar()
-            planilha_id = None
-            for e in dados.get("escolas", []):
-                if e["nome"] == escola:
-                    for t in e["turmas"]:
-                        if t["turma"] == turma and t["disciplina"] == disciplina:
-                            planilha_id = t.get("planilha_id")
-                            break
-            if not planilha_id:
-                return {"ok": False, "erro": "Planilha não associada."}
-            datas = get_datas_aula(planilha_id, trimestre)
-            return {"ok": True, "datas": datas}
+            from database import entrar_turma
+            from rco.notas import obter_datas_aula
+            from selenium.webdriver.common.by import By
+            from selenium.webdriver.support.ui import WebDriverWait
+            from selenium.webdriver.support import expected_conditions as EC
+
+            tri_str = {1: "1º Tri", 2: "2º Tri", 3: "3º Tri"}.get(int(trimestre), str(trimestre))
+
+            self.browser.get("https://rco.paas.pr.gov.br/livro")
+            WebDriverWait(self.browser, 15).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "div.card"))
+            )
+            ok = entrar_turma(self.browser, escola, turma, disciplina, tri_str)
+            if not ok:
+                return {"ok": False, "erro": f"Não foi possível entrar na turma {turma}"}
+
+            from rco.notas import navegar_avaliacao
+            navegar_avaliacao(self.browser)
+
+            datas = obter_datas_aula(self.browser)
+            # obter_datas_aula retorna "YYYY-MM-DD"; converte para "DD/MM/AAAA"
+            datas_fmt = [
+                f"{d[8:10]}/{d[5:7]}/{d[:4]}" for d in datas
+            ]
+            return {"ok": True, "datas": datas_fmt}
         except Exception as e:
             return {"ok": False, "erro": str(e)}
 
@@ -438,7 +453,10 @@ class Api:
                 return {"ok": False, "erro": f"Não foi possível entrar na turma {turma}"}
 
             navegar_avaliacao(self.browser)
-            preencher_formulario_avaliacao(self.browser, tipo_av, data, str(valor))
+            _REC_DE = {"REC 1": "AV1", "REC 2": "AV2", "REC 3": "AV3"}
+            rec_de  = _REC_DE.get(tipo_av)
+            tipo_rco = "Recuperação" if rec_de else "AV1"
+            preencher_formulario_avaliacao(self.browser, tipo_rco, data, str(valor), rec_de=rec_de)
             preencher_notas(self.browser, notas)
             return {"ok": True}
         except Exception as e:

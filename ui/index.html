@@ -476,12 +476,12 @@
         <div class="form-group">
           <label>Avaliação</label>
           <select id="nt-av">
-            <option value="AV1">AV1</option>
-            <option value="Recuperação 1">Recuperação 1</option>
-            <option value="AV2">AV2</option>
-            <option value="Recuperação 2">Recuperação 2</option>
-            <option value="AV3">AV3</option>
-            <option value="Recuperação 3">Recuperação 3</option>
+            <option value="ATV 1">ATV 1</option>
+            <option value="REC 1">REC 1</option>
+            <option value="ATV 2">ATV 2</option>
+            <option value="REC 2">REC 2</option>
+            <option value="ATV 3">ATV 3</option>
+            <option value="REC 3">REC 3</option>
           </select>
         </div>
       </div>
@@ -1397,7 +1397,7 @@
     _ntAlunos = [];
     document.getElementById('notas-modal-title').textContent = `Notas — ${nomeTurma}`;
     document.querySelectorAll('input[name="nt-trim"]').forEach(r => r.checked = false);
-    document.getElementById('nt-av').value    = 'AV1';
+    document.getElementById('nt-av').value    = 'ATV 1';
     document.getElementById('nt-valor').value = '';
     const sel = document.getElementById('nt-data');
     sel.innerHTML = '<option value="">Selecione o trimestre primeiro</option>';
@@ -1433,11 +1433,18 @@
       const {escola, turma, disciplina} = _ntTurma;
       const res = await window.pywebview.api.get_datas_aula(escola, turma, disciplina, trim);
       if (!res.ok) {
-        sel.innerHTML = '<option value="">Erro ao carregar</option>';
+        sel.innerHTML = '<option value="">—</option>';
+        aviso.textContent = res.chrome === false
+          ? 'Conecte o Chrome para ver as datas disponíveis no RCO'
+          : 'Erro ao carregar: ' + res.erro;
+        aviso.style.color  = res.chrome === false ? '#d97706' : '#ef4444';
+        aviso.style.display = '';
         return;
       }
       if (res.datas.length === 0) {
         sel.innerHTML = '<option value="">—</option>';
+        aviso.textContent   = 'Nenhuma aula cadastrada neste trimestre';
+        aviso.style.color   = '#ef4444';
         aviso.style.display = '';
         return;
       }
@@ -1514,8 +1521,8 @@
     if (!data) { toast('Selecione a data da avaliação', 'error'); return; }
     if (!valor || isNaN(parseFloat(valor))) { toast('Informe o valor máximo', 'error'); return; }
 
-    // Tipo para o formulário do RCO: AV1/AV2/AV3 → "AV1"; Recuperação N → "Recuperação"
-    const tipoRco = tipoAv.startsWith('Recupera') ? 'Recuperação' : tipoAv;
+    // Tipo para o formulário do RCO: ATV N → "AV1"; REC N → "Recuperação"
+    const tipoRco = tipoAv;   // app.py faz o mapeamento para o RCO
     // Valor no formato RCO (ex: 3.0 → "30")
     const valorRco = String(Math.round(parseFloat(valor) * 10)).padStart(2, '0');
 

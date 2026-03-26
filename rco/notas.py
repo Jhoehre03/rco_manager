@@ -152,25 +152,48 @@ def navegar_avaliacao(browser):
     wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "input[type='radio']")))
 
 
-def preencher_formulario_avaliacao(browser, tipo, data, valor):
+def preencher_formulario_avaliacao(browser, tipo, data, valor, rec_de=None):
     """
     Preenche o formulário de avaliação e avança para a tabela de alunos.
 
     Args:
-        tipo:  "AV1" ou "Recuperação"
-        data:  string "DD/MM/AAAA"
-        valor: string sem vírgula, ex "30" para 3,0
+        tipo:   "AV1" ou "Recuperação"
+        data:   string "DD/MM/AAAA"
+        valor:  string sem vírgula, ex "30" para 3,0
+        rec_de: quando tipo="Recuperação", texto da AV a marcar no checkbox,
+                ex "AV1" — marca o checkbox cujo label contém esse texto
     """
     wait = WebDriverWait(browser, 15)
     _aguardar_sem_overlay(browser)
 
-    # Seleciona o radio button
-    radio_value = "1" if tipo == "AV1" else "2"
+    # Seleciona o radio button: ATV N → "1" (AV1), REC N → "2" (Recuperação)
+    radio_value = "2" if tipo.upper().startswith("REC") else "1"
     radio = wait.until(EC.presence_of_element_located(
         (By.CSS_SELECTOR, f"input[type='radio'][value='{radio_value}']")
     ))
     browser.execute_script("arguments[0].click()", radio)
     time.sleep(0.5)
+
+    # Se for Recuperação, marca o checkbox da AV correspondente
+    if tipo.upper().startswith("REC") and rec_de:
+        try:
+            # Aguarda o grupo de checkboxes aparecer
+            wait.until(EC.presence_of_element_located(
+                (By.CSS_SELECTOR, "[name='grupoRecuperadas']")
+            ))
+            # Encontra o label cujo texto contém rec_de (ex: "AV1")
+            # O grupo tem role="group" e contém os checkboxes de recuperação
+            grupo = browser.find_element(
+                By.CSS_SELECTOR, "[data-vv-name='grupoRecuperadas']"
+            )
+            labels = grupo.find_elements(By.CSS_SELECTOR, "label.custom-control-label")
+            for label in labels:
+                if rec_de.upper() in label.text.upper():
+                    browser.execute_script("arguments[0].click()", label)
+                    time.sleep(0.3)
+                    break
+        except Exception as e:
+            print(f"[WARN] Não foi possível marcar checkbox de recuperação: {e}")
 
     # Converte DD/MM/AAAA → YYYY-MM-DD e seleciona no calendário
     partes = data.split("/")
@@ -178,15 +201,17 @@ def preencher_formulario_avaliacao(browser, tipo, data, valor):
     _abrir_calendario(browser)
     _selecionar_dia(browser, data_iso)
 
-    # Preenche o valor no peso
-    campo_valor = wait.until(EC.presence_of_element_located((By.ID, "pesoDecimal")))
-    browser.execute_script("arguments[0].value = arguments[1]", campo_valor, valor)
-    browser.execute_script(
-        "arguments[0].dispatchEvent(new Event('input', {bubbles: true}))", campo_valor
-    )
-    time.sleep(0.3)
+    # Preenche o valor no peso (não existe na tela de Recuperação)
+    if not tipo.upper().startswith("REC"):
+        campo_valor = wait.until(EC.presence_of_element_located((By.ID, "pesoDecimal")))
+        browser.execute_script("arguments[0].value = arguments[1]", campo_valor, valor)
+        browser.execute_script(
+            "arguments[0].dispatchEvent(new Event('input', {bubbles: true}))", campo_valor
+        )
+        time.sleep(0.3)
 
     # Clica em Avançar (btn-primary no card-footer)
+    time.sleep(0.3)
     btn_avancar = wait.until(EC.element_to_be_clickable(
         (By.CSS_SELECTOR, ".card-footer .btn-primary")
     ))
@@ -230,9 +255,7 @@ def preencher_notas(browser, notas):
         except Exception:
             continue
 
-        nota_int = int(round(float(nota) * 10))
-        nota_str = str(nota_int).zfill(2)
-        browser.execute_script("arguments[0].value = arguments[1]", campo, nota_str)
+        browser.execute_script("arguments[0].value = arguments[1]", campo, str(nota).zfill(2))
         browser.execute_script(
             "arguments[0].dispatchEvent(new Event('input', {bubbles: true}))", campo
         )
