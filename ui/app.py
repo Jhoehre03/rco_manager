@@ -373,6 +373,77 @@ class Api:
         except Exception as e:
             return {"ok": False, "erro": str(e)}
 
+    def get_datas_aula(self, escola, turma, disciplina, trimestre):
+        try:
+            from sheets.gerador import get_datas_aula
+            dados = carregar()
+            planilha_id = None
+            for e in dados.get("escolas", []):
+                if e["nome"] == escola:
+                    for t in e["turmas"]:
+                        if t["turma"] == turma and t["disciplina"] == disciplina:
+                            planilha_id = t.get("planilha_id")
+                            break
+            if not planilha_id:
+                return {"ok": False, "erro": "Planilha não associada."}
+            datas = get_datas_aula(planilha_id, trimestre)
+            return {"ok": True, "datas": datas}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
+    def get_notas_planilha(self, escola, turma, disciplina, trimestre, coluna_av):
+        """
+        Lê a planilha do Sheets e retorna as notas de uma avaliação.
+        trimestre: 1, 2 ou 3
+        coluna_av: "AV1", "AV2", "AV3", "Recuperação 1", etc.
+        Retorna: {ok, alunos: [{numero, nome, nota, nota_rco, inativo}]}
+        """
+        try:
+            from sheets.gerador import ler_notas_planilha
+            dados = carregar()
+            planilha_id = None
+            for e in dados.get("escolas", []):
+                if e["nome"] == escola:
+                    for t in e["turmas"]:
+                        if t["turma"] == turma and t["disciplina"] == disciplina:
+                            planilha_id = t.get("planilha_id")
+                            break
+            if not planilha_id:
+                return {"ok": False, "erro": "Planilha não associada. Gere a planilha primeiro."}
+            alunos = ler_notas_planilha(planilha_id, trimestre, coluna_av)
+            return {"ok": True, "alunos": alunos}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
+    def lancar_notas(self, escola, turma, disciplina, trimestre, tipo_av, data, valor, notas):
+        """
+        Entra na turma, navega para avaliação e lança as notas.
+        notas: lista de {nome_normalizado, nota} (nota já no formato RCO, ex: "23")
+        """
+        if not self.browser:
+            return {"ok": False, "erro": "Chrome não conectado"}
+        try:
+            from database import entrar_turma
+            from rco.notas import navegar_avaliacao, preencher_formulario_avaliacao, preencher_notas
+            from selenium.webdriver.common.by import By
+            from selenium.webdriver.support.ui import WebDriverWait
+            from selenium.webdriver.support import expected_conditions as EC
+
+            self.browser.get("https://rco.paas.pr.gov.br/livro")
+            WebDriverWait(self.browser, 15).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "div.card"))
+            )
+            ok = entrar_turma(self.browser, escola, turma, disciplina, trimestre)
+            if not ok:
+                return {"ok": False, "erro": f"Não foi possível entrar na turma {turma}"}
+
+            navegar_avaliacao(self.browser)
+            preencher_formulario_avaliacao(self.browser, tipo_av, data, str(valor))
+            preencher_notas(self.browser, notas)
+            return {"ok": True}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
     def atualizar_banco(self, trimestre):
         if not self.browser:
             return {"ok": False, "erro": "Chrome não conectado"}
