@@ -136,7 +136,6 @@ class Api:
         """
         try:
             from sheets.gerador import gerar_diario
-            from datetime import date as _date
 
             dados = carregar()
             turma_data = None
@@ -157,13 +156,20 @@ class Api:
             if not turma_data:
                 return {"ok": False, "erro": "Turma não encontrada no dados.json"}
 
-            d = config["data_inicio"].split("/")
             config_gerador = {
-                "num_aulas":          int(config["num_aulas"]),
-                "data_inicio":        _date(int(d[2]), int(d[1]), int(d[0])),
-                "frequencia_semanal": int(config["frequencia_semanal"]),
-                "avaliacoes":         [{"valor_maximo": float(a["valor_maximo"])}
-                                       for a in config["avaliacoes"]],
+                "modo":               config.get("modo", "diario"),
+                "frequencia_semanal": int(config.get("frequencia_semanal", 2)),
+                "avaliacoes": [
+                    {
+                        "nome":             a.get("nome", f"AV{i+1}"),
+                        "valor_maximo":     float(a["valor_maximo"]),
+                        "semana":           int(a["semana"]),
+                        "peso_engajamento": float(a.get("peso_engajamento", 0.0)),
+                        "peso_avaliacao":   float(a.get("peso_avaliacao",
+                                                        float(a["valor_maximo"]))),
+                    }
+                    for i, a in enumerate(config["avaliacoes"])
+                ],
             }
 
             resultado   = gerar_diario(turma_data, config_gerador, PASTA_ID)
@@ -235,6 +241,27 @@ class Api:
         except Exception as e:
             return {"ok": False, "erro": str(e)}
 
+    def desvincular_planilha(self, escola, turma, disciplina):
+        try:
+            dados = carregar()
+            for e in dados.get("escolas", []):
+                if e["nome"] == escola:
+                    for t in e["turmas"]:
+                        if t["turma"] == turma and t["disciplina"] == disciplina:
+                            pid = t.get("planilha_id", "")
+                            if not pid:
+                                return {"ok": False, "erro": "Planilha não cadastrada"}
+                            t["planilha_url_anterior"] = (
+                                f"https://docs.google.com/spreadsheets/d/{pid}"
+                            )
+                            t["planilha_id"] = ""
+                            with open(DADOS_JSON, "w", encoding="utf-8") as f:
+                                json.dump(dados, f, ensure_ascii=False, indent=2)
+                            return {"ok": True}
+            return {"ok": False, "erro": "Turma não encontrada"}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
     def abrir_planilha(self, escola, turma, disciplina):
         dados = carregar()
         for e in dados.get("escolas", []):
@@ -247,6 +274,104 @@ class Api:
                             subprocess.Popen(["start", link], shell=True)
                             return {"ok": True, "link": link}
         return {"ok": False, "erro": "Planilha não cadastrada para esta turma"}
+
+    def calcular_num_aulas(self, trimestre, freq_semanal):
+        """
+        Calcula o número aproximado de aulas no trimestre.
+        trimestre:    1, 2 ou 3
+        freq_semanal: número de aulas por semana
+        Retorna: {ok, num_semanas, num_aulas, info}
+        """
+        try:
+            from calendario.calendario_pr import calcular_semanas_trimestre, obter_info_trimestre
+            num_semanas = calcular_semanas_trimestre(int(trimestre))
+            freq        = int(freq_semanal) if freq_semanal else 0
+            num_aulas   = num_semanas * freq
+            info        = obter_info_trimestre(int(trimestre))
+            return {"ok": True, "num_semanas": num_semanas, "num_aulas": num_aulas, "info": info}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
+    def gerar_planilhas_em_lote(self, turmas, config):
+        """
+        Gera planilhas para múltiplas turmas com a mesma configuração.
+        turmas: lista de {escola, turma, disciplina}
+        config: mesmo formato de gerar_planilha
+        Retorna: {ok, resultados: [{turma, disciplina, ok, link?, erro?}]}
+        """
+        try:
+            from sheets.gerador import gerar_diario
+            dados = carregar()
+
+            # Monta índice rápido de turmas
+            turmas_idx = {}
+            for e in dados.get("escolas", []):
+                for t in e["turmas"]:
+                    turmas_idx[(e["nome"], t["turma"], t["disciplina"])] = (e, t)
+
+            config_gerador = {
+                "modo":               config.get("modo", "diario"),
+                "frequencia_semanal": int(config.get("frequencia_semanal", 2)),
+                "avaliacoes": [
+                    {
+                        "nome":             a.get("nome", f"AV{i+1}"),
+                        "valor_maximo":     float(a["valor_maximo"]),
+                        "semana":           int(a["semana"]),
+                        "peso_engajamento": float(a.get("peso_engajamento", 0.0)),
+                        "peso_avaliacao":   float(a.get("peso_avaliacao",
+                                                        float(a["valor_maximo"]))),
+                    }
+                    for i, a in enumerate(config["avaliacoes"])
+                ],
+            }
+
+            resultados = []
+            dados_modificados = False
+
+            for item in turmas:
+                escola_nome = item["escola"]
+                turma_nome  = item["turma"]
+                disciplina  = item["disciplina"]
+                chave = (escola_nome, turma_nome, disciplina)
+
+                if chave not in turmas_idx:
+                    resultados.append({
+                        "turma": turma_nome, "disciplina": disciplina,
+                        "ok": False, "erro": "Turma não encontrada"
+                    })
+                    continue
+
+                _, t_obj = turmas_idx[chave]
+                turma_data = {
+                    "escola":     escola_nome,
+                    "turma":      turma_nome,
+                    "disciplina": disciplina,
+                    "alunos":     t_obj["alunos"],
+                }
+
+                try:
+                    resultado    = gerar_diario(turma_data, config_gerador, PASTA_ID)
+                    planilha_id  = resultado["id"]
+                    url          = resultado["url"]
+                    t_obj["planilha_id"] = planilha_id
+                    dados_modificados = True
+                    resultados.append({
+                        "turma": turma_nome, "disciplina": disciplina,
+                        "ok": True, "link": url
+                    })
+                except Exception as ex:
+                    resultados.append({
+                        "turma": turma_nome, "disciplina": disciplina,
+                        "ok": False, "erro": str(ex)
+                    })
+
+            if dados_modificados:
+                with open(DADOS_JSON, "w", encoding="utf-8") as f:
+                    json.dump(dados, f, ensure_ascii=False, indent=2)
+
+            return {"ok": True, "resultados": resultados}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
 
     def atualizar_banco(self, trimestre):
         if not self.browser:

@@ -242,7 +242,8 @@
               "situacao": ""
             }
           ],
-          "planilha_id": "1GzvNDIz4Tk6a0o9Z9QKU64UrF30TjP6gUAFH_sDj31g"
+          "planilha_id": "1ISsCeuQ5Vn9j8nGq615mogNDI1Tx_RIcIkC8yyzrs4s",
+          "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/10KjSMONeLdy53_-005Y5OP2KwFhwlCSjRjxz8JHuJyI"
         },
         {
           "turma": "1ª série - Noite - A",
@@ -507,7 +508,8 @@
               "situacao": ""
             }
           ],
-          "planilha_id": "1mZ_3c1FfDpFVs5F7amxoYy9kFMwVP_SRwG3NOAsj0Uw"
+          "planilha_id": "1iCJ58vfhYoB4KNNDurDUU2ejmNKktDptwsAHA0Gy0AM",
+          "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1LIwlICbknugksiHF84oHTrejG9YyeSFWMKDsporgwq8"
         },
         {
           "turma": "1ª série - Noite - B",
@@ -790,7 +792,8 @@
               "situacao": "Reman"
             }
           ],
-          "planilha_id": "1Gs5MhR8i4or2OxnqmFjHZQJrSbG0SUWhp0_qAcnyO_E"
+          "planilha_id": "1MlBegtqD7I3mZHUyGPd6I76Su8aOo_bPtlapLFOrcNI",
+          "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1isYX0IvCfw0IqEbIfgVEa1mq2k6zLf44T9a0qvLmrWw"
         },
         {
           "turma": "2ª série - Noite - A",
@@ -1055,7 +1058,8 @@
               "situacao": ""
             }
           ],
-          "planilha_id": "1xI4Iv1VyGQ1oCEjq8U9s-uJSxj_HjF7ACBJ6VJS3pcM"
+          "planilha_id": "1dqrwDCiKHM39oUvLoLA2avIgs3czI8GLXcClQBt0_Yg",
+          "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1Qgtj1eHoWNcgmq3tWgF2azS9WoCN0PYXuHwkyFG6wmk"
         }
       ]
     },
@@ -1235,7 +1239,8 @@
               "situacao": ""
             }
           ],
-          "planilha_id": "160FIaPOouXxmodHO7sJUwiQ3ACyAe1jfA5bMbb9BGn0"
+          "planilha_id": "1YPeQ2w5iIW3Bqh-gR--aPYo84TypyMiqOYr3gAj4A_8",
+          "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1R-0CP-Ovn43ds3m345usIyp3ZeHjD-SpXDtioUPIUVY"
         },
         {
           "turma": "2ª série - Manhã - A",
@@ -1482,7 +1487,8 @@
               "situacao": ""
             }
           ],
-          "planilha_id": "17M51WbzjDtkm8-FWyC9MvUCSACPcffEpmQEkdL92Ktc"
+          "planilha_id": "1vVl4Ldekxz3abg6FSlFLmCyJLL581Isv7N97-Bo3q70",
+          "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/18IOU2lIk9oJS5f1xB2AGw_8QQcAdFHytDryfeOe_ujA"
         },
         {
           "turma": "2ª série - Manhã - C",
@@ -1735,7 +1741,8 @@
               "situacao": ""
             }
           ],
-          "planilha_id": "1b0uYi9jfjl7616WyLSXyPHaqAc0aGlgczykwfr6fMNQ"
+          "planilha_id": "18QBYOa0r5C9oUb5GyP_r5UNf6z2ooTyH7cGIrHLBT9A",
+          "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1KRvUfx-EjW0mD4PJLDWgpTp3z6rq3s5HShFlgyDor14"
         },
         {
           "turma": "2ª série - Manhã - C",
@@ -1988,7 +1995,8 @@
               "situacao": ""
             }
           ],
-          "planilha_id": "1dJD6F5rVGr4jAU0i_atN6183RVsKU46h5bp5eguuTWY"
+          "planilha_id": "1FQQeDhffMhq6wsMPZcIBQW3WFZV7seaZYHuLArIov5k",
+          "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1tK5ZJT5gsp36gwm0qpaSPq84bf6iMzb1ZczdM7Ws3d8"
         },
         {
           "turma": "3ª Série - Manhã - C",
@@ -2156,7 +2164,9 @@
               "nome_normalizado": "NYCOLLE FERRAZ DA SILVA",
               "situacao": ""
             }
-          ]
+          ],
+          "planilha_id": "1nWbhXBnzjGyaAtGD6A9On2BggLjDc4D_ZsBkuEoR7d0",
+          "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1JiUDflyMuPt93IXKPjbyc37Z-H_KH0Rifg4v-1KuKNs"
         },
         {
           "turma": "ET GN - 2ª série - Tarde - K",
@@ -2288,7 +2298,9 @@
               "nome_normalizado": "MELANIE RODRIGUEZ GUERRA",
               "situacao": ""
             }
-          ]
+          ],
+          "planilha_id": "1DGgjQdGMeA70wnEykPM3Ja5FBm7Q-leWfJlZgZ0besI",
+          "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1OG15n9NhdVH8hzj7JRA-8SH8NZMyRz0miqxoMOCUq80"
         }
       ]
     },
@@ -2521,7 +2533,9 @@
               "nome_normalizado": "PEDRO ALVES BANDEIRA",
               "situacao": ""
             }
-          ]
+          ],
+          "planilha_id": "1KxtZDTr93lVzureRKkdvprwuOmjTp5PLzlWqfeREslY",
+          "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1PnHmIfjOvgh-d_HiJ26DXcZFqH4iKOM2E2HKEyViB5M"
         },
         {
           "turma": "ET GN - 2ª série - Manhã - B",
@@ -2749,7 +2763,9 @@
               "nome_normalizado": "ANJELLYNA CHAVES DE OLIVEIRA",
               "situacao": ""
             }
-          ]
+          ],
+          "planilha_id": "1X1XIo5KPFajiSTtxQxY5YswrZmssm5C4CLatlJLdKKI",
+          "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1vjaaINhLExKZZG0USje0wiQDVgWXWyxqeso9OGYUKWg"
         }
       ]
     }

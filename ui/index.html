@@ -308,9 +308,32 @@
     }
     .modal-body input:focus { border-color: #3b82f6; }
     .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-    .aval-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-    .aval-row input[type="text"]   { flex: 2; }
-    .aval-row input[type="number"] { flex: 1; width: auto; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .trimestre-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .trim-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 20px; cursor: pointer; font-size: 13px;
+      border: 1.5px solid #e2e8f0; background: #f8fafc; color: #374151;
+      transition: all .15s; user-select: none;
+    }
+    .trim-pill input { accent-color: #2563eb; }
+    .trim-pill:has(input:checked) { border-color: #2563eb; background: #eff6ff; color: #1d4ed8; font-weight: 600; }
+    .dias-semana-row { display: flex; gap: 8px; }
+    .dia-pill {
+      display: flex; align-items: center; gap: 5px;
+      padding: 6px 12px; border-radius: 16px; cursor: pointer; font-size: 13px;
+      border: 1.5px solid #e2e8f0; background: #f8fafc; color: #374151;
+      transition: all .15s; user-select: none;
+    }
+    .dia-pill input { accent-color: #2563eb; }
+    .dia-pill:has(input:checked) { border-color: #2563eb; background: #eff6ff; color: #1d4ed8; font-weight: 600; }
+    .hidden { display: none !important; }
+    .aval-row { display: flex; align-items: center; gap: 7px; margin-bottom: 8px; flex-wrap: wrap; }
+    .aval-row .inp-nome   { flex: 2; min-width: 60px; }
+    .aval-row .inp-valor  { flex: 0 0 58px; }
+    .aval-row .inp-semana { flex: 0 0 80px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 7px 6px; font-size: 13px; background:#fff; }
+    .av-pesos { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #64748b; }
+    .av-pesos .inp-peso { width: 50px; flex: none; }
     .btn-icon-sm { width: 28px; height: 28px; border-radius: 6px; border: none; cursor: pointer; font-size: 15px; line-height: 1; flex-shrink: 0; }
     .btn-rm  { background: #fee2e2; color: #991b1b; }
     .btn-add { background: #dbeafe; color: #1d4ed8; margin-top: 4px; width: auto; padding: 4px 10px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; }
@@ -368,25 +391,53 @@
       <button class="modal-close" onclick="fecharModal()">×</button>
     </div>
     <div class="modal-body">
-      <div class="form-row-3" style="margin-bottom:14px">
+
+      <!-- Modo -->
+      <div class="form-group" style="margin-bottom:16px">
+        <label>Modo</label>
+        <div class="trimestre-pills">
+          <label class="trim-pill"><input type="radio" name="m-modo" value="diario"   onchange="_onModoChange()"> Diário</label>
+          <label class="trim-pill"><input type="radio" name="m-modo" value="completo" onchange="_onModoChange()"> Completo</label>
+          <label class="trim-pill"><input type="radio" name="m-modo" value="simples"  onchange="_onModoChange()"> Simples</label>
+        </div>
+        <div id="m-modo-hint" style="font-size:11px;color:#64748b;margin-top:6px"></div>
+      </div>
+
+      <!-- Trimestre -->
+      <div class="form-group" style="margin-bottom:16px">
+        <label>Trimestre</label>
+        <div class="trimestre-pills">
+          <label class="trim-pill"><input type="radio" name="m-trim" value="1" onchange="_onTrimChange()"> 1º</label>
+          <label class="trim-pill"><input type="radio" name="m-trim" value="2" onchange="_onTrimChange()"> 2º</label>
+          <label class="trim-pill"><input type="radio" name="m-trim" value="3" onchange="_onTrimChange()"> 3º</label>
+        </div>
+      </div>
+
+      <!-- Aulas/semana + data início (oculto no Simples) -->
+      <div id="m-freq-row" class="form-row-2" style="margin-bottom:14px">
         <div class="form-group">
-          <label>Aulas / trimestre</label>
-          <input type="number" id="m-num-aulas" min="1" max="40" value="10">
+          <label>Aulas / semana</label>
+          <input type="number" id="m-freq" min="1" max="5" value="2" oninput="_onFreqChange()">
         </div>
         <div class="form-group">
           <label>Data de início</label>
           <input type="text" id="m-data-inicio" placeholder="DD/MM/AAAA" maxlength="10">
         </div>
-        <div class="form-group">
-          <label>Aulas / semana</label>
-          <input type="number" id="m-freq" min="1" max="5" value="2">
-        </div>
+      </div>
+      <!-- Simples: só data -->
+      <div id="m-data-row" class="form-group hidden" style="margin-bottom:14px">
+        <label>Data de início</label>
+        <input type="text" id="m-data-inicio-simples" placeholder="DD/MM/AAAA" maxlength="10">
       </div>
 
+      <!-- Info trimestre -->
+      <div id="m-trim-info" style="font-size:12px;color:#3b82f6;margin-bottom:14px;min-height:16px;font-weight:500"></div>
+
+      <!-- Avaliações -->
       <div class="form-group">
-        <label>Avaliações do trimestre</label>
+        <label>Avaliações</label>
         <div id="aval-lista"></div>
-        <button class="btn-add" onclick="_addAval()">+ Adicionar avaliação</button>
+        <button class="btn-add" onclick="_addAval()">+ Adicionar</button>
         <div class="soma-indicator">
           <span>Soma dos valores:</span>
           <span id="soma-label" class="soma-err">0,0 / 10,0</span>
@@ -397,6 +448,94 @@
       <button class="btn" style="background:#f1f5f9;color:#374151" onclick="fecharModal()">Cancelar</button>
       <button class="btn btn-primary" id="btn-confirmar-planilha" disabled onclick="confirmarGerarPlanilha()">
         Gerar Planilha
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL GERAR EM LOTE ───────────────────── -->
+<div id="modal-lote" class="modal-overlay hidden" onclick="if(event.target.id==='modal-lote')_fecharLote()">
+  <div class="modal-box" onclick="event.stopPropagation()" style="width:620px;max-height:88vh;display:flex;flex-direction:column">
+    <div class="modal-header">
+      <h3>Gerar Planilhas em Lote</h3>
+      <button class="modal-close" onclick="_fecharLote()">×</button>
+    </div>
+
+    <div class="modal-body" style="overflow-y:auto;flex:1">
+
+      <!-- Seleção de turmas -->
+      <div class="form-group" style="margin-bottom:16px">
+        <label>Turmas <span style="font-weight:400;text-transform:none;color:#94a3b8">(selecione as que usarão este modelo)</span></label>
+        <div id="lote-turmas-lista" style="display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:8px;padding:8px"></div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button class="btn btn-sm" style="background:#f1f5f9;color:#374151" onclick="_loteSelectAll(true)">Todas</button>
+          <button class="btn btn-sm" style="background:#f1f5f9;color:#374151" onclick="_loteSelectAll(false)">Nenhuma</button>
+          <button class="btn btn-sm" style="background:#f1f5f9;color:#374151" onclick="_loteSelectSemPlanilha()">Sem planilha</button>
+        </div>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #f1f5f9;margin-bottom:16px">
+
+      <!-- Configuração (igual ao modal individual, reutiliza prefixo "lb-") -->
+      <div class="form-group" style="margin-bottom:16px">
+        <label>Modo</label>
+        <div class="trimestre-pills">
+          <label class="trim-pill"><input type="radio" name="lb-modo" value="diario"   onchange="_lbOnModoChange()"> Diário</label>
+          <label class="trim-pill"><input type="radio" name="lb-modo" value="completo" onchange="_lbOnModoChange()"> Completo</label>
+          <label class="trim-pill"><input type="radio" name="lb-modo" value="simples"  onchange="_lbOnModoChange()"> Simples</label>
+        </div>
+        <div id="lb-modo-hint" style="font-size:11px;color:#64748b;margin-top:6px"></div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:16px">
+        <label>Trimestre</label>
+        <div class="trimestre-pills">
+          <label class="trim-pill"><input type="radio" name="lb-trim" value="1" onchange="_lbOnTrimChange()"> 1º</label>
+          <label class="trim-pill"><input type="radio" name="lb-trim" value="2" onchange="_lbOnTrimChange()"> 2º</label>
+          <label class="trim-pill"><input type="radio" name="lb-trim" value="3" onchange="_lbOnTrimChange()"> 3º</label>
+        </div>
+      </div>
+
+      <div id="lb-freq-row" class="form-row-2" style="margin-bottom:14px">
+        <div class="form-group">
+          <label>Aulas / semana</label>
+          <input type="number" id="lb-freq" min="1" max="5" value="2" oninput="_lbOnFreqChange()">
+        </div>
+        <div class="form-group">
+          <label>Data de início</label>
+          <input type="text" id="lb-data-inicio" placeholder="DD/MM/AAAA" maxlength="10">
+        </div>
+      </div>
+      <div id="lb-data-row" class="form-group hidden" style="margin-bottom:14px">
+        <label>Data de início</label>
+        <input type="text" id="lb-data-inicio-simples" placeholder="DD/MM/AAAA" maxlength="10">
+      </div>
+
+      <div id="lb-trim-info" style="font-size:12px;color:#3b82f6;margin-bottom:14px;min-height:16px;font-weight:500"></div>
+
+      <div class="form-group">
+        <label>Avaliações</label>
+        <div id="lb-aval-lista"></div>
+        <button class="btn-add" onclick="_lbAddAval()">+ Adicionar</button>
+        <div class="soma-indicator">
+          <span>Soma dos valores:</span>
+          <span id="lb-soma-label" class="soma-err">0,0 / 10,0</span>
+        </div>
+      </div>
+
+      <!-- Progresso (oculto até iniciar) -->
+      <div id="lb-progresso" class="hidden" style="margin-top:16px">
+        <hr style="border:none;border-top:1px solid #f1f5f9;margin-bottom:12px">
+        <label style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em">Progresso</label>
+        <div id="lb-progresso-lista" style="margin-top:8px;display:flex;flex-direction:column;gap:4px"></div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn" style="background:#f1f5f9;color:#374151" onclick="_fecharLote()">Cancelar</button>
+      <button class="btn btn-primary" id="btn-confirmar-lote" disabled onclick="_confirmarLote()">
+        Gerar Planilhas
       </button>
     </div>
   </div>
@@ -523,13 +662,15 @@
           </div>
           <div class="plan-actions">
             <span class="badge ${tem ? 'badge-ok' : 'badge-sem'}">
-              ${tem ? 'Planilha criada' : 'Sem planilha'}
+              ${tem ? 'Vinculada' : 'Sem planilha'}
             </span>
             ${tem
               ? `<button class="btn btn-sm" style="background:#d1fae5;color:#065f46;border:none"
                    onclick='_abrirPlanilha(${k})'>Abrir</button>
                  <button class="btn btn-sm" style="background:#f1f5f9;color:#374151;border:none"
-                   onclick='sincronizarAlunos(${k})'>Sincronizar alunos</button>`
+                   onclick='sincronizarAlunos(${k})'>Sincronizar</button>
+                 <button class="btn btn-sm" style="background:#fee2e2;color:#991b1b;border:none"
+                   onclick='_desvincularPlanilha(${k})'>Desvincular</button>`
               : `<button class="btn btn-primary btn-sm"
                    onclick='_abrirModal(${k}, "${t.turma.replace(/"/g,"")}")'>Gerar</button>`
             }
@@ -540,12 +681,28 @@
     document.getElementById('content').innerHTML = `
       <div class="section-header">
         <span class="section-title">Planilhas Google Sheets</span>
+        <button class="btn btn-primary btn-sm" onclick="_abrirLote()">Gerar em Lote</button>
       </div>
       <div class="turmas-list">
         ${state.turmas.length === 0
           ? '<div class="empty">Nenhuma turma cadastrada.</div>'
           : rows}
       </div>`;
+  }
+
+  async function _desvincularPlanilha(turmaKey) {
+    const {escola, turma, disciplina} = typeof turmaKey==='string' ? JSON.parse(turmaKey) : turmaKey;
+    if (!confirm(`Desvincular a planilha de "${turma} — ${disciplina}"?\n\nA planilha NÃO será excluída do Google Drive.`)) return;
+    try {
+      const res = await window.pywebview.api.desvincular_planilha(escola, turma, disciplina);
+      if (res.ok) {
+        toast('Planilha desvinculada.', 'success');
+        await carregarDados();
+        renderPlanilhas();
+      } else {
+        toast('Erro: ' + res.erro, 'error');
+      }
+    } catch(e) { toast('Erro inesperado: ' + e, 'error'); }
   }
 
   async function _abrirPlanilha({escola, turma, disciplina}) {
@@ -608,37 +765,159 @@
 
   // ── MODAL GERAR PLANILHA ─────────────────────
   let _modalTurma = null;
-  let _avals = [];
+  let _avals      = [];
+  let _numSemanas = 0;
+
+  const _MODO_HINTS = {
+    diario:   'Ocorrências registradas por aula. Nota 100% da avaliação.',
+    completo: 'Ocorrências + engajamento compõem a nota junto com a avaliação.',
+    simples:  'Apenas colunas de avaliação, sem registro diário.',
+  };
+
+  function _getModo() {
+    const r = document.querySelector('input[name="m-modo"]:checked');
+    return r ? r.value : 'diario';
+  }
+  function _getTrimestre() {
+    const r = document.querySelector('input[name="m-trim"]:checked');
+    return r ? parseInt(r.value) : null;
+  }
+  function _getDataInicio() {
+    const id = _getModo() === 'simples' ? 'm-data-inicio-simples' : 'm-data-inicio';
+    return (document.getElementById(id) || {}).value?.trim() || '';
+  }
+  function _setDataInicio(val) {
+    const a = document.getElementById('m-data-inicio');
+    const b = document.getElementById('m-data-inicio-simples');
+    if (a) a.value = val;
+    if (b) b.value = val;
+  }
+  function _getUsedSemanas(excludeIdx) {
+    return _avals.map((a,i) => i !== excludeIdx ? a.semana : null).filter(Boolean);
+  }
 
   function _abrirModal(turmaKey, nomeTurma) {
-    _modalTurma = turmaKey;
+    _modalTurma = typeof turmaKey === 'string' ? JSON.parse(turmaKey) : turmaKey;
     document.getElementById('modal-title').textContent = `Gerar — ${nomeTurma}`;
-    _avals = [{nome:'AV1',valor:3.0},{nome:'AV2',valor:3.0},{nome:'AV3',valor:4.0}];
+    _avals = [
+      {nome:'AV1', valor:3.0, semana:null, peso_eng:1.0, peso_av:2.0},
+      {nome:'AV2', valor:3.0, semana:null, peso_eng:1.0, peso_av:2.0},
+      {nome:'AV3', valor:4.0, semana:null, peso_eng:0.0, peso_av:4.0},
+    ];
+    _numSemanas = 0;
+    document.querySelectorAll('input[name="m-trim"]').forEach(r => r.checked = false);
+    document.querySelectorAll('input[name="m-modo"]').forEach(r => r.checked = r.value === 'diario');
+    document.getElementById('m-freq').value = '2';
+    _setDataInicio('');
+    document.getElementById('m-trim-info').textContent = '';
+    _onModoChange();
     _renderAvals();
+    _soma();
     document.getElementById('modal-planilha').classList.remove('hidden');
   }
 
   function fecharModal() {
     document.getElementById('modal-planilha').classList.add('hidden');
   }
-
   function fecharModalSeFora(e) {
     if (e.target.id === 'modal-planilha') fecharModal();
   }
 
-  function _renderAvals() {
-    document.getElementById('aval-lista').innerHTML = _avals.map((a, i) => `
-      <div class="aval-row">
-        <input type="text"   value="${a.nome}"  placeholder="Nome (ex: AV1)"
-               onchange="_avals[${i}].nome=this.value">
-        <input type="number" value="${a.valor}" step="0.5" min="0.5" max="10"
-               oninput="_avals[${i}].valor=parseFloat(this.value)||0;_soma()">
-        ${_avals.length>1 ? `<button class="btn-icon-sm btn-rm" onclick="_rmAval(${i})">−</button>` : ''}
-      </div>`).join('');
+  function _onModoChange() {
+    const modo    = _getModo();
+    const freqRow = document.getElementById('m-freq-row');
+    const dataRow = document.getElementById('m-data-row');
+    const hint    = document.getElementById('m-modo-hint');
+    if (modo === 'simples') {
+      freqRow.classList.add('hidden');
+      dataRow.classList.remove('hidden');
+    } else {
+      freqRow.classList.remove('hidden');
+      dataRow.classList.add('hidden');
+    }
+    if (hint) hint.textContent = _MODO_HINTS[modo] || '';
+    _renderAvals();
+    _validarModal();
+  }
+
+  async function _onTrimChange() {
+    const trim = _getTrimestre();
+    if (!trim) return;
+    try {
+      const freq = parseInt(document.getElementById('m-freq').value) || 2;
+      const res  = await window.pywebview.api.calcular_num_aulas(trim, freq);
+      if (res.ok) {
+        _numSemanas = res.num_semanas;
+        _setDataInicio(res.info.inicio_str);
+        const aulasStr = _getModo() === 'simples' ? '' : ` · ~${res.num_aulas} aulas`;
+        document.getElementById('m-trim-info').textContent =
+          `${res.num_semanas} semanas${aulasStr} · início: ${res.info.inicio_str}`;
+      }
+    } catch(e) {}
+    _renderAvals();
+    _validarModal();
+  }
+
+  async function _onFreqChange() {
+    const trim = _getTrimestre();
+    if (!trim) return;
+    try {
+      const freq = parseInt(document.getElementById('m-freq').value) || 2;
+      const res  = await window.pywebview.api.calcular_num_aulas(trim, freq);
+      if (res.ok) {
+        _numSemanas = res.num_semanas;
+        document.getElementById('m-trim-info').textContent =
+          `${res.num_semanas} semanas · ~${res.num_aulas} aulas · início: ${res.info.inicio_str}`;
+      }
+    } catch(e) {}
+    _validarModal();
+  }
+
+  function _setPesoEng(i, v) {
+    _avals[i].peso_eng = parseFloat(v) || 0;
+    _avals[i].peso_av  = parseFloat((_avals[i].valor - _avals[i].peso_eng).toFixed(2));
+    _renderAvals();
     _soma();
   }
 
-  function _addAval() { _avals.push({nome:`AV${_avals.length+1}`,valor:0}); _renderAvals(); }
+  function _renderAvals() {
+    const modo = _getModo();
+    const N    = _numSemanas || 16;
+    document.getElementById('aval-lista').innerHTML = _avals.map((a, i) => {
+      const semOpts = Array.from({length: N}, (_, k) => {
+        const s    = k + 1;
+        const used = _getUsedSemanas(i).includes(s);
+        const sel  = a.semana === s ? 'selected' : '';
+        return `<option value="${s}" ${used?'disabled':''} ${sel}>Sem. ${s}</option>`;
+      }).join('');
+      const pesosHtml = modo === 'completo' ? `
+        <div class="av-pesos">
+          <span>Eng:</span>
+          <input type="number" class="inp-peso" value="${(a.peso_eng||0).toFixed(1)}"
+                 step="0.5" min="0" max="${a.valor}"
+                 oninput="_setPesoEng(${i},this.value)">
+          <span>Av:${(a.peso_av!==undefined?a.peso_av:a.valor).toFixed(1)}</span>
+        </div>` : '';
+      return `<div class="aval-row">
+        <input type="text" class="inp-nome" value="${a.nome}" placeholder="Nome"
+               onchange="_avals[${i}].nome=this.value">
+        <input type="number" class="inp-valor" value="${a.valor}" step="0.5" min="0.5" max="10"
+               oninput="_avals[${i}].valor=parseFloat(this.value)||0;_soma()">
+        <select class="inp-semana"
+                onchange="_avals[${i}].semana=this.value?parseInt(this.value):null;_renderAvals();_validarModal()">
+          <option value="">Sem.</option>${semOpts}
+        </select>
+        ${pesosHtml}
+        ${_avals.length>1?`<button class="btn-icon-sm btn-rm" onclick="_rmAval(${i})">−</button>`:''}
+      </div>`;
+    }).join('');
+    _soma();
+  }
+
+  function _addAval() {
+    _avals.push({nome:`AV${_avals.length+1}`,valor:0,semana:null,peso_eng:0,peso_av:0});
+    _renderAvals();
+  }
   function _rmAval(i) { _avals.splice(i,1); _renderAvals(); }
 
   function _soma() {
@@ -646,28 +925,43 @@
     const ok = Math.abs(s - 10.0) < 0.001;
     document.getElementById('soma-label').textContent = s.toFixed(1).replace('.',',') + ' / 10,0';
     document.getElementById('soma-label').className   = ok ? 'soma-ok' : 'soma-err';
-    document.getElementById('btn-confirmar-planilha').disabled = !ok;
+    _validarModal();
+  }
+
+  function _validarModal() {
+    const trim      = _getTrimestre();
+    const modo      = _getModo();
+    const dataOk    = /^\d{2}\/\d{2}\/\d{4}$/.test(_getDataInicio());
+    const somaOk    = Math.abs(_avals.reduce((a,b)=>a+(b.valor||0),0)-10.0)<0.001;
+    const semsOk    = _avals.every(a=>a.semana!=null);
+    const semsUnicas= new Set(_avals.map(a=>a.semana)).size===_avals.length;
+    const freqOk    = modo==='simples' || (parseInt(document.getElementById('m-freq').value)>=1);
+    document.getElementById('btn-confirmar-planilha').disabled =
+      !(trim && dataOk && somaOk && semsOk && semsUnicas && freqOk);
   }
 
   async function confirmarGerarPlanilha() {
-    const numAulas   = parseInt(document.getElementById('m-num-aulas').value);
-    const dataInicio = document.getElementById('m-data-inicio').value.trim();
-    const freq       = parseInt(document.getElementById('m-freq').value);
-    const btn        = document.getElementById('btn-confirmar-planilha');
-
-    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dataInicio)) {
-      toast('Data inválida — use DD/MM/AAAA', 'error'); return;
-    }
     if (!state.status.google_autorizado) {
       toast('Autorize o Google Sheets primeiro', 'error'); return;
     }
+    const modo  = _getModo();
+    const trim  = _getTrimestre();
+    const freq  = modo==='simples' ? 0 : (parseInt(document.getElementById('m-freq').value)||2);
+    const btn   = document.getElementById('btn-confirmar-planilha');
 
     const {escola, turma, disciplina} = _modalTurma;
     const config = {
-      num_aulas:          numAulas,
-      data_inicio:        dataInicio,
+      modo,
+      trimestre:          trim,
       frequencia_semanal: freq,
-      avaliacoes:         _avals.map(a => ({nome:a.nome, valor_maximo:a.valor})),
+      data_inicio:        _getDataInicio(),
+      avaliacoes: _avals.map(a => ({
+        nome:             a.nome,
+        valor_maximo:     a.valor,
+        semana:           a.semana,
+        peso_engajamento: a.peso_eng || 0,
+        peso_avaliacao:   a.peso_av  !== undefined ? a.peso_av : a.valor,
+      })),
     };
 
     btn.disabled = true;
@@ -691,6 +985,289 @@
       btn.disabled = false;
       btn.textContent = 'Gerar Planilha';
       _soma();
+    }
+  }
+
+  // ── MODAL GERAR EM LOTE ──────────────────────
+  let _lbAvals      = [];
+  let _lbNumSemanas = 0;
+
+  function _lbGetModo() {
+    const r = document.querySelector('input[name="lb-modo"]:checked');
+    return r ? r.value : 'diario';
+  }
+  function _lbGetTrim() {
+    const r = document.querySelector('input[name="lb-trim"]:checked');
+    return r ? parseInt(r.value) : null;
+  }
+  function _lbGetDataInicio() {
+    const id = _lbGetModo() === 'simples' ? 'lb-data-inicio-simples' : 'lb-data-inicio';
+    return (document.getElementById(id) || {}).value?.trim() || '';
+  }
+  function _lbSetDataInicio(val) {
+    const a = document.getElementById('lb-data-inicio');
+    const b = document.getElementById('lb-data-inicio-simples');
+    if (a) a.value = val;
+    if (b) b.value = val;
+  }
+  function _lbGetUsedSemanas(excludeIdx) {
+    return _lbAvals.map((a,i) => i !== excludeIdx ? a.semana : null).filter(Boolean);
+  }
+
+  function _abrirLote() {
+    _lbAvals = [
+      {nome:'AV1', valor:3.0, semana:null, peso_eng:1.0, peso_av:2.0},
+      {nome:'AV2', valor:3.0, semana:null, peso_eng:1.0, peso_av:2.0},
+      {nome:'AV3', valor:4.0, semana:null, peso_eng:0.0, peso_av:4.0},
+    ];
+    _lbNumSemanas = 0;
+    document.querySelectorAll('input[name="lb-trim"]').forEach(r => r.checked = false);
+    document.querySelectorAll('input[name="lb-modo"]').forEach(r => r.checked = r.value === 'diario');
+    document.getElementById('lb-freq').value = '2';
+    _lbSetDataInicio('');
+    document.getElementById('lb-trim-info').textContent = '';
+    document.getElementById('lb-progresso').classList.add('hidden');
+    document.getElementById('lb-progresso-lista').innerHTML = '';
+    _lbRenderTurmas();
+    _lbOnModoChange();
+    _lbRenderAvals();
+    _lbSoma();
+    document.getElementById('modal-lote').classList.remove('hidden');
+  }
+
+  function _fecharLote() {
+    document.getElementById('modal-lote').classList.add('hidden');
+  }
+
+  function _lbRenderTurmas() {
+    const lista = document.getElementById('lote-turmas-lista');
+    lista.innerHTML = state.turmas.map(t => {
+      const key = JSON.stringify({escola:t.escola, turma:t.turma, disciplina:t.disciplina});
+      const label = `${t.turma} — ${t.disciplina} <span style="color:#94a3b8;font-size:11px">${t.escola}</span>`;
+      const badge = t.planilha_id
+        ? '<span style="font-size:10px;color:#065f46;background:#d1fae5;padding:1px 6px;border-radius:10px;margin-left:4px">vinculada</span>'
+        : '';
+      return `<label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:3px 4px;border-radius:6px;font-size:13px">
+        <input type="checkbox" class="lote-chk" data-key='${key}' onchange="_lbValidar()">
+        ${label}${badge}
+      </label>`;
+    }).join('') || '<div style="color:#94a3b8;font-size:12px;padding:4px">Nenhuma turma cadastrada.</div>';
+  }
+
+  function _loteSelectAll(checked) {
+    document.querySelectorAll('.lote-chk').forEach(c => c.checked = checked);
+    _lbValidar();
+  }
+
+  function _loteSelectSemPlanilha() {
+    document.querySelectorAll('.lote-chk').forEach(c => {
+      const key = JSON.parse(c.dataset.key);
+      const t = state.turmas.find(t => t.escola===key.escola && t.turma===key.turma && t.disciplina===key.disciplina);
+      c.checked = t && !t.planilha_id;
+    });
+    _lbValidar();
+  }
+
+  function _lbGetTurmasSelecionadas() {
+    return [...document.querySelectorAll('.lote-chk:checked')]
+      .map(c => JSON.parse(c.dataset.key));
+  }
+
+  function _lbOnModoChange() {
+    const modo    = _lbGetModo();
+    const freqRow = document.getElementById('lb-freq-row');
+    const dataRow = document.getElementById('lb-data-row');
+    const hint    = document.getElementById('lb-modo-hint');
+    if (modo === 'simples') {
+      freqRow.classList.add('hidden');
+      dataRow.classList.remove('hidden');
+    } else {
+      freqRow.classList.remove('hidden');
+      dataRow.classList.add('hidden');
+    }
+    if (hint) hint.textContent = _MODO_HINTS[modo] || '';
+    _lbRenderAvals();
+    _lbValidar();
+  }
+
+  async function _lbOnTrimChange() {
+    const trim = _lbGetTrim();
+    if (!trim) return;
+    try {
+      const freq = parseInt(document.getElementById('lb-freq').value) || 2;
+      const res  = await window.pywebview.api.calcular_num_aulas(trim, freq);
+      if (res.ok) {
+        _lbNumSemanas = res.num_semanas;
+        _lbSetDataInicio(res.info.inicio_str);
+        const aulasStr = _lbGetModo() === 'simples' ? '' : ` · ~${res.num_aulas} aulas`;
+        document.getElementById('lb-trim-info').textContent =
+          `${res.num_semanas} semanas${aulasStr} · início: ${res.info.inicio_str}`;
+      }
+    } catch(e) {}
+    _lbRenderAvals();
+    _lbValidar();
+  }
+
+  async function _lbOnFreqChange() {
+    const trim = _lbGetTrim();
+    if (!trim) return;
+    try {
+      const freq = parseInt(document.getElementById('lb-freq').value) || 2;
+      const res  = await window.pywebview.api.calcular_num_aulas(trim, freq);
+      if (res.ok) {
+        _lbNumSemanas = res.num_semanas;
+        document.getElementById('lb-trim-info').textContent =
+          `${res.num_semanas} semanas · ~${res.num_aulas} aulas · início: ${res.info.inicio_str}`;
+      }
+    } catch(e) {}
+    _lbValidar();
+  }
+
+  function _lbSetPesoEng(i, v) {
+    _lbAvals[i].peso_eng = parseFloat(v) || 0;
+    _lbAvals[i].peso_av  = parseFloat((_lbAvals[i].valor - _lbAvals[i].peso_eng).toFixed(2));
+    _lbRenderAvals();
+    _lbSoma();
+  }
+
+  function _lbRenderAvals() {
+    const modo = _lbGetModo();
+    const N    = _lbNumSemanas || 16;
+    document.getElementById('lb-aval-lista').innerHTML = _lbAvals.map((a, i) => {
+      const semOpts = Array.from({length: N}, (_, k) => {
+        const s    = k + 1;
+        const used = _lbGetUsedSemanas(i).includes(s);
+        const sel  = a.semana === s ? 'selected' : '';
+        return `<option value="${s}" ${used?'disabled':''} ${sel}>Sem. ${s}</option>`;
+      }).join('');
+      const pesosHtml = modo === 'completo' ? `
+        <div class="av-pesos">
+          <span>Eng:</span>
+          <input type="number" class="inp-peso" value="${(a.peso_eng||0).toFixed(1)}"
+                 step="0.5" min="0" max="${a.valor}"
+                 oninput="_lbSetPesoEng(${i},this.value)">
+          <span>Av:${(a.peso_av!==undefined?a.peso_av:a.valor).toFixed(1)}</span>
+        </div>` : '';
+      return `<div class="aval-row">
+        <input type="text" class="inp-nome" value="${a.nome}" placeholder="Nome"
+               onchange="_lbAvals[${i}].nome=this.value">
+        <input type="number" class="inp-valor" value="${a.valor}" step="0.5" min="0.5" max="10"
+               oninput="_lbAvals[${i}].valor=parseFloat(this.value)||0;_lbSoma()">
+        <select class="inp-semana"
+                onchange="_lbAvals[${i}].semana=this.value?parseInt(this.value):null;_lbRenderAvals();_lbValidar()">
+          <option value="">Sem.</option>${semOpts}
+        </select>
+        ${pesosHtml}
+        ${_lbAvals.length>1?`<button class="btn-icon-sm btn-rm" onclick="_lbRmAval(${i})">−</button>`:''}
+      </div>`;
+    }).join('');
+    _lbSoma();
+  }
+
+  function _lbAddAval() {
+    _lbAvals.push({nome:`AV${_lbAvals.length+1}`,valor:0,semana:null,peso_eng:0,peso_av:0});
+    _lbRenderAvals();
+  }
+  function _lbRmAval(i) { _lbAvals.splice(i,1); _lbRenderAvals(); }
+
+  function _lbSoma() {
+    const s  = _lbAvals.reduce((acc,a) => acc + (parseFloat(a.valor)||0), 0);
+    const ok = Math.abs(s - 10.0) < 0.001;
+    document.getElementById('lb-soma-label').textContent = s.toFixed(1).replace('.',',') + ' / 10,0';
+    document.getElementById('lb-soma-label').className   = ok ? 'soma-ok' : 'soma-err';
+    _lbValidar();
+  }
+
+  function _lbValidar() {
+    const trim       = _lbGetTrim();
+    const modo       = _lbGetModo();
+    const dataOk     = /^\d{2}\/\d{2}\/\d{4}$/.test(_lbGetDataInicio());
+    const somaOk     = Math.abs(_lbAvals.reduce((a,b)=>a+(b.valor||0),0)-10.0)<0.001;
+    const semsOk     = _lbAvals.every(a=>a.semana!=null);
+    const semsUnicas = new Set(_lbAvals.map(a=>a.semana)).size===_lbAvals.length;
+    const freqOk     = modo==='simples' || (parseInt(document.getElementById('lb-freq').value)>=1);
+    const turmasOk   = _lbGetTurmasSelecionadas().length > 0;
+    document.getElementById('btn-confirmar-lote').disabled =
+      !(trim && dataOk && somaOk && semsOk && semsUnicas && freqOk && turmasOk);
+  }
+
+  async function _confirmarLote() {
+    if (!state.status.google_autorizado) {
+      toast('Autorize o Google Sheets primeiro', 'error'); return;
+    }
+    const turmas = _lbGetTurmasSelecionadas();
+    if (turmas.length === 0) return;
+
+    const modo = _lbGetModo();
+    const trim = _lbGetTrim();
+    const freq = modo==='simples' ? 0 : (parseInt(document.getElementById('lb-freq').value)||2);
+    const config = {
+      modo,
+      trimestre:          trim,
+      frequencia_semanal: freq,
+      data_inicio:        _lbGetDataInicio(),
+      avaliacoes: _lbAvals.map(a => ({
+        nome:             a.nome,
+        valor_maximo:     a.valor,
+        semana:           a.semana,
+        peso_engajamento: a.peso_eng || 0,
+        peso_avaliacao:   a.peso_av  !== undefined ? a.peso_av : a.valor,
+      })),
+    };
+
+    const btn = document.getElementById('btn-confirmar-lote');
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner"></span>Gerando 0 / ${turmas.length}...`;
+
+    // Mostra área de progresso com itens pendentes
+    const progDiv  = document.getElementById('lb-progresso');
+    const progLista = document.getElementById('lb-progresso-lista');
+    progDiv.classList.remove('hidden');
+    progLista.innerHTML = turmas.map(t =>
+      `<div id="lb-prog-${t.turma.replace(/\W/g,'_')}_${t.disciplina.replace(/\W/g,'_')}"
+            style="display:flex;align-items:center;gap:8px;font-size:12px;padding:3px 0">
+        <span style="width:12px;height:12px;border-radius:50%;background:#e2e8f0;flex-shrink:0"></span>
+        <span>${t.turma} — ${t.disciplina}</span>
+      </div>`
+    ).join('');
+    progLista.scrollIntoView({behavior:'smooth', block:'nearest'});
+
+    try {
+      const res = await window.pywebview.api.gerar_planilhas_em_lote(turmas, config);
+
+      if (!res.ok) {
+        toast('Erro: ' + res.erro, 'error');
+        btn.disabled = false;
+        btn.textContent = 'Gerar Planilhas';
+        return;
+      }
+
+      let ok = 0, fail = 0;
+      for (const r of res.resultados) {
+        const id  = `lb-prog-${r.turma.replace(/\W/g,'_')}_${r.disciplina.replace(/\W/g,'_')}`;
+        const el  = document.getElementById(id);
+        if (el) {
+          const dot  = el.querySelector('span');
+          if (r.ok) {
+            dot.style.background = '#10b981';
+            ok++;
+          } else {
+            dot.style.background = '#ef4444';
+            el.querySelector('span:last-child').textContent += ` — ${r.erro}`;
+            fail++;
+          }
+        }
+      }
+
+      btn.textContent = `Concluído (${ok} ok${fail ? ', ' + fail + ' erro(s)' : ''})`;
+      toast(`${ok} planilha(s) gerada(s)${fail ? ', ' + fail + ' erro(s)' : ''}`,
+            fail ? 'error' : 'success');
+      await carregarDados();
+      renderPlanilhas();
+    } catch(e) {
+      toast('Erro inesperado: ' + e, 'error');
+      btn.disabled = false;
+      btn.textContent = 'Gerar Planilhas';
     }
   }
 
