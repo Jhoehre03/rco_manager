@@ -33,11 +33,12 @@ PENALIDADES = [
     ("Evasão(Gaseio)",      -200),
 ]
 
-# Colunas fixas: A=Aluno, B=(vazio), C=Média1, D=Média2, E=Média3, F=Média, G=Nº
-COL_FIXAS = 7
-COL_AULAS_INICIO = COL_FIXAS + 1  # H = 8
+# Colunas fixas: A=Aluno B=Situação C=AV1 D=AV2 E=AV3 F=Média G=Nº
+COL_FIXAS        = 7
+COL_AULAS_INICIO = COL_FIXAS + 1   # H = 8
+MEDIAS_COLS      = ["C", "D", "E"]
 
-MEDIAS_COLS = ["C", "D", "E"]   # uma por avaliação (máx 3)
+SITUACOES_ATIVAS = {"", "ativo", "matriculado", "cursando"}
 
 
 # ---------------------------------------------------------------------------
@@ -74,8 +75,13 @@ def _col_letter(n):
     return result
 
 
+def _fmt(n):
+    """Formata número para uso em fórmula do Sheets (padrão pt-BR: vírgula decimal)."""
+    s = f"{float(n):.10g}"
+    return s.replace(".", ",")
+
+
 def _parsear_turma(nome_turma):
-    """Extrai (serie, turno, letra) de '3ª Série - Noite - A'."""
     partes = [p.strip() for p in nome_turma.split(" - ")]
     if len(partes) >= 3:
         return partes[-3], partes[-2], partes[-1]
@@ -89,44 +95,59 @@ def _limpar(texto):
 
 
 def _gerar_nome(turma_data):
-    """ALGATE_Noite_3Serie_A_FISICA"""
-    escola = _limpar(turma_data["escola"].split()[0])
+    escola    = _limpar(turma_data["escola"].split()[0])
     serie, turno, letra = _parsear_turma(turma_data["turma"])
-    serie_limpa = _limpar(serie.replace("ª", "").replace(" ", ""))
-    disciplina = _limpar(turma_data["disciplina"].replace(" ", "_"))
+    serie_limpa  = _limpar(serie.replace("ª", "").replace(" ", ""))
+    disciplina   = _limpar(turma_data["disciplina"].replace(" ", "_"))
     return f"{escola}_{turno}_{serie_limpa}_{letra}_{disciplina}"
 
 
-def _gerar_datas(data_inicio, num_aulas, freq):
+def _gerar_datas_por_semana(data_inicio, num_semanas, freq):
+    """
+    Retorna dict {semana(int): [date, ...]} com `freq` datas úteis por semana,
+    avançando consecutivamente a partir de data_inicio.
+    """
+    if not data_inicio or freq <= 0:
+        return {}
     if isinstance(data_inicio, str):
         data_inicio = date.fromisoformat(data_inicio)
-    dias_aula = list(range(min(freq, 5)))
-    datas, atual = [], data_inicio
-    while len(datas) < num_aulas:
-        if atual.weekday() in dias_aula:
-            datas.append(atual)
+
+    total = num_semanas * freq
+    all_dates, atual = [], data_inicio
+    while len(all_dates) < total:
+        if atual.weekday() < 5:
+            all_dates.append(atual)
         atual += timedelta(days=1)
-    return datas
+
+    return {s: all_dates[(s - 1) * freq: s * freq]
+            for s in range(1, num_semanas + 1)}
 
 
-def _colunas_aulas(num_aulas, avaliacoes):
+def _colunas_v2(num_semanas, freq, avaliacoes, modo):
     """
-    Retorna lista descrevendo cada coluna de aula após as colunas fixas:
-      [{"tipo": "nota"|"ocorrencias"|"atividade", "aula": int|None, "avaliacao": int}]
-    Cada avaliação tem N pares Nota+Ocorrencias seguidos de uma coluna Atividade.
+    Gera a lista de descritores de coluna para um trimestre.
+
+    Modos
+    -----
+    completo / diario : por aula → 2 cols (ocorr + eng); na semana da AV → 1 col av
+    simples           : apenas colunas de AV (sem registro diário)
     """
-    if not avaliacoes:
-        avaliacoes = [{}]
-    aulas_por_aval = num_aulas // len(avaliacoes)
-    resto = num_aulas % len(avaliacoes)
-    colunas, aula_global = [], 1
-    for idx, _ in enumerate(avaliacoes):
-        n = aulas_por_aval + (1 if idx < resto else 0)
-        for _ in range(n):
-            colunas.append({"tipo": "nota",       "aula": aula_global, "avaliacao": idx + 1})
-            colunas.append({"tipo": "ocorrencias","aula": aula_global, "avaliacao": idx + 1})
-            aula_global += 1
-        colunas.append({"tipo": "atividade", "aula": None, "avaliacao": idx + 1})
+    av_por_semana = {av["semana"]: i for i, av in enumerate(avaliacoes)
+                     if av.get("semana")}
+    colunas       = []
+    aula_global   = 1
+
+    for semana in range(1, num_semanas + 1):
+        if modo != "simples":
+            for _ in range(freq):
+                colunas.append({"tipo": "ocorr", "semana": semana, "aula": aula_global})
+                colunas.append({"tipo": "eng",   "semana": semana, "aula": aula_global})
+                aula_global += 1
+
+        if semana in av_por_semana:
+            colunas.append({"tipo": "av", "semana": semana,
+                            "av_idx": av_por_semana[semana]})
+
     return colunas
 
 
@@ -135,128 +156,152 @@ def _colunas_aulas(num_aulas, avaliacoes):
 # ---------------------------------------------------------------------------
 
 def _trimestre_ranges(nome_aba, turma_data, config, tri_num):
-    """
-    Retorna lista de {'range': ..., 'values': [...]} para a API batchUpdate.
-    Usa a notação 'Nome Aba'!A1 esperada pelo Sheets API.
-    """
-    num_aulas  = config.get("num_aulas", 0)
+    modo        = config.get("modo", "diario")
+    num_semanas = config.get("num_semanas", 14)
+    freq        = config.get("frequencia_semanal", 2) if modo != "simples" else 0
     data_inicio = config.get("data_inicio")
-    freq       = config.get("frequencia_semanal", 1)
-    avaliacoes = config.get("avaliacoes", [])
-    alunos     = sorted(turma_data.get("alunos", []), key=lambda a: a["numero"])
+    avaliacoes  = config.get("avaliacoes", [])
+    alunos      = sorted(turma_data.get("alunos", []), key=lambda a: a["numero"])
 
-    datas   = _gerar_datas(data_inicio, num_aulas, freq) if data_inicio else []
-    colunas = _colunas_aulas(num_aulas, avaliacoes)
+    datas_por_semana = _gerar_datas_por_semana(data_inicio, num_semanas, freq)
+    colunas          = _colunas_v2(num_semanas, freq, avaliacoes, modo)
 
     titulo = f"{turma_data['disciplina']} - {tri_num} TRI - {turma_data['turma']}"
-    p = f"'{nome_aba}'!"   # prefixo de range
-
+    p      = f"'{nome_aba}'!"
     ranges = []
 
     # ------------------------------------------------------------------
-    # Linha 1 — título, label "Data" e datas das aulas
+    # Linha 1 — título + datas / labels das AVs
     # ------------------------------------------------------------------
     ranges.append({"range": f"{p}A1", "values": [[titulo]]})
-    ranges.append({"range": f"{p}E1", "values": [["Data"]]})
-
-    for i, col in enumerate(colunas):
-        if col["tipo"] == "nota" and col["aula"] <= len(datas):
-            cl = _col_letter(COL_AULAS_INICIO + i)
-            ranges.append({"range": f"{p}{cl}1",
-                           "values": [[datas[col["aula"] - 1].strftime("%d/%m")]]})
-
-    # ------------------------------------------------------------------
-    # Linha 2 — label "Tema da Aula" (professor preenche abaixo)
-    # ------------------------------------------------------------------
-    ranges.append({"range": f"{p}E2", "values": [["Tema da Aula"]]})
-
-    # ------------------------------------------------------------------
-    # Linha 3 — cabeçalhos
-    # ------------------------------------------------------------------
-    ranges.append({"range": f"{p}A3",
-                   "values": [["Aluno", "Situação", "ATV 1", "ATV 2", "ATV 3", "Média", "Nº"]]})
-
-    nota_cols_por_grupo = {}   # avaliacao → [col_letter, ...]
-    ativ_col_por_grupo  = {}   # avaliacao → col_letter
 
     for i, col in enumerate(colunas):
         cl = _col_letter(COL_AULAS_INICIO + i)
-        if col["tipo"] == "nota":
-            ranges.append({"range": f"{p}{cl}3", "values": [["Nota"]]})
-            nota_cols_por_grupo.setdefault(col["avaliacao"], []).append(cl)
-        elif col["tipo"] == "ocorrencias":
-            ranges.append({"range": f"{p}{cl}3", "values": [["Ocorrencias"]]})
-        else:
-            ranges.append({"range": f"{p}{cl}3", "values": [[f"Atividade {col['avaliacao']}"]]})
-            ativ_col_por_grupo[col["avaliacao"]] = cl
+        if col["tipo"] == "ocorr":
+            semana       = col["semana"]
+            aula         = col["aula"]
+            idx_na_semana = (aula - 1) % freq if freq > 0 else 0
+            datas_sem    = datas_por_semana.get(semana, [])
+            if idx_na_semana < len(datas_sem):
+                ranges.append({"range": f"{p}{cl}1",
+                               "values": [[datas_sem[idx_na_semana].strftime("%d/%m")]]})
+        elif col["tipo"] == "av":
+            av_nome = avaliacoes[col["av_idx"]]["nome"]
+            ranges.append({"range": f"{p}{cl}1", "values": [[f"* {av_nome}"]]})
 
     # ------------------------------------------------------------------
-    # Linhas 4+ — número, nome e fórmulas por aluno
+    # Linha 2 — "Tema da Aula" na primeira coluna de dados
+    # ------------------------------------------------------------------
+    if colunas:
+        first_cl = _col_letter(COL_AULAS_INICIO)
+        ranges.append({"range": f"{p}{first_cl}2", "values": [["Tema da Aula"]]})
+
+    # ------------------------------------------------------------------
+    # Linha 3 — cabeçalhos fixos + cabeçalhos das colunas de aula
+    # ------------------------------------------------------------------
+    av_headers = [av["nome"] for av in avaliacoes[:3]]
+    while len(av_headers) < 3:
+        av_headers.append("")
+    ranges.append({"range": f"{p}A3",
+                   "values": [["Aluno", "Situação"] + av_headers + ["Nota", "Nº"]]})
+
+    av_col_letters    = {}   # av_idx  → col_letter
+    eng_cols_por_sem  = {}   # semana  → [col_letters das eng]
+
+    for i, col in enumerate(colunas):
+        cl = _col_letter(COL_AULAS_INICIO + i)
+        if col["tipo"] == "ocorr":
+            ranges.append({"range": f"{p}{cl}3", "values": [["Ocorrência"]]})
+        elif col["tipo"] == "eng":
+            ranges.append({"range": f"{p}{cl}3", "values": [["Engaj."]]})
+            eng_cols_por_sem.setdefault(col["semana"], []).append(cl)
+        elif col["tipo"] == "av":
+            av = avaliacoes[col["av_idx"]]
+            ranges.append({"range": f"{p}{cl}3", "values": [[f"{av['nome']} (0-10)"]]})
+            av_col_letters[col["av_idx"]] = cl
+
+    # Períodos de engajamento por AV (semanas desde a AV anterior até esta)
+    prev_semana     = 0
+    av_eng_periods  = {}
+    for av_idx, av in enumerate(avaliacoes):
+        av_sem = av.get("semana") or num_semanas
+        cols   = []
+        for s in range(prev_semana + 1, av_sem + 1):
+            cols.extend(eng_cols_por_sem.get(s, []))
+        av_eng_periods[av_idx] = cols
+        prev_semana = av_sem
+
+    # ------------------------------------------------------------------
+    # Linhas 4+ — alunos
     # ------------------------------------------------------------------
     for idx, aluno in enumerate(alunos):
         row = 4 + idx
-
         ranges.append({"range": f"{p}G{row}", "values": [[aluno["numero"]]]})
         ranges.append({"range": f"{p}A{row}", "values": [[aluno["nome"]]]})
-        situacao_texto = aluno.get("situacao", "").strip() or "Regular"
-        ranges.append({"range": f"{p}B{row}", "values": [[situacao_texto]]})
+        situacao = aluno.get("situacao", "").strip() or "Regular"
+        ranges.append({"range": f"{p}B{row}", "values": [[situacao]]})
 
-        # Nota = 100 + penalidade do VLOOKUP na célula Ocorrencias ao lado
+        # Fórmula de engajamento: 100 + PROCV(ocorrência)
         for i, col in enumerate(colunas):
-            if col["tipo"] == "nota":
-                nota_cl  = _col_letter(COL_AULAS_INICIO + i)
-                ocorr_cl = _col_letter(COL_AULAS_INICIO + i + 1)
-                formula = (
-                    f'=SE(ÉCÉL.VAZIA({ocorr_cl}{row});""; '
+            if col["tipo"] == "eng":
+                eng_cl   = _col_letter(COL_AULAS_INICIO + i)
+                ocorr_cl = _col_letter(COL_AULAS_INICIO + i - 1)
+                formula  = (
+                    f'=SE(ÉCÉL.VAZIA({ocorr_cl}{row});"";'
                     f'100+PROCV({ocorr_cl}{row};Penalidades!A:B;2;0))'
                 )
-                ranges.append({"range": f"{p}{nota_cl}{row}", "values": [[formula]]})
+                ranges.append({"range": f"{p}{eng_cl}{row}", "values": [[formula]]})
 
-        # Média por avaliação (C, D, E)
-        for av_idx, av in enumerate(sorted(nota_cols_por_grupo)):
+        # Fórmulas das AVs (colunas C, D, E)
+        for av_idx, av in enumerate(avaliacoes):
             if av_idx >= len(MEDIAS_COLS):
                 break
-            todas_cols = nota_cols_por_grupo[av] + (
-                [ativ_col_por_grupo[av]] if av in ativ_col_por_grupo else []
-            )
-            args = ";".join(f"{c}{row}" for c in todas_cols)
-            ranges.append({
-                "range": f"{p}{MEDIAS_COLS[av_idx]}{row}",
-                "values": [[f'=SEERRO(MÉDIA({args});"")']],
-            })
+            av_cl   = av_col_letters.get(av_idx)
+            med_col = MEDIAS_COLS[av_idx]
+            if not av_cl:
+                continue
 
-        # Média geral (F) = média das Médias 1/2/3
-        medias_usadas = [MEDIAS_COLS[i] for i in range(len(nota_cols_por_grupo))
-                         if i < len(MEDIAS_COLS)]
-        if medias_usadas:
-            args = ";".join(f"{c}{row}" for c in medias_usadas)
-            ranges.append({
-                "range": f"{p}F{row}",
-                "values": [[f'=SEERRO(MÉDIA({args});"")']],
-            })
+            valor_max = av["valor_maximo"]
+            peso_eng  = av.get("peso_engajamento", 0.0)
+            peso_av   = av.get("peso_avaliacao",  valor_max)
+            eng_cols  = av_eng_periods.get(av_idx, [])
+
+            if modo == "completo" and peso_eng > 0 and eng_cols:
+                eng_args   = ";".join(f"{c}{row}" for c in eng_cols)
+                eng_part   = f"SEERRO(MÉDIA({eng_args});0)/100*{_fmt(peso_eng)}"
+                av_part    = f"{av_cl}{row}/10*{_fmt(peso_av)}"
+                formula    = (
+                    f'=SEERRO(SE(ÉCÉL.VAZIA({av_cl}{row});"";'
+                    f'{eng_part}+{av_part});"")'
+                )
+            else:
+                formula = (
+                    f'=SEERRO(SE(ÉCÉL.VAZIA({av_cl}{row});"";'
+                    f'{av_cl}{row}/10*{_fmt(valor_max)});"")'
+                )
+            ranges.append({"range": f"{p}{med_col}{row}", "values": [[formula]]})
+
+        # Nota final (F) = soma das colunas C, D, E
+        avs_usadas = [MEDIAS_COLS[i] for i in range(min(len(avaliacoes), 3))]
+        if avs_usadas:
+            args = ";".join(f"{c}{row}" for c in avs_usadas)
+            ranges.append({"range": f"{p}F{row}",
+                           "values": [[f'=SEERRO(SOMA({args});"")']]} )
 
     return ranges
 
 
 # ---------------------------------------------------------------------------
-# Validação de dados — menu suspenso nas colunas Ocorrencias
+# Formatação e validação
 # ---------------------------------------------------------------------------
 
-SITUACOES_ATIVAS = {"", "ativo", "matriculado", "cursando"}
-
-
 def _requests_ocultar_inativos(ws_id, alunos):
-    """
-    Retorna requests updateDimensionProperties para ocultar linhas de alunos
-    com situação diferente de ativo/matriculado (ex: transferido, desistente).
-    Alunos começam na linha 4 (índice 3, 0-based).
-    """
     requests = []
     for idx, aluno in enumerate(alunos):
         situacao = aluno.get("situacao", "").strip().lower()
         if situacao in SITUACOES_ATIVAS:
             continue
-        row_idx = 3 + idx  # linha 4 = índice 3 (0-based)
+        row_idx = 3 + idx
         requests.append({
             "updateDimensionProperties": {
                 "range": {
@@ -273,25 +318,20 @@ def _requests_ocultar_inativos(ws_id, alunos):
 
 
 def _requests_validacao(ws_id, colunas, num_alunos):
-    """
-    Retorna requests setDataValidation para cada coluna 'Ocorrencias',
-    apontando para o intervalo de ocorrências na aba Penalidades.
-    Aplica da linha 4 (índice 3) até o último aluno.
-    """
-    ultima_linha = 4 + num_alunos  # endRowIndex é exclusivo
+    """Menu suspenso nas colunas 'Ocorrência'."""
+    ultima_linha  = 4 + num_alunos
     intervalo_pen = f"Penalidades!$A$2:$A${1 + len(PENALIDADES)}"
-    requests = []
+    requests      = []
 
     for i, col in enumerate(colunas):
-        if col["tipo"] != "ocorrencias":
+        if col["tipo"] != "ocorr":
             continue
-        col_idx = COL_AULAS_INICIO + i - 1  # 0-based
-
+        col_idx = COL_AULAS_INICIO + i - 1   # 0-based
         requests.append({
             "setDataValidation": {
                 "range": {
                     "sheetId":          ws_id,
-                    "startRowIndex":    3,           # linha 4 (0-based)
+                    "startRowIndex":    3,
                     "endRowIndex":      ultima_linha,
                     "startColumnIndex": col_idx,
                     "endColumnIndex":   col_idx + 1,
@@ -306,7 +346,6 @@ def _requests_validacao(ws_id, colunas, num_alunos):
                 },
             }
         })
-
     return requests
 
 
@@ -315,10 +354,6 @@ def _requests_validacao(ws_id, colunas, num_alunos):
 # ---------------------------------------------------------------------------
 
 def _ler_alunos_planilha(planilha_id):
-    """
-    Lê os alunos da primeira aba de trimestre.
-    Retorna dict: {numero: {nome, situacao, row_1based}}
-    """
     creds = _get_creds()
     gc    = gspread.authorize(creds)
     sh    = gc.open_by_key(planilha_id)
@@ -328,32 +363,23 @@ def _ler_alunos_planilha(planilha_id):
             continue
         linhas = ws.get_all_values()
         result = {}
-        for i, linha in enumerate(linhas[3:], start=4):   # row 4 = alunos
+        for i, linha in enumerate(linhas[3:], start=4):
             if not linha or not linha[0].strip():
                 continue
             num_str = linha[6].strip() if len(linha) > 6 else ""
             if not num_str.isdigit():
                 continue
             result[int(num_str)] = {
-                "nome":      linha[0].strip(),
-                "situacao":  linha[1].strip() if len(linha) > 1 else "",
-                "row":       i,   # 1-based
+                "nome":     linha[0].strip(),
+                "situacao": linha[1].strip() if len(linha) > 1 else "",
+                "row":      i,
             }
         return result
     return {}
 
 
 def comparar_alunos(planilha_id, alunos_json):
-    """
-    Compara dados.json com a planilha e retorna o que precisa ser sincronizado.
-    Returns: {novos, alterados, removidos}
-      novos     — alunos em dados.json que não estão na planilha
-      alterados — alunos em ambos, mas situação diferente
-                  cada item tem {numero, nome, situacao_antiga, situacao_nova, acao}
-                  acao: "ocultar" (situação inativa) | "atualizar" (ainda ativa)
-      removidos — alunos na planilha que não estão mais em dados.json
-    """
-    sheet = _ler_alunos_planilha(planilha_id)
+    sheet        = _ler_alunos_planilha(planilha_id)
     json_por_num = {a["numero"]: a for a in alunos_json}
 
     novos, alterados, removidos = [], [], []
@@ -372,11 +398,11 @@ def comparar_alunos(planilha_id, alunos_json):
                         if sit_nova and sit_nova.lower() not in SITUACOES_ATIVAS
                         else "atualizar")
                 alterados.append({
-                    "numero":         num,
-                    "nome":           a["nome"],
+                    "numero":          num,
+                    "nome":            a["nome"],
                     "situacao_antiga": sit_antiga or "Regular",
                     "situacao_nova":   sit_nova  or "Regular",
-                    "acao":           acao,
+                    "acao":            acao,
                 })
 
     for num, a in sheet.items():
@@ -387,10 +413,6 @@ def comparar_alunos(planilha_id, alunos_json):
 
 
 def adicionar_aluno(planilha_id, aluno):
-    """
-    Adiciona uma nova linha de aluno (nome, situação, número) em todas as abas
-    de trimestre, logo após o último aluno existente.
-    """
     creds = _get_creds()
     gc    = gspread.authorize(creds)
     sh    = gc.open_by_key(planilha_id)
@@ -401,22 +423,20 @@ def adicionar_aluno(planilha_id, aluno):
         if ws.title == "Penalidades":
             continue
         linhas = ws.get_all_values()
-        ultima = 3   # 1-based, row 3 = headers
+        ultima = 3
         for i, linha in enumerate(linhas[3:], start=4):
             if linha and linha[0].strip():
                 ultima = i
         nova = ultima + 1
-        ws.update([[aluno["nome"]]],           f"A{nova}", value_input_option="USER_ENTERED")
-        ws.update([[situacao_texto]],          f"B{nova}", value_input_option="USER_ENTERED")
-        ws.update([[int(aluno["numero"])]],    f"G{nova}", value_input_option="USER_ENTERED")
+        ws.update([[aluno["nome"]]],        f"A{nova}", value_input_option="USER_ENTERED")
+        ws.update([[situacao_texto]],       f"B{nova}", value_input_option="USER_ENTERED")
+        ws.update([[int(aluno["numero"])]], f"G{nova}", value_input_option="USER_ENTERED")
 
 
 def atualizar_situacao(planilha_id, numero_chamada, nova_situacao):
-    """Atualiza a coluna B (Situação) do aluno em todas as abas de trimestre."""
     creds = _get_creds()
     gc    = gspread.authorize(creds)
     sh    = gc.open_by_key(planilha_id)
-
     texto = nova_situacao.strip() or "Regular"
 
     for ws in sh.worksheets():
@@ -431,7 +451,6 @@ def atualizar_situacao(planilha_id, numero_chamada, nova_situacao):
 
 
 def ocultar_aluno(planilha_id, numero_chamada):
-    """Oculta a linha do aluno em todas as abas de trimestre."""
     creds  = _get_creds()
     gc     = gspread.authorize(creds)
     sheets = build("sheets", "v4", credentials=creds)
@@ -442,7 +461,7 @@ def ocultar_aluno(planilha_id, numero_chamada):
         if ws.title == "Penalidades":
             continue
         linhas = ws.get_all_values()
-        for i, linha in enumerate(linhas[3:], start=4):   # i é 1-based
+        for i, linha in enumerate(linhas[3:], start=4):
             if len(linha) > 6 and linha[6].strip().isdigit():
                 if int(linha[6].strip()) == numero_chamada:
                     requests.append({
@@ -450,7 +469,7 @@ def ocultar_aluno(planilha_id, numero_chamada):
                             "range": {
                                 "sheetId":    ws.id,
                                 "dimension":  "ROWS",
-                                "startIndex": i - 1,   # 0-based
+                                "startIndex": i - 1,
                                 "endIndex":   i,
                             },
                             "properties": {"hiddenByUser": True},
@@ -470,10 +489,8 @@ def ocultar_aluno(planilha_id, numero_chamada):
 # Leitura de ocorrências
 # ---------------------------------------------------------------------------
 
-# Ocorrências que NÃO geram comentário (presença normal ou ausência)
 _IGNORAR = {"", "Fez a atividade", "Falta"}
 
-# Mapeamento ocorrência → frase de comentário para o diário
 _COMENTARIOS = {
     "Não fez a atividade": "Não realizou a atividade proposta",
     "Não terminou":        "Não concluiu a atividade proposta",
@@ -487,22 +504,14 @@ _COMENTARIOS = {
 
 def ler_ocorrencias_planilha(planilha_id, data_str):
     """
-    Lê a planilha e retorna os alunos que têm ocorrências relevantes
-    na coluna correspondente à data informada.
-
-    Args:
-        planilha_id: ID do Google Sheets
-        data_str:    string "DD/MM/AAAA"
-
-    Returns:
-        lista de dicts {numero, nome, ocorrencia, comentario}
+    Lê a planilha e retorna alunos com ocorrências relevantes na data informada.
+    Suporta formato novo (data na col Ocorrência) e antigo (data na col Nota).
     """
     creds = _get_creds()
     gc    = gspread.authorize(creds)
     sh    = gc.open_by_key(planilha_id)
 
-    # Datas na planilha estão no formato "DD/MM" (sem ano), na linha 1
-    data_curta = data_str[:5]
+    data_curta = data_str[:5]   # "DD/MM"
 
     for ws in sh.worksheets():
         if ws.title == "Penalidades":
@@ -512,28 +521,28 @@ def ler_ocorrencias_planilha(planilha_id, data_str):
         if len(linhas) < 4:
             continue
 
-        row1 = linhas[0]   # datas (DD/MM) nas colunas de nota
-        row3 = linhas[2]   # cabeçalhos: Aluno, Situação, ATV1..., Nota, Ocorrencias...
+        row1 = linhas[0]
+        row3 = linhas[2]
 
-        # Encontra a coluna da nota para a data alvo
         nota_idx = next(
             (i for i, v in enumerate(row1) if v.strip() == data_curta), None
         )
         if nota_idx is None:
             continue
 
-        # Coluna de Ocorrências = coluna seguinte à Nota
-        ocorr_idx = nota_idx + 1
-        # Confirmação: verifica cabeçalho
-        if len(row3) > ocorr_idx and row3[ocorr_idx].strip() != "Ocorrencias":
-            # Procura "Ocorrencias" nas próximas 2 colunas
+        # Determina coluna de ocorrências (novo: data na ocorr; antigo: data na nota)
+        header = row3[nota_idx].strip() if len(row3) > nota_idx else ""
+        if header in ("Ocorrência", "Ocorrencias"):
+            ocorr_idx = nota_idx
+        else:
+            ocorr_idx = nota_idx + 1
             for j in range(nota_idx + 1, min(nota_idx + 3, len(row3))):
-                if row3[j].strip() == "Ocorrencias":
+                if row3[j].strip() in ("Ocorrência", "Ocorrencias"):
                     ocorr_idx = j
                     break
 
         resultado = []
-        for linha in linhas[3:]:           # linhas de alunos (row 4+)
+        for linha in linhas[3:]:
             if not linha or not linha[0].strip():
                 continue
             nome   = linha[0].strip()
@@ -550,9 +559,9 @@ def ler_ocorrencias_planilha(planilha_id, data_str):
                 "comentario": _COMENTARIOS.get(ocorr, ocorr),
             })
 
-        return resultado   # data encontrada nesta aba
+        return resultado
 
-    return []   # data não encontrada em nenhuma aba
+    return []
 
 
 # ---------------------------------------------------------------------------
@@ -564,14 +573,16 @@ def gerar_diario(turma_data, config, pasta_id):
     Gera um diário de classe no Google Sheets.
 
     Args:
-        turma_data: dict com escola, turma, disciplina, alunos
-        config:     dict com num_aulas, data_inicio (date ou 'YYYY-MM-DD'),
-                    frequencia_semanal, avaliacoes (lista de dicts com valor_maximo)
-        pasta_id:   ID da pasta no Google Drive
+        turma_data : dict com escola, turma, disciplina, alunos
+        config     : dict com modo, frequencia_semanal, avaliacoes
+                     (num_semanas e data_inicio são auto-preenchidos por trimestre)
+        pasta_id   : ID da pasta no Google Drive
 
     Returns:
-        URL da planilha criada.
+        {"url": ..., "id": ...}
     """
+    from calendario.calendario_pr import TRIMESTRES, calcular_semanas_trimestre
+
     creds  = _get_creds()
     gc     = gspread.authorize(creds)
     drive  = build("drive",  "v3", credentials=creds)
@@ -580,37 +591,55 @@ def gerar_diario(turma_data, config, pasta_id):
     nome = _gerar_nome(turma_data)
     print(f"Criando planilha: {nome}")
 
-    # Cria o arquivo na pasta correta via Drive API
     arquivo = drive.files().create(
         body={
-            "name": nome,
+            "name":     nome,
             "mimeType": "application/vnd.google-apps.spreadsheet",
-            "parents": [pasta_id],
+            "parents":  [pasta_id],
         },
         fields="id",
     ).execute()
     sheet_id = arquivo["id"]
 
-    planilha = gc.open_by_key(sheet_id)
-    ws_default = planilha.sheet1  # aba criada automaticamente pelo Google
+    planilha   = gc.open_by_key(sheet_id)
+    ws_default = planilha.sheet1
 
-    # Cria as abas necessárias
+    # Calcula largura máxima necessária para as abas
+    modo    = config.get("modo", "diario")
+    freq    = config.get("frequencia_semanal", 2) if modo != "simples" else 0
+    n_avs   = len(config.get("avaliacoes", []))
+    ano     = date.today().year
+    max_sem = max(calcular_semanas_trimestre(t, ano) for t in [1, 2, 3])
+    max_cols = COL_FIXAS + max_sem * freq * 2 + n_avs + 10
+
     ws_pen  = planilha.add_worksheet("Penalidades",  rows=20,  cols=2)
-    ws_tri1 = planilha.add_worksheet("1 Trimestre",  rows=200, cols=60)
-    ws_tri2 = planilha.add_worksheet("2 Trimestre",  rows=200, cols=60)
-    ws_tri3 = planilha.add_worksheet("3 Trimestre",  rows=200, cols=60)
+    ws_tri1 = planilha.add_worksheet("1 Trimestre",  rows=200, cols=max(80, max_cols))
+    ws_tri2 = planilha.add_worksheet("2 Trimestre",  rows=200, cols=max(80, max_cols))
+    ws_tri3 = planilha.add_worksheet("3 Trimestre",  rows=200, cols=max(80, max_cols))
     planilha.del_worksheet(ws_default)
 
-    # Preenche Penalidades
+    # Penalidades
     pen_data = [["Ocorrencia", "Penalidade"]] + [[o, p] for o, p in PENALIDADES]
     ws_pen.update(pen_data, "A1", value_input_option="USER_ENTERED")
     print("  Penalidades preenchidas")
 
-    # Monta todos os ranges dos 3 trimestres e envia em um único batch
-    all_ranges = []
-    for tri_num in [1, 2, 3]:
+    # Gera ranges com datas corretas para cada trimestre
+    tri_info = TRIMESTRES.get(ano, {})
+    all_ranges  = []
+    tri_colunas = {}
+
+    for tri_num, ws in [(1, ws_tri1), (2, ws_tri2), (3, ws_tri3)]:
+        info        = tri_info.get(tri_num, {})
+        num_semanas = calcular_semanas_trimestre(tri_num, ano)
+        tri_config  = dict(config)
+        tri_config["data_inicio"]  = info.get("inicio")
+        tri_config["num_semanas"]  = num_semanas
+
         nome_aba = f"{tri_num} Trimestre"
-        all_ranges.extend(_trimestre_ranges(nome_aba, turma_data, config, tri_num))
+        all_ranges.extend(_trimestre_ranges(nome_aba, turma_data, tri_config, tri_num))
+        tri_colunas[tri_num] = _colunas_v2(
+            num_semanas, freq, config.get("avaliacoes", []), modo
+        )
 
     sheets.spreadsheets().values().batchUpdate(
         spreadsheetId=sheet_id,
@@ -618,12 +647,13 @@ def gerar_diario(turma_data, config, pasta_id):
     ).execute()
     print(f"  {len(all_ranges)} ranges gravados nos 3 trimestres")
 
-    # Adiciona menu suspenso nas colunas Ocorrencias dos 3 trimestres
-    colunas = _colunas_aulas(config.get("num_aulas", 0), config.get("avaliacoes", []))
-    num_alunos = len(turma_data.get("alunos", []))
+    # Formatação: validação, ocultar inativos, congelar colunas
     alunos_ord = sorted(turma_data.get("alunos", []), key=lambda a: a["numero"])
+    num_alunos = len(alunos_ord)
     format_requests = []
-    for ws in [ws_tri1, ws_tri2, ws_tri3]:
+
+    for tri_num, ws in [(1, ws_tri1), (2, ws_tri2), (3, ws_tri3)]:
+        colunas = tri_colunas[tri_num]
         format_requests.extend(_requests_validacao(ws.id, colunas, num_alunos))
         format_requests.extend(_requests_ocultar_inativos(ws.id, alunos_ord))
         format_requests.append({

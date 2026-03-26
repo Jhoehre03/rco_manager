@@ -230,7 +230,9 @@ def preencher_notas(browser, notas):
         except Exception:
             continue
 
-        browser.execute_script("arguments[0].value = arguments[1]", campo, str(nota))
+        nota_int = int(round(float(nota) * 10))
+        nota_str = str(nota_int).zfill(2)
+        browser.execute_script("arguments[0].value = arguments[1]", campo, nota_str)
         browser.execute_script(
             "arguments[0].dispatchEvent(new Event('input', {bubbles: true}))", campo
         )
