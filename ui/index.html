@@ -1560,136 +1560,193 @@
   }
 
   // ── COMENTÁRIOS ──────────────────────────────
-  let _ocorrencias = [];   // cache da última busca
+  let _grupos_comentarios = [];   // cache da última busca: [{data,escola,turma,disciplina,trimestre,alunos}]
+
+  function _semanaAtual() {
+    const hoje = new Date();
+    const dow  = hoje.getDay(); // 0=dom, 1=seg... 6=sab
+    // Seg desta semana
+    const seg = new Date(hoje);
+    seg.setDate(hoje.getDate() - (dow === 0 ? 6 : dow - 1));
+    // Sex desta semana
+    const sex = new Date(seg);
+    sex.setDate(seg.getDate() + 4);
+    const fmt = d => String(d.getDate()).padStart(2,'0') + '/' +
+                     String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+    return { ini: fmt(seg), fim: fmt(sex) };
+  }
 
   function renderComentarios() {
-    const opts = state.turmas.map(t =>
-      `<option value='${JSON.stringify({escola: t.escola, turma: t.turma, disciplina: t.disciplina})}'>
-        ${t.turma} — ${t.disciplina}
-      </option>`
-    ).join('');
-
+    const { ini, fim } = _semanaAtual();
     document.getElementById('content').innerHTML = `
       <div class="form-card">
-        <div class="form-row">
-          <div class="form-group wide">
-            <label>Turma</label>
-            <select id="sel-turma-c">${opts.length ? '<option value="">Selecione...</option>' + opts : '<option value="">Nenhuma turma cadastrada</option>'}</select>
+        <div class="form-row" style="align-items:flex-end;gap:12px">
+          <div class="form-group">
+            <label>De</label>
+            <input type="text" id="inp-data-ini" value="${ini}" placeholder="DD/MM/AAAA" maxlength="10">
           </div>
           <div class="form-group">
-            <label>Trimestre</label>
-            <select id="sel-tri-c">
-              <option value="1º Tri">1º Trimestre</option>
-              <option value="2º Tri">2º Trimestre</option>
-              <option value="3º Tri">3º Trimestre</option>
-            </select>
+            <label>Até</label>
+            <input type="text" id="inp-data-fim" value="${fim}" placeholder="DD/MM/AAAA" maxlength="10">
           </div>
-          <div class="form-group">
-            <label>Data da aula</label>
-            <input type="text" id="inp-data-c" placeholder="DD/MM/AAAA" maxlength="10">
-          </div>
-          <button class="btn btn-primary" id="btn-buscar-c" onclick="buscarOcorrencias()">Buscar</button>
+          <button class="btn btn-primary" id="btn-buscar-c" onclick="buscarComentariosPeriodo()">
+            Buscar comentários
+          </button>
         </div>
       </div>
-      <div id="area-ocorrencias"></div>
+      <div id="area-comentarios"></div>
     `;
   }
 
-  async function buscarOcorrencias() {
-    const sel   = document.getElementById('sel-turma-c');
-    const data  = document.getElementById('inp-data-c').value.trim();
-    const btn   = document.getElementById('btn-buscar-c');
-    const area  = document.getElementById('area-ocorrencias');
+  async function buscarComentariosPeriodo() {
+    const ini  = document.getElementById('inp-data-ini').value.trim();
+    const fim  = document.getElementById('inp-data-fim').value.trim();
+    const btn  = document.getElementById('btn-buscar-c');
+    const area = document.getElementById('area-comentarios');
 
-    if (!sel.value) { toast('Selecione uma turma', 'error'); return; }
-    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(data)) { toast('Data inválida — use DD/MM/AAAA', 'error'); return; }
+    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(ini)) { toast('Data inicial inválida', 'error'); return; }
+    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(fim))  { toast('Data final inválida',   'error'); return; }
 
-    const { escola, turma, disciplina } = JSON.parse(sel.value);
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>Buscando...';
     area.innerHTML = '';
 
     try {
-      const res = await window.pywebview.api.get_comentarios_planilha(escola, turma, disciplina, data);
+      const res = await window.pywebview.api.get_comentarios_periodo(ini, fim);
       if (!res.ok) { toast('Erro: ' + res.erro, 'error'); return; }
 
-      _ocorrencias = res.comentarios;
-      if (_ocorrencias.length === 0) {
-        area.innerHTML = '<div class="empty">Nenhuma ocorrência encontrada para esta data.</div>';
+      _grupos_comentarios = res.grupos;
+      if (_grupos_comentarios.length === 0) {
+        area.innerHTML = '<div class="empty">Nenhuma ocorrência encontrada no período.</div>';
         return;
       }
-      renderListaOcorrencias(escola, turma, disciplina, data);
+      renderGruposComentarios();
     } catch (e) {
-      toast('Erro inesperado', 'error');
+      toast('Erro inesperado: ' + e, 'error');
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Buscar';
+      btn.textContent = 'Buscar comentários';
     }
   }
 
-  function renderListaOcorrencias(escola, turma, disciplina, data) {
-    const area = document.getElementById('area-ocorrencias');
-    const trimestre = document.getElementById('sel-tri-c').value;
-    const rows = _ocorrencias.map((o, i) => `
-      <div class="ocorr-row">
-        <input type="checkbox" class="ocorr-check" id="chk-${i}" checked>
-        <div class="ocorr-num">${o.numero}</div>
-        <div class="ocorr-info">
-          <div class="ocorr-nome">${o.nome}</div>
-          <div class="ocorr-badge">${o.ocorrencia}</div>
-          <textarea class="ocorr-textarea" id="txt-${i}">${o.comentario}</textarea>
+  function renderGruposComentarios() {
+    const area = document.getElementById('area-comentarios');
+    const totalAlunos = _grupos_comentarios.reduce((s, g) => s + g.alunos.length, 0);
+
+    const gruposHtml = _grupos_comentarios.map((g, gi) => {
+      const rows = g.alunos.map((a, ai) => `
+        <div class="ocorr-row">
+          <input type="checkbox" class="ocorr-check" id="chk-${gi}-${ai}" checked>
+          <div class="ocorr-num">${a.numero ?? '—'}</div>
+          <div class="ocorr-info">
+            <div class="ocorr-nome">${a.nome}</div>
+            <div class="ocorr-badge">${a.ocorrencia}</div>
+            <textarea class="ocorr-textarea" id="txt-${gi}-${ai}">${a.comentario}</textarea>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `).join('');
+
+      return `
+        <div class="form-card" style="margin-top:10px">
+          <div class="section-header" style="margin-bottom:8px">
+            <span class="section-title">${g.data} — ${g.turma} (${g.disciplina})</span>
+            <span class="badge" style="font-size:11px;margin-left:8px">${g.trimestre}</span>
+          </div>
+          <div class="ocorr-list">${rows}</div>
+          <div class="lancar-bar" style="margin-top:8px">
+            <span class="lancar-info">${g.alunos.length} aluno(s)</span>
+            <button class="btn btn-primary btn-sm" id="btn-lancar-${gi}"
+              onclick="lancarGrupo(${gi})">
+              Lançar no RCO
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
 
     area.innerHTML = `
       <div class="section-header" style="margin-top:4px">
-        <span class="section-title">${_ocorrencias.length} aluno(s) com ocorrências</span>
+        <span class="section-title">${totalAlunos} ocorrência(s) em ${_grupos_comentarios.length} aula(s)</span>
+        <button class="btn btn-primary" onclick="lancarTudo()">Lançar tudo no RCO</button>
       </div>
-      <div class="ocorr-list">${rows}</div>
-      <div class="lancar-bar">
-        <span class="lancar-info">Turma: <strong>${turma}</strong> &nbsp;·&nbsp; Data: <strong>${data}</strong></span>
-        <button class="btn btn-primary" id="btn-lancar-c"
-          onclick="lancarComentarios('${escola}','${turma}','${disciplina}','${trimestre}','${data}')">
-          Lançar no RCO
-        </button>
-      </div>
+      ${gruposHtml}
     `;
   }
 
-  async function lancarComentarios(escola, turma, disciplina, trimestre, data) {
-    const btn = document.getElementById('btn-lancar-c');
+  async function lancarGrupo(gi) {
+    if (!state.chrome) { toast('Conecte o Chrome primeiro', 'error'); return; }
+    const g   = _grupos_comentarios[gi];
+    const btn = document.getElementById(`btn-lancar-${gi}`);
 
-    // Coleta apenas os itens marcados com seus textos editados
-    const selecionados = _ocorrencias
-      .map((o, i) => {
-        const checked = document.getElementById('chk-' + i)?.checked;
-        const texto   = document.getElementById('txt-' + i)?.value.trim();
-        return checked && texto ? { numero: o.numero, nome: o.nome, comentario: texto } : null;
+    const selecionados = g.alunos
+      .map((a, ai) => {
+        const checked = document.getElementById(`chk-${gi}-${ai}`)?.checked;
+        const texto   = document.getElementById(`txt-${gi}-${ai}`)?.value.trim();
+        return checked && texto ? { numero: a.numero, nome: a.nome, comentario: texto } : null;
       })
       .filter(Boolean);
 
-    if (selecionados.length === 0) { toast('Nenhum comentário selecionado', 'error'); return; }
-    if (!state.chrome)             { toast('Conecte o Chrome primeiro', 'error');     return; }
+    if (selecionados.length === 0) { toast('Nenhum aluno selecionado neste grupo', 'error'); return; }
 
     btn.disabled = true;
-    btn.innerHTML = `<span class="spinner"></span>Lançando ${selecionados.length}...`;
+    btn.innerHTML = `<span class="spinner"></span>${selecionados.length}...`;
 
     try {
+      const tri = { '1T': '1º Tri', '2T': '2º Tri', '3T': '3º Tri' }[g.trimestre] || g.trimestre;
       const res = await window.pywebview.api.lancar_comentarios(
-        escola, turma, disciplina, trimestre, data, selecionados
+        g.escola, g.turma, g.disciplina, tri, g.data, selecionados
       );
       if (res.ok) {
-        toast(`${selecionados.length} comentário(s) lançado(s) com sucesso!`, 'success');
+        toast(`${selecionados.length} comentário(s) lançado(s) — ${g.turma} ${g.data}`, 'success');
+        btn.textContent = '✓ Lançado';
+        btn.classList.replace('btn-primary', 'btn-secondary');
       } else {
         toast('Erro: ' + res.erro, 'error');
+        btn.disabled = false;
+        btn.textContent = 'Lançar no RCO';
       }
     } catch (e) {
-      toast('Erro inesperado', 'error');
-    } finally {
+      toast('Erro inesperado: ' + e, 'error');
       btn.disabled = false;
       btn.textContent = 'Lançar no RCO';
     }
+  }
+
+  async function lancarTudo() {
+    if (!state.chrome) { toast('Conecte o Chrome primeiro', 'error'); return; }
+    let ok = 0, erros = 0;
+    for (let gi = 0; gi < _grupos_comentarios.length; gi++) {
+      const btn = document.getElementById(`btn-lancar-${gi}`);
+      if (btn && btn.classList.contains('btn-secondary')) continue; // já lançado
+      const g = _grupos_comentarios[gi];
+      const selecionados = g.alunos
+        .map((a, ai) => {
+          const checked = document.getElementById(`chk-${gi}-${ai}`)?.checked;
+          const texto   = document.getElementById(`txt-${gi}-${ai}`)?.value.trim();
+          return checked && texto ? { numero: a.numero, nome: a.nome, comentario: texto } : null;
+        })
+        .filter(Boolean);
+      if (selecionados.length === 0) continue;
+      if (btn) { btn.disabled = true; btn.innerHTML = `<span class="spinner"></span>`; }
+      try {
+        const tri = { '1T': '1º Tri', '2T': '2º Tri', '3T': '3º Tri' }[g.trimestre] || g.trimestre;
+        const res = await window.pywebview.api.lancar_comentarios(
+          g.escola, g.turma, g.disciplina, tri, g.data, selecionados
+        );
+        if (res.ok) {
+          ok++;
+          if (btn) { btn.textContent = '✓ Lançado'; btn.classList.replace('btn-primary','btn-secondary'); }
+        } else {
+          erros++;
+          if (btn) { btn.disabled = false; btn.textContent = 'Lançar no RCO'; }
+          toast(`Erro em ${g.turma} ${g.data}: ${res.erro}`, 'error');
+        }
+      } catch (e) {
+        erros++;
+        if (btn) { btn.disabled = false; btn.textContent = 'Lançar no RCO'; }
+      }
+    }
+    if (ok > 0) toast(`${ok} grupo(s) lançado(s) com sucesso!${erros ? ' ' + erros + ' com erro.' : ''}`, 'success');
   }
 
   // ── CHROME ───────────────────────────────────
