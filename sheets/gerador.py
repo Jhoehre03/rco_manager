@@ -941,6 +941,181 @@ def ler_ocorrencias_planilha(planilha_id, data_str):
 
 
 # ---------------------------------------------------------------------------
+# Aba Resumo
+# ---------------------------------------------------------------------------
+
+def adicionar_aba_resumo(planilha_id, notas_finais):
+    """
+    Cria ou atualiza a aba "Resumo" na planilha com os dados do RCO.
+
+    notas_finais: lista de dicts retornada por buscar_notas_finais_rco()
+        {numero, nome, situacao, soma}  ← formato real (1 trimestre por vez)
+      OU lista expandida com 1T/2T/3T quando chamado com dados de múltiplos trimestres.
+
+    Retorna {aprovados, reprovados, parciais, total_alunos}.
+    """
+    creds  = _get_creds()
+    gc     = gspread.authorize(creds)
+    sheets = build("sheets", "v4", credentials=creds)
+    sh     = gc.open_by_key(planilha_id)
+
+    # Cria ou limpa a aba Resumo
+    ws_resumo = next((w for w in sh.worksheets() if w.title == "Resumo"), None)
+    if ws_resumo is None:
+        ws_resumo = sh.add_worksheet("Resumo", rows=200, cols=10)
+        # Move para índice 0 (primeira aba)
+        sheets.spreadsheets().batchUpdate(
+            spreadsheetId=planilha_id,
+            body={"requests": [{"updateSheetProperties": {
+                "properties": {"sheetId": ws_resumo.id, "index": 0},
+                "fields": "index",
+            }}]},
+        ).execute()
+    else:
+        ws_resumo.clear()
+
+    # ------------------------------------------------------------------
+    # Monta dados
+    # ------------------------------------------------------------------
+    cabecalho = ["Nº", "Nome", "Situação", "1º Trimestre", "2º Trimestre",
+                 "3º Trimestre", "Total", "Situação Final"]
+
+    def _situacao_final(t1, t2, t3):
+        notas = [n for n in (t1, t2, t3) if n is not None]
+        if not notas:
+            return "Parcial"
+        total = sum(notas)
+        if len(notas) < 3:
+            return "Parcial"
+        if total >= 18 and all(n >= 6 for n in notas):
+            return "Aprovado"
+        return "Reprovado"
+
+    linhas  = [cabecalho]
+    stats   = {"aprovados": 0, "reprovados": 0, "parciais": 0}
+
+    for a in notas_finais:
+        t1  = a.get("1T")
+        t2  = a.get("2T")
+        t3  = a.get("3T")
+        # Compatibilidade com formato de 1 trimestre (campo "soma")
+        if t1 is None and t2 is None and t3 is None and "soma" in a:
+            t1 = a["soma"]
+
+        notas_disp = [n for n in (t1, t2, t3) if n is not None]
+        total      = sum(notas_disp) if notas_disp else None
+        sit_final  = _situacao_final(t1, t2, t3)
+
+        stats[{"Aprovado": "aprovados", "Reprovado": "reprovados",
+               "Parcial": "parciais"}[sit_final]] += 1
+
+        linhas.append([
+            a.get("numero", ""),
+            a.get("nome", ""),
+            a.get("situacao", ""),
+            t1 if t1 is not None else "",
+            t2 if t2 is not None else "",
+            t3 if t3 is not None else "",
+            total if total is not None else "",
+            sit_final,
+        ])
+
+    ws_resumo.update(linhas, "A1", value_input_option="USER_ENTERED")
+
+    # ------------------------------------------------------------------
+    # Formatação via batchUpdate
+    # ------------------------------------------------------------------
+    sid      = ws_resumo.id
+    n_alunos = len(notas_finais)
+
+    def _rgb(hex_str):
+        h = hex_str.lstrip("#")
+        return {
+            "red":   int(h[0:2], 16) / 255,
+            "green": int(h[2:4], 16) / 255,
+            "blue":  int(h[4:6], 16) / 255,
+        }
+
+    requests = []
+
+    # Cabeçalho: fundo #1a2744, texto branco, negrito
+    requests.append({"repeatCell": {
+        "range": {"sheetId": sid, "startRowIndex": 0, "endRowIndex": 1,
+                  "startColumnIndex": 0, "endColumnIndex": 8},
+        "cell": {"userEnteredFormat": {
+            "backgroundColor": _rgb("1a2744"),
+            "textFormat": {"foregroundColor": _rgb("ffffff"), "bold": True},
+            "horizontalAlignment": "CENTER",
+        }},
+        "fields": "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)",
+    }})
+
+    # Linhas alternadas
+    for i in range(n_alunos):
+        cor = "ffffff" if i % 2 == 0 else "f8fafc"
+        requests.append({"repeatCell": {
+            "range": {"sheetId": sid,
+                      "startRowIndex": 1 + i, "endRowIndex": 2 + i,
+                      "startColumnIndex": 0, "endColumnIndex": 8},
+            "cell": {"userEnteredFormat": {"backgroundColor": _rgb(cor)}},
+            "fields": "userEnteredFormat.backgroundColor",
+        }})
+
+    # Cor da coluna Situação Final (col H = índice 7) por valor
+    _COR_SIT = {
+        "Aprovado":  ("d1fae5", "065f46"),
+        "Reprovado": ("fee2e2", "991b1b"),
+        "Parcial":   ("fef3c7", "92400e"),
+    }
+    for i, a in enumerate(notas_finais):
+        t1 = a.get("1T")
+        t2 = a.get("2T")
+        t3 = a.get("3T")
+        if t1 is None and t2 is None and t3 is None and "soma" in a:
+            t1 = a["soma"]
+        sit = _situacao_final(t1, t2, t3)
+        bg, fg = _COR_SIT[sit]
+        requests.append({"repeatCell": {
+            "range": {"sheetId": sid,
+                      "startRowIndex": 1 + i, "endRowIndex": 2 + i,
+                      "startColumnIndex": 7, "endColumnIndex": 8},
+            "cell": {"userEnteredFormat": {
+                "backgroundColor": _rgb(bg),
+                "textFormat": {"foregroundColor": _rgb(fg), "bold": True},
+                "horizontalAlignment": "CENTER",
+            }},
+            "fields": "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)",
+        }})
+
+    # Larguras das colunas: Nº=50 Nome=220 Sit=100 3×Tri=110 Total=80 SitFinal=130
+    larguras = [50, 220, 100, 110, 110, 110, 80, 130]
+    for col_idx, px in enumerate(larguras):
+        requests.append({"updateDimensionProperties": {
+            "range": {"sheetId": sid, "dimension": "COLUMNS",
+                      "startIndex": col_idx, "endIndex": col_idx + 1},
+            "properties": {"pixelSize": px},
+            "fields": "pixelSize",
+        }})
+
+    # Congela linha 1
+    requests.append({"updateSheetProperties": {
+        "properties": {"sheetId": sid,
+                       "gridProperties": {"frozenRowCount": 1}},
+        "fields": "gridProperties.frozenRowCount",
+    }})
+
+    sheets.spreadsheets().batchUpdate(
+        spreadsheetId=planilha_id,
+        body={"requests": requests},
+    ).execute()
+
+    return {
+        "total_alunos": n_alunos,
+        **stats,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Função principal
 # ---------------------------------------------------------------------------
 

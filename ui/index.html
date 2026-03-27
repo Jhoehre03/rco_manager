@@ -541,6 +541,61 @@
   </div>
 </div>
 
+<!-- ── MODAL RESUMO EM LOTE ──────────────────── -->
+<div id="modal-resumo-lote" class="modal-overlay hidden" onclick="if(event.target.id==='modal-resumo-lote')_fecharResumoLote()">
+  <div class="modal-box" onclick="event.stopPropagation()" style="width:580px;max-height:88vh;display:flex;flex-direction:column">
+    <div class="modal-header">
+      <h3>Atualizar Resumo em Lote</h3>
+      <button class="modal-close" onclick="_fecharResumoLote()">×</button>
+    </div>
+
+    <div class="modal-body" style="overflow-y:auto;flex:1">
+
+      <!-- Seletor de trimestre -->
+      <div class="form-group" style="margin-bottom:16px">
+        <label>Trimestre</label>
+        <div class="trimestre-pills">
+          <label class="trim-pill"><input type="radio" name="rl-trim" value="1"> 1º</label>
+          <label class="trim-pill"><input type="radio" name="rl-trim" value="2"> 2º</label>
+          <label class="trim-pill"><input type="radio" name="rl-trim" value="3"> 3º</label>
+        </div>
+      </div>
+
+      <!-- Lista de turmas -->
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Turmas <span style="font-weight:400;text-transform:none;color:#94a3b8">(apenas com planilha vinculada)</span></label>
+        <div id="rl-turmas-lista" style="display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:8px;padding:8px"></div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button class="btn btn-sm" style="background:#f1f5f9;color:#374151" onclick="_rlSelectAll(true)">Todas</button>
+          <button class="btn btn-sm" style="background:#f1f5f9;color:#374151" onclick="_rlSelectAll(false)">Nenhuma</button>
+        </div>
+      </div>
+
+      <!-- Barra de progresso (oculta até iniciar) -->
+      <div id="rl-progresso-area" style="display:none;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b;margin-bottom:4px">
+          <span id="rl-progresso-label">Aguardando...</span>
+          <span id="rl-progresso-pct">0%</span>
+        </div>
+        <div style="background:#e2e8f0;border-radius:8px;height:10px;overflow:hidden">
+          <div id="rl-progresso-bar" style="height:100%;width:0%;background:#3b82f6;border-radius:8px;transition:width .3s"></div>
+        </div>
+      </div>
+
+      <!-- Log por turma -->
+      <div id="rl-log" style="display:none;flex-direction:column;gap:4px;font-size:12px;max-height:200px;overflow-y:auto"></div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn" style="background:#f1f5f9;color:#374151" onclick="_fecharResumoLote()" id="rl-btn-fechar">Fechar</button>
+      <button class="btn btn-primary" id="rl-btn-iniciar" onclick="_iniciarResumoLote()">
+        Atualizar Resumo
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ── MODAL GERAR EM LOTE ───────────────────── -->
 <div id="modal-lote" class="modal-overlay hidden" onclick="if(event.target.id==='modal-lote')_fecharLote()">
   <div class="modal-box" onclick="event.stopPropagation()" style="width:620px;max-height:88vh;display:flex;flex-direction:column">
@@ -758,6 +813,8 @@
                    onclick='_abrirPlanilha(${k})'>Abrir</button>
                  <button class="btn btn-sm" style="background:#f1f5f9;color:#374151;border:none"
                    onclick='sincronizarAlunos(${k})'>Sincronizar</button>
+                 <button class="btn btn-sm" style="background:#e0e7ff;color:#3730a3;border:none"
+                   onclick='_atualizarResumoUnico(${k}, this)'>Resumo</button>
                  <button class="btn btn-sm" style="background:#fee2e2;color:#991b1b;border:none"
                    onclick='_desvincularPlanilha(${k})'>Desvincular</button>`
               : `<button class="btn btn-primary btn-sm"
@@ -770,7 +827,10 @@
     document.getElementById('content').innerHTML = `
       <div class="section-header">
         <span class="section-title">Planilhas Google Sheets</span>
-        <button class="btn btn-primary btn-sm" onclick="_abrirLote()">Gerar em Lote</button>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm" style="background:#e0e7ff;color:#3730a3" onclick="_abrirResumoLote()">Resumo em Lote</button>
+          <button class="btn btn-primary btn-sm" onclick="_abrirLote()">Gerar em Lote</button>
+        </div>
       </div>
       <div class="turmas-list">
         ${state.turmas.length === 0
@@ -796,6 +856,157 @@
 
   async function _abrirPlanilha({escola, turma, disciplina}) {
     await window.pywebview.api.abrir_planilha(escola, turma, disciplina);
+  }
+
+  // Resumo individual (botão por turma)
+  async function _atualizarResumoUnico(turmaKey, btn) {
+    if (!state.chrome) { toast('Conecte o Chrome primeiro', 'error'); return; }
+    const {escola, turma, disciplina} = typeof turmaKey === 'string' ? JSON.parse(turmaKey) : turmaKey;
+
+    const trim = prompt(
+      `Trimestre para "${turma} — ${disciplina}"?\nDigite 1, 2 ou 3:`, '1'
+    );
+    if (!trim || !['1','2','3'].includes(trim.trim())) return;
+    const triStr = {1:'1º Tri',2:'2º Tri',3:'3º Tri'}[parseInt(trim.trim())];
+
+    const orig = btn.textContent;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+    try {
+      const res = await window.pywebview.api.atualizar_resumo(escola, turma, disciplina, triStr);
+      if (res.ok) {
+        toast(`Resumo: ${res.aprovados} aprov. · ${res.reprovados} reprov. · ${res.parciais} parciais`, 'success');
+      } else {
+        toast('Erro: ' + res.erro, 'error');
+      }
+    } catch(e) {
+      toast('Erro inesperado: ' + e, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = orig;
+    }
+  }
+
+  // ── RESUMO EM LOTE ────────────────────────────
+  function _abrirResumoLote() {
+    // Popula lista com turmas que têm planilha
+    const lista = document.getElementById('rl-turmas-lista');
+    lista.innerHTML = state.turmas
+      .filter(t => t.planilha_id)
+      .map((t, i) => `
+        <label style="display:flex;align-items:center;gap:8px;padding:4px 2px;font-size:13px;cursor:pointer">
+          <input type="checkbox" class="rl-chk" data-idx="${i}" checked
+            data-turma='${JSON.stringify({escola:t.escola,turma:t.turma,disciplina:t.disciplina})}'>
+          <span><strong>${t.turma}</strong> — ${t.disciplina}</span>
+          <span style="font-size:11px;color:#94a3b8;margin-left:auto">${t.escola.split(',')[0]}</span>
+        </label>`)
+      .join('');
+
+    // Reseta progresso e log
+    document.getElementById('rl-progresso-area').style.display = 'none';
+    document.getElementById('rl-log').style.display = 'none';
+    document.getElementById('rl-log').innerHTML = '';
+    document.getElementById('rl-progresso-bar').style.width = '0%';
+    document.getElementById('rl-progresso-pct').textContent = '0%';
+    document.getElementById('rl-progresso-label').textContent = 'Aguardando...';
+    document.getElementById('rl-btn-iniciar').disabled = false;
+    document.getElementById('rl-btn-iniciar').textContent = 'Atualizar Resumo';
+    document.querySelectorAll('input[name="rl-trim"]').forEach(r => r.checked = false);
+
+    document.getElementById('modal-resumo-lote').classList.remove('hidden');
+  }
+
+  function _fecharResumoLote() {
+    document.getElementById('modal-resumo-lote').classList.add('hidden');
+  }
+
+  function _rlSelectAll(v) {
+    document.querySelectorAll('.rl-chk').forEach(c => c.checked = v);
+  }
+
+  async function _iniciarResumoLote() {
+    if (!state.chrome) { toast('Conecte o Chrome primeiro', 'error'); return; }
+
+    const trimEl = document.querySelector('input[name="rl-trim"]:checked');
+    if (!trimEl) { toast('Selecione o trimestre', 'error'); return; }
+    const triStr = {1:'1º Tri',2:'2º Tri',3:'3º Tri'}[parseInt(trimEl.value)];
+
+    const selecionadas = [...document.querySelectorAll('.rl-chk:checked')]
+      .map(c => JSON.parse(c.dataset.turma));
+    if (selecionadas.length === 0) { toast('Selecione ao menos uma turma', 'error'); return; }
+
+    const btn = document.getElementById('rl-btn-iniciar');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Processando...';
+    document.getElementById('rl-btn-fechar').disabled = true;
+
+    const progressoArea = document.getElementById('rl-progresso-area');
+    const progressoBar  = document.getElementById('rl-progresso-bar');
+    const progressoPct  = document.getElementById('rl-progresso-pct');
+    const progressoLbl  = document.getElementById('rl-progresso-label');
+    const logEl         = document.getElementById('rl-log');
+
+    progressoArea.style.display = '';
+    logEl.style.display = 'flex';
+    logEl.innerHTML = '';
+
+    const total = selecionadas.length;
+    let ok = 0, erros = 0;
+
+    for (let i = 0; i < total; i++) {
+      const {escola, turma, disciplina} = selecionadas[i];
+      const pct = Math.round((i / total) * 100);
+      progressoBar.style.width = pct + '%';
+      progressoPct.textContent = pct + '%';
+      progressoLbl.textContent = `${i + 1}/${total} — ${turma}`;
+
+      // Linha de log: processando
+      const logLine = document.createElement('div');
+      logLine.style.cssText = 'padding:3px 6px;border-radius:4px;background:#f1f5f9;display:flex;gap:6px;align-items:center';
+      logLine.innerHTML = `<span class="spinner" style="width:10px;height:10px;border-width:2px"></span>
+        <span style="color:#64748b">${turma} — ${disciplina}</span>`;
+      logEl.appendChild(logLine);
+      logEl.scrollTop = logEl.scrollHeight;
+
+      try {
+        const res = await window.pywebview.api.atualizar_resumo(escola, turma, disciplina, triStr);
+        if (res.ok) {
+          ok++;
+          logLine.innerHTML = `<span style="color:#059669;font-weight:600">✓</span>
+            <span>${turma} — ${disciplina}</span>
+            <span style="color:#94a3b8;margin-left:auto;font-size:11px">
+              ${res.aprovados}aprov · ${res.reprovados}reprov · ${res.parciais}parciais
+            </span>`;
+          logLine.style.background = '#f0fdf4';
+        } else {
+          erros++;
+          logLine.innerHTML = `<span style="color:#dc2626;font-weight:600">✗</span>
+            <span>${turma} — ${disciplina}</span>
+            <span style="color:#dc2626;margin-left:auto;font-size:11px">${res.erro}</span>`;
+          logLine.style.background = '#fef2f2';
+        }
+      } catch(e) {
+        erros++;
+        logLine.innerHTML = `<span style="color:#dc2626;font-weight:600">✗</span>
+          <span>${turma} — ${disciplina}</span>
+          <span style="color:#dc2626;margin-left:auto;font-size:11px">Erro inesperado</span>`;
+        logLine.style.background = '#fef2f2';
+      }
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    // 100%
+    progressoBar.style.width = '100%';
+    progressoPct.textContent = '100%';
+    progressoLbl.textContent = `Concluído — ${ok} ok${erros ? ', ' + erros + ' com erro' : ''}`;
+    progressoBar.style.background = erros > 0 ? '#f59e0b' : '#10b981';
+
+    btn.disabled = false;
+    btn.textContent = 'Atualizar Resumo';
+    document.getElementById('rl-btn-fechar').disabled = false;
+
+    toast(`Resumo em lote: ${ok} atualizado(s)${erros ? ', ' + erros + ' com erro' : ''}`,
+          erros > 0 ? 'error' : 'success');
   }
 
   // ── SINCRONIZAR ALUNOS ────────────────────────

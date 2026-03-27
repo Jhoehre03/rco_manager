@@ -373,3 +373,131 @@ def lancar_comentarios_aula(browser, data, comentarios):
 
     salvar_frequencia(browser)
     print(f"Frequência do dia {data} salva.")
+
+
+def debug_avaliacao(browser):
+    """
+    Navega para /avaliacao e imprime o HTML completo da página para
+    mapear a estrutura antes de implementar buscar_notas_finais_rco.
+    """
+    wait = WebDriverWait(browser, 15)
+
+    # Garante que está na página de avaliação
+    if "/avaliacao" not in browser.current_url:
+        link = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//a[contains(@href,'/avaliacao') and contains(.,'Avalia')]")
+        ))
+        browser.execute_script("arguments[0].click()", link)
+        wait.until(EC.url_contains("/avaliacao"))
+
+    time.sleep(2)
+
+    html = browser.page_source
+    print("=" * 80)
+    print("URL:", browser.current_url)
+    print("=" * 80)
+    print(html)
+    print("=" * 80)
+
+    # Também lista todos os links/abas visíveis na página
+    print("\n--- Links e abas visíveis ---")
+    els = browser.find_elements(By.CSS_SELECTOR, "a, button, [role='tab'], .nav-link")
+    for el in els:
+        txt  = browser.execute_script("return arguments[0].textContent", el).strip()
+        href = el.get_attribute("href") or el.get_attribute("class") or ""
+        if txt:
+            print(f"  [{el.tag_name}] '{txt}' → {href[:80]}")
+
+    # Lista todas as tabelas
+    print("\n--- Tabelas encontradas ---")
+    tabelas = browser.find_elements(By.CSS_SELECTOR, "table")
+    for i, t in enumerate(tabelas):
+        linhas = t.find_elements(By.CSS_SELECTOR, "tr")
+        print(f"  Tabela {i}: {len(linhas)} linhas")
+        for j, linha in enumerate(linhas[:5]):   # primeiras 5 linhas
+            txt = browser.execute_script("return arguments[0].textContent", linha).strip()
+            print(f"    Linha {j}: {txt[:120]}")
+
+
+def buscar_notas_finais_rco(browser):
+    """
+    Na página /avaliacao, clica na aba 'Alunos' e lê a somatória de cada aluno.
+
+    A tabela tem colunas: Nº | Nome | Situação | Somatória
+    A "Somatória" é a nota acumulada do trimestre atual (ou '-' se não houver).
+
+    Retorna lista de dicts:
+        numero   (int)
+        nome     (str)
+        situacao (str)   — ex. "Transf", "" (ativo)
+        soma     (float|None) — somatória do trimestre, None se '-'
+    """
+    wait = WebDriverWait(browser, 15)
+
+    # Navega para /avaliacao se ainda não estiver lá
+    if "/avaliacao" not in browser.current_url:
+        link = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//a[contains(@href,'/avaliacao') and contains(.,'Avalia')]")
+        ))
+        browser.execute_script("arguments[0].click()", link)
+        wait.until(EC.url_contains("/avaliacao"))
+        time.sleep(1.5)
+
+    # Clica na aba "Alunos"
+    aba = wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//a[@role='tab' and contains(.,'Alunos')]")
+    ))
+    browser.execute_script("arguments[0].click()", aba)
+    time.sleep(1.5)
+
+    # Aguarda a tabela dentro do painel ativo
+    wait.until(EC.presence_of_element_located(
+        (By.CSS_SELECTOR, ".tab-pane.active tbody tr")
+    ))
+
+    def _parse_soma(texto):
+        texto = texto.strip().replace(",", ".")
+        if texto in ("-", ""):
+            return None
+        try:
+            return float(texto)
+        except ValueError:
+            return None
+
+    # Detecta índice da coluna "Somatória" pelos cabeçalhos (dinâmico)
+    ths = browser.find_elements(By.CSS_SELECTOR, ".tab-pane.active thead th")
+    cabecalhos = [
+        browser.execute_script("return arguments[0].textContent", th).strip().lower()
+        for th in ths
+    ]
+    idx_soma = next(
+        (i for i, h in enumerate(cabecalhos) if "somat" in h),
+        len(cabecalhos) - 1   # fallback: última coluna
+    )
+
+    linhas = browser.find_elements(By.CSS_SELECTOR, ".tab-pane.active tbody tr")
+    resultado = []
+    for linha in linhas:
+        cells = linha.find_elements(By.CSS_SELECTOR, "td")
+        if len(cells) < 3:
+            continue
+
+        def _txt(idx):
+            if idx >= len(cells):
+                return ""
+            return browser.execute_script(
+                "return arguments[0].textContent", cells[idx]
+            ).strip()
+
+        numero_s = _txt(0)
+        if not numero_s.isdigit():
+            continue
+
+        resultado.append({
+            "numero":   int(numero_s),
+            "nome":     _txt(1),
+            "situacao": _txt(2),
+            "soma":     _parse_soma(_txt(idx_soma)),
+        })
+
+    return resultado
