@@ -703,11 +703,97 @@ _COMENTARIOS = {
     "Não fez a atividade": "Não realizou a atividade proposta",
     "Não terminou":        "Não concluiu a atividade proposta",
     "Entregou com atraso": "Entregou a atividade com atraso",
-    "Muita Conversa":      "Conversa excessiva durante a aula",
+    "Muita Conversa":      "Comportamento inadequado durante a aula",
     "Celular":             "Uso de celular durante a aula",
     "Dormindo":            "Dormindo durante a aula",
-    "Evasão(Gaseio)":      "Evasão de sala de aula (gaseio)",
+    "Evasão(Gaseio)":      "Evasão durante a aula",
 }
+
+_NOMES_ABA_TRI = {
+    "1 Trimestre": "1T",
+    "2 Trimestre": "2T",
+    "3 Trimestre": "3T",
+}
+
+
+def get_ocorrencias_periodo(planilha_id, data_inicio, data_fim):
+    """
+    Lê todas as abas de trimestre e retorna ocorrências relevantes no período.
+
+    data_inicio, data_fim: "DD/MM/AAAA"
+
+    Retorna lista de dicts:
+        {data, trimestre, numero_chamada, nome, ocorrencia, comentario}
+    """
+    from datetime import datetime
+
+    def _parse(d):
+        return datetime.strptime(d, "%d/%m/%Y")
+
+    dt_ini = _parse(data_inicio)
+    dt_fim = _parse(data_fim)
+
+    creds = _get_creds()
+    gc    = gspread.authorize(creds)
+    sh    = gc.open_by_key(planilha_id)
+
+    resultado = []
+
+    for ws in sh.worksheets():
+        tri_label = _NOMES_ABA_TRI.get(ws.title)
+        if not tri_label:
+            continue
+
+        linhas = ws.get_all_values()
+        if len(linhas) < 4:
+            continue
+
+        row1 = linhas[0]
+        row3 = linhas[2]
+
+        # Detecta coluna do número de chamada pelo header "Nº"
+        num_col_idx = next(
+            (i for i, h in enumerate(row3) if h.strip() in ("Nº", "N°")),
+            6   # fallback: coluna G (planilhas antigas)
+        )
+
+        # Encontra colunas de Ocorrência cujas datas estão no período
+        ocorr_cols = []   # lista de (col_idx, data_str)
+        for idx, header in enumerate(row3):
+            if header.strip() not in ("Ocorrência", "Ocorrencias"):
+                continue
+            data_cell = row1[idx].strip() if idx < len(row1) else ""
+            if not data_cell or len(data_cell) != 5:
+                continue
+            data_completa = data_cell + f"/{datetime.today().year}"
+            try:
+                dt = _parse(data_completa)
+            except ValueError:
+                continue
+            if dt_ini <= dt <= dt_fim:
+                ocorr_cols.append((idx, data_completa))
+
+        for ocorr_idx, data_str in ocorr_cols:
+            for linha in linhas[3:]:
+                if not linha or not linha[0].strip():
+                    continue
+                nome   = linha[0].strip()
+                numero = linha[num_col_idx].strip() if len(linha) > num_col_idx else ""
+                ocorr  = linha[ocorr_idx].strip() if len(linha) > ocorr_idx else ""
+
+                if ocorr in _IGNORAR:
+                    continue
+
+                resultado.append({
+                    "data":           data_str,
+                    "trimestre":      tri_label,
+                    "numero_chamada": int(numero) if numero.isdigit() else None,
+                    "nome":           nome,
+                    "ocorrencia":     ocorr,
+                    "comentario":     _COMENTARIOS.get(ocorr, ocorr),
+                })
+
+    return resultado
 
 
 def ler_ocorrencias_planilha(planilha_id, data_str):
@@ -749,12 +835,18 @@ def ler_ocorrencias_planilha(planilha_id, data_str):
                     ocorr_idx = j
                     break
 
+        # Detecta coluna do número de chamada pelo header "Nº"
+        num_col_idx = next(
+            (i for i, h in enumerate(row3) if h.strip() in ("Nº", "N°")),
+            6   # fallback: coluna G (planilhas antigas)
+        )
+
         resultado = []
         for linha in linhas[3:]:
             if not linha or not linha[0].strip():
                 continue
             nome   = linha[0].strip()
-            numero = linha[6].strip() if len(linha) > 6 else ""
+            numero = linha[num_col_idx].strip() if len(linha) > num_col_idx else ""
             ocorr  = linha[ocorr_idx].strip() if len(linha) > ocorr_idx else ""
 
             if ocorr in _IGNORAR:

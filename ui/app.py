@@ -71,25 +71,67 @@ class Api:
         except Exception as e:
             return {"ok": False, "erro": str(e)}
 
-    def get_comentarios_planilha(self, escola, turma, disciplina, data):
+    def get_comentarios_periodo(self, data_inicio, data_fim):
         """
-        Lê a planilha da turma e retorna alunos com ocorrências relevantes.
-        data: "DD/MM/AAAA"
+        Lê as planilhas de todas as turmas e retorna ocorrências no período.
+        data_inicio, data_fim: "DD/MM/AAAA"
+        Retorna: {ok, grupos: [{data, turma, disciplina, escola, trimestre, alunos: [...]}]}
         """
         try:
-            from sheets.gerador import ler_ocorrencias_planilha
+            from sheets.gerador import get_ocorrencias_periodo
             dados = carregar()
-            planilha_id = None
+
+            # Coleta todas as turmas com planilha_id
+            turmas_com_planilha = []
             for e in dados.get("escolas", []):
-                if e["nome"] == escola:
-                    for t in e["turmas"]:
-                        if t["turma"] == turma and t["disciplina"] == disciplina:
-                            planilha_id = t.get("planilha_id")
-                            break
-            if not planilha_id:
-                return {"ok": False, "erro": "Planilha não associada. Gere a planilha primeiro."}
-            comentarios = ler_ocorrencias_planilha(planilha_id, data)
-            return {"ok": True, "comentarios": comentarios}
+                for t in e["turmas"]:
+                    pid = t.get("planilha_id", "")
+                    if pid:
+                        turmas_com_planilha.append({
+                            "escola":      e["nome"],
+                            "turma":       t["turma"],
+                            "disciplina":  t["disciplina"],
+                            "planilha_id": pid,
+                        })
+
+            if not turmas_com_planilha:
+                return {"ok": False, "erro": "Nenhuma turma possui planilha associada."}
+
+            # Agrupa resultados por (data, escola, turma, disciplina)
+            from collections import defaultdict
+            grupos_idx = defaultdict(list)
+
+            for turma_info in turmas_com_planilha:
+                try:
+                    ocorrs = get_ocorrencias_periodo(
+                        turma_info["planilha_id"], data_inicio, data_fim
+                    )
+                    for o in ocorrs:
+                        chave = (o["data"], turma_info["escola"],
+                                 turma_info["turma"], turma_info["disciplina"],
+                                 o["trimestre"])
+                        grupos_idx[chave].append({
+                            "numero":     o["numero_chamada"],
+                            "nome":       o["nome"],
+                            "ocorrencia": o["ocorrencia"],
+                            "comentario": o["comentario"],
+                        })
+                except Exception:
+                    continue  # planilha inacessível — ignora
+
+            grupos = [
+                {
+                    "data":        chave[0],
+                    "escola":      chave[1],
+                    "turma":       chave[2],
+                    "disciplina":  chave[3],
+                    "trimestre":   chave[4],
+                    "alunos":      sorted(alunos, key=lambda a: a["numero"] or 0),
+                }
+                for chave, alunos in sorted(grupos_idx.items())
+            ]
+
+            return {"ok": True, "grupos": grupos}
         except Exception as e:
             return {"ok": False, "erro": str(e)}
 
