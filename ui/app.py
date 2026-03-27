@@ -5,11 +5,11 @@ import time
 import webview
 from database import (carregar, atualizar_banco as _atualizar_banco,
                       atualizar_banco_progresso, marcar_comentario_lancado,
-                      get_comentarios_lancados, sincronizar_notas_lancadas)
+                      get_comentarios_lancados, sincronizar_notas_lancadas,
+                      get_config, salvar_config)
 from rco.auth import conectar_chrome as _conectar_chrome
 
-BASE_DIR  = os.path.dirname(os.path.abspath(__file__))
-PASTA_ID  = "1MsRODhlMhWxRkKPni5jAJlJnqi5TOLJr"
+BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
 DADOS_JSON = "dados.json"
 
 
@@ -42,9 +42,22 @@ class Api:
             "comentarios_pendentes": 0,
             "notas_pendentes":       0,
             "ultima_atualizacao":    dados.get("ultima_atualizacao", "Nunca"),
-            "chrome_conectado":      self.browser is not None,
+            "chrome_conectado":      self._browser_vivo(),
             "google_autorizado":     os.path.exists("token.json"),
         }
+
+    def get_configuracoes(self):
+        try:
+            return {"ok": True, **get_config()}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
+    def salvar_configuracoes(self, config):
+        try:
+            salvar_config(config)
+            return {"ok": True}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
 
     def autenticar_google(self):
         try:
@@ -67,11 +80,26 @@ class Api:
         except Exception as e:
             return {"ok": False, "erro": str(e)}
 
+    def _browser_vivo(self):
+        """Retorna True se self.browser tem sessão ativa, False caso contrário."""
+        if self.browser is None:
+            return False
+        try:
+            _ = self.browser.title  # lança exceção se sessão morreu
+            return True
+        except Exception:
+            self.browser = None
+            return False
+
     def confirmar_login(self):
         try:
+            # Descarta sessão anterior inválida antes de criar nova
+            if self.browser is not None and not self._browser_vivo():
+                self.browser = None
             self.browser = _conectar_chrome()
             return {"ok": True, "titulo": self.browser.title}
         except Exception as e:
+            self.browser = None
             return {"ok": False, "erro": str(e)}
 
     def get_comentarios_periodo(self, data_inicio, data_fim):
@@ -152,7 +180,7 @@ class Api:
         Entra na turma, navega para frequência e lança comentários.
         comentarios: lista de {numero, nome, comentario}
         """
-        if not self.browser:
+        if not self._browser_vivo():
             return {"ok": False, "erro": "Chrome não conectado"}
         try:
             from database import entrar_turma
@@ -227,7 +255,10 @@ class Api:
                 ],
             }
 
-            resultado   = gerar_diario(turma_data, config_gerador, PASTA_ID)
+            pasta_id = get_config().get("pasta_drive_id", "")
+            if not pasta_id:
+                return {"ok": False, "erro": "Pasta do Drive não configurada. Acesse Configurações."}
+            resultado   = gerar_diario(turma_data, config_gerador, pasta_id)
             planilha_id = resultado["id"]
             url         = resultado["url"]
 
@@ -429,6 +460,9 @@ class Api:
         """
         try:
             from sheets.gerador import gerar_diario
+            pasta_id = get_config().get("pasta_drive_id", "")
+            if not pasta_id:
+                return {"ok": False, "erro": "Pasta do Drive não configurada. Acesse Configurações."}
             dados = carregar()
 
             # Monta índice rápido de turmas
@@ -478,7 +512,7 @@ class Api:
                 }
 
                 try:
-                    resultado    = gerar_diario(turma_data, config_gerador, PASTA_ID)
+                    resultado    = gerar_diario(turma_data, config_gerador, pasta_id)
                     planilha_id  = resultado["id"]
                     url          = resultado["url"]
                     t_obj["planilha_id"] = planilha_id
@@ -508,6 +542,9 @@ class Api:
         """
         try:
             from sheets.gerador import gerar_diario
+            pasta_id = get_config().get("pasta_drive_id", "")
+            if not pasta_id:
+                return {"ok": False, "erro": "Pasta do Drive não configurada. Acesse Configurações."}
             dados = carregar()
 
             turmas_idx = {}
@@ -556,7 +593,7 @@ class Api:
                         "alunos":     t_obj["alunos"],
                     }
                     try:
-                        resultado    = gerar_diario(turma_data, config_gerador, PASTA_ID)
+                        resultado    = gerar_diario(turma_data, config_gerador, pasta_id)
                         planilha_id  = resultado["id"]
                         url          = resultado["url"]
                         t_obj["planilha_id"] = planilha_id
@@ -597,7 +634,7 @@ class Api:
             return {"ok": False, "erro": str(e)}
 
     def get_datas_aula(self, escola, turma, disciplina, trimestre):
-        if not self.browser:
+        if not self._browser_vivo():
             return {"ok": False, "chrome": False,
                     "erro": "Chrome não conectado — conecte para ver as datas do RCO"}
         try:
@@ -689,7 +726,7 @@ class Api:
         Entra na turma, navega para avaliação e lança as notas.
         notas: lista de {nome_normalizado, nota} (nota já no formato RCO, ex: "23")
         """
-        if not self.browser:
+        if not self._browser_vivo():
             return {"ok": False, "erro": "Chrome não conectado"}
         try:
             from database import entrar_turma
@@ -730,7 +767,7 @@ class Api:
         Retorna: {ok, alunos: [{numero, nome, nota}]}
         nota: string como aparece no RCO, ex "30" (=3,0), "-" se vazio
         """
-        if not self.browser:
+        if not self._browser_vivo():
             return {"ok": False, "erro": "Chrome não conectado"}
         try:
             from database import entrar_turma
@@ -759,7 +796,7 @@ class Api:
         Vai direto ao botão Alterar da AV na aba Avaliações — sem passar pelo formulário.
         notas: lista de {nome_normalizado, nota}
         """
-        if not self.browser:
+        if not self._browser_vivo():
             return {"ok": False, "erro": "Chrome não conectado"}
         try:
             from database import entrar_turma
@@ -788,7 +825,7 @@ class Api:
         Entra na turma, lê as notas finais do RCO e atualiza a aba Resumo na planilha.
         trimestre: "1º Tri", "2º Tri" ou "3º Tri"
         """
-        if not self.browser:
+        if not self._browser_vivo():
             return {"ok": False, "erro": "Chrome não conectado"}
         try:
             from database import entrar_turma
@@ -825,7 +862,7 @@ class Api:
             return {"ok": False, "erro": str(e)}
 
     def atualizar_banco(self, trimestre):
-        if not self.browser:
+        if not self._browser_vivo():
             return {"ok": False, "erro": "Chrome não conectado"}
         try:
             _atualizar_banco(self.browser, trimestre)
@@ -835,7 +872,7 @@ class Api:
 
     def atualizar_banco_stream(self, trimestre):
         """Atualiza o banco enviando progresso em tempo real via JS."""
-        if not self.browser:
+        if not self._browser_vivo():
             return {"ok": False, "erro": "Chrome não conectado"}
 
         def on_progresso(i, total, turma, disciplina, ok):
@@ -864,7 +901,7 @@ class Api:
         turmas: lista de {escola, turma, disciplina}
         trimestre: 1, 2 ou 3 (int)
         """
-        if not self.browser:
+        if not self._browser_vivo():
             return {"ok": False, "erro": "Chrome não conectado"}
         try:
             from rco.notas import buscar_avaliacoes_lancadas_rco

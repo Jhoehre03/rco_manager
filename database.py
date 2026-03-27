@@ -23,6 +23,20 @@ def salvar(dados):
     print(f"Dados salvos em {ARQUIVO}")
 
 
+def get_config():
+    """Retorna o dict 'config' armazenado em dados.json ou {} se não existir."""
+    dados = carregar()
+    return dados.get("config", {})
+
+
+def salvar_config(config):
+    """Persiste o dict 'config' em dados.json sem alterar ultima_atualizacao."""
+    dados = carregar()
+    dados["config"] = config
+    with open(ARQUIVO, "w", encoding="utf-8") as f:
+        json.dump(dados, f, ensure_ascii=False, indent=2)
+
+
 def entrar_turma(browser, nome_escola, nome_turma, disciplina, trimestre):
     wait = WebDriverWait(browser, 15)
 

@@ -905,6 +905,14 @@
       </svg>
       Planilhas
     </div>
+    <div class="nav-item" data-section="configuracoes" onclick="navegar(this)">
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+      </svg>
+      Configurações
+    </div>
   </nav>
 </aside>
 
@@ -939,11 +947,12 @@
 
 <script>
   const TITULOS = {
-    dashboard:   'Dashboard',
-    comentarios: 'Comentários',
-    alunos:      'Alunos',
-    notas:       'Notas',
-    planilhas:   'Planilhas',
+    dashboard:      'Dashboard',
+    comentarios:    'Comentários',
+    alunos:         'Alunos',
+    notas:          'Notas',
+    planilhas:      'Planilhas',
+    configuracoes:  'Configurações',
   };
 
   let state = {
@@ -967,7 +976,8 @@
     else if (state.secao === 'comentarios') renderComentarios();
     else if (state.secao === 'planilhas')   renderPlanilhas();
     else if (state.secao === 'notas')       renderNotas();
-    else if (state.secao === 'alunos')      renderAlunos();
+    else if (state.secao === 'alunos')         renderAlunos();
+    else if (state.secao === 'configuracoes')  renderConfiguracoes();
     else document.getElementById('content').innerHTML =
       `<div class="placeholder">Em desenvolvimento</div>`;
   }
@@ -1050,6 +1060,80 @@
           : rows}
       </div>
     `;
+  }
+
+  // ── CONFIGURAÇÕES ────────────────────────────
+  async function renderConfiguracoes() {
+    const res = await window.pywebview.api.get_configuracoes();
+    const pastaId  = res.pasta_drive_id || '';
+    const pastaUrl = pastaId
+      ? `https://drive.google.com/drive/folders/${pastaId}`
+      : '';
+
+    document.getElementById('content').innerHTML = `
+      <div class="section-header">
+        <span class="section-title">Configurações</span>
+      </div>
+      <div style="max-width:560px;margin:24px auto;display:flex;flex-direction:column;gap:20px">
+
+        <!-- Pasta do Drive -->
+        <div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:24px">
+          <div style="font-size:14px;font-weight:600;color:#1a202c;margin-bottom:4px">Pasta do Google Drive</div>
+          <div style="font-size:12px;color:#64748b;margin-bottom:14px">
+            As planilhas geradas serão salvas nesta pasta. Cole o ID ou o link completo da pasta.
+          </div>
+          <label style="font-size:12px;color:#374151;font-weight:500">ID ou link da pasta</label>
+          <input id="cfg-pasta-drive" type="text"
+            value="${pastaId}"
+            placeholder="Ex: 1MsRODhlMhWxRkKPni5jAJlJnqi5TOLJr ou https://drive.google.com/drive/folders/..."
+            style="width:100%;margin-top:6px;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none">
+          ${pastaUrl ? `<a href="#" onclick="window.open('${pastaUrl}');return false"
+            style="display:inline-block;margin-top:8px;font-size:12px;color:#3b82f6">
+            Abrir pasta no Drive ↗</a>` : ''}
+          <div style="margin-top:16px;display:flex;gap:8px">
+            <button class="btn btn-primary btn-sm" onclick="salvarConfiguracoes()">Salvar</button>
+          </div>
+          <div id="cfg-msg" style="margin-top:10px;font-size:12px"></div>
+        </div>
+
+        <!-- Instrução -->
+        <div style="background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;padding:18px">
+          <div style="font-size:13px;font-weight:600;color:#374151;margin-bottom:8px">Como encontrar o ID da pasta</div>
+          <ol style="font-size:12px;color:#64748b;padding-left:18px;line-height:1.8">
+            <li>Abra o Google Drive e navegue até a pasta desejada</li>
+            <li>O ID aparece na URL do navegador após <code style="background:#e2e8f0;padding:1px 4px;border-radius:3px">/folders/</code></li>
+            <li>Você pode colar o ID ou o link completo — o sistema extrai automaticamente</li>
+          </ol>
+        </div>
+
+      </div>
+    `;
+  }
+
+  async function salvarConfiguracoes() {
+    const input = document.getElementById('cfg-pasta-drive');
+    const msg   = document.getElementById('cfg-msg');
+    let valor   = input.value.trim();
+
+    // Extrai ID se o usuário colou o link completo
+    const match = valor.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+    if (match) valor = match[1];
+
+    if (!valor) {
+      msg.style.color = '#dc2626';
+      msg.textContent = 'Cole o ID ou link da pasta do Drive.';
+      return;
+    }
+
+    const res = await window.pywebview.api.salvar_configuracoes({ pasta_drive_id: valor });
+    if (res.ok) {
+      input.value = valor;
+      msg.style.color = '#16a34a';
+      msg.textContent = '✓ Configurações salvas.';
+    } else {
+      msg.style.color = '#dc2626';
+      msg.textContent = 'Erro: ' + res.erro;
+    }
   }
 
   async function _saVerificar(turmaKey) {
@@ -2037,9 +2121,8 @@
   let _ntAlunos  = [];   // cache após busca
 
   function renderNotas() {
-    const rows = state.turmas.map(t => {
+    const rows = state.turmas.map((t, idx) => {
       const tem = !!t.planilha_id;
-      const k   = JSON.stringify({escola:t.escola, turma:t.turma, disciplina:t.disciplina, notas_lancadas:t.notas_lancadas||{}});
       return `
         <div class="plan-row">
           <div class="turma-avatar">${t.disciplina.slice(0,2).toUpperCase()}</div>
@@ -2052,7 +2135,7 @@
               ${tem ? 'Com planilha' : 'Sem planilha'}
             </span>
             <button class="btn btn-primary btn-sm" ${!tem ? 'disabled title="Gere a planilha primeiro"' : ''}
-              onclick='_abrirModalNotas(${k}, "${t.turma.replace(/"/g,"")} — ${t.disciplina.replace(/"/g,"")}")'>
+              onclick='_abrirModalNotas(${idx}, "${t.turma.replace(/"/g,"")} — ${t.disciplina.replace(/"/g,"")}")'>
               Lançar Notas
             </button>
           </div>
@@ -2070,8 +2153,9 @@
       </div>`;
   }
 
-  function _abrirModalNotas(turmaKey, nomeTurma) {
-    _ntTurma  = typeof turmaKey === 'string' ? JSON.parse(turmaKey) : turmaKey;
+  function _abrirModalNotas(turmaIdx, nomeTurma) {
+    // Lê sempre de state.turmas para ter notas_lancadas atualizadas
+    _ntTurma  = state.turmas[turmaIdx];
     _ntAlunos = [];
     document.getElementById('notas-modal-title').textContent = `Notas — ${nomeTurma}`;
     document.querySelectorAll('input[name="nt-trim"]').forEach(r => r.checked = false);
