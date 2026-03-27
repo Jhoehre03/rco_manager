@@ -646,11 +646,23 @@ def _ler_alunos_planilha(planilha_id):
         if ws.title == "Penalidades":
             continue
         linhas = ws.get_all_values()
+        if len(linhas) < 3:
+            return {}
+
+        # Detecta coluna Nº dinamicamente pelo cabeçalho da linha 3
+        row3 = linhas[2]
+        num_col_idx = next(
+            (i for i, h in enumerate(row3) if h.strip() in ("Nº", "N°")),
+            None
+        )
+        if num_col_idx is None:
+            return {}
+
         result = {}
         for i, linha in enumerate(linhas[3:], start=4):
             if not linha or not linha[0].strip():
                 continue
-            num_str = linha[6].strip() if len(linha) > 6 else ""
+            num_str = linha[num_col_idx].strip() if len(linha) > num_col_idx else ""
             if not num_str.isdigit():
                 continue
             result[int(num_str)] = {
