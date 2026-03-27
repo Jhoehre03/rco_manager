@@ -544,6 +544,47 @@ class Api:
         except Exception as e:
             return {"ok": False, "erro": str(e)}
 
+    def atualizar_resumo(self, escola, turma, disciplina, trimestre):
+        """
+        Entra na turma, lê as notas finais do RCO e atualiza a aba Resumo na planilha.
+        trimestre: "1º Tri", "2º Tri" ou "3º Tri"
+        """
+        if not self.browser:
+            return {"ok": False, "erro": "Chrome não conectado"}
+        try:
+            from database import entrar_turma
+            from rco.notas import buscar_notas_finais_rco
+            from sheets.gerador import adicionar_aba_resumo
+            from selenium.webdriver.common.by import By
+            from selenium.webdriver.support.ui import WebDriverWait
+            from selenium.webdriver.support import expected_conditions as EC
+
+            self.browser.get("https://rco.paas.pr.gov.br/livro")
+            WebDriverWait(self.browser, 15).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "div.card"))
+            )
+            ok = entrar_turma(self.browser, escola, turma, disciplina, trimestre)
+            if not ok:
+                return {"ok": False, "erro": f"Não foi possível entrar na turma {turma}"}
+
+            notas_finais = buscar_notas_finais_rco(self.browser)
+
+            dados = carregar()
+            planilha_id = None
+            for e in dados.get("escolas", []):
+                if e["nome"] == escola:
+                    for t in e["turmas"]:
+                        if t["turma"] == turma and t["disciplina"] == disciplina:
+                            planilha_id = t.get("planilha_id")
+                            break
+            if not planilha_id:
+                return {"ok": False, "erro": "Planilha não associada. Gere a planilha primeiro."}
+
+            resultado = adicionar_aba_resumo(planilha_id, notas_finais)
+            return {"ok": True, **resultado}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
     def atualizar_banco(self, trimestre):
         if not self.browser:
             return {"ok": False, "erro": "Chrome não conectado"}
