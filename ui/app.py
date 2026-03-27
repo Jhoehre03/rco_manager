@@ -3,7 +3,9 @@ import json
 import subprocess
 import time
 import webview
-from database import carregar, atualizar_banco as _atualizar_banco
+from database import (carregar, atualizar_banco as _atualizar_banco,
+                      atualizar_banco_progresso, marcar_comentario_lancado,
+                      get_comentarios_lancados, sincronizar_notas_lancadas)
 from rco.auth import conectar_chrome as _conectar_chrome
 
 BASE_DIR  = os.path.dirname(os.path.abspath(__file__))
@@ -120,6 +122,14 @@ class Api:
                 except Exception:
                     continue  # planilha inacessível — ignora
 
+            # Cache de datas lançadas por turma para evitar N leituras do JSON
+            lancados_cache = {}
+            def _lancados(escola, turma, disc):
+                k = (escola, turma, disc)
+                if k not in lancados_cache:
+                    lancados_cache[k] = set(get_comentarios_lancados(escola, turma, disc))
+                return lancados_cache[k]
+
             grupos = [
                 {
                     "data":        chave[0],
@@ -128,6 +138,7 @@ class Api:
                     "disciplina":  chave[3],
                     "trimestre":   chave[4],
                     "alunos":      sorted(alunos, key=lambda a: a["numero"] or 0),
+                    "ja_lancado":  chave[0] in _lancados(chave[1], chave[2], chave[3]),
                 }
                 for chave, alunos in sorted(grupos_idx.items())
             ]
@@ -167,6 +178,7 @@ class Api:
             wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "table")))
 
             lancar_comentarios_aula(self.browser, data, comentarios)
+            marcar_comentario_lancado(escola, turma, disciplina, data)
             return {"ok": True}
         except Exception as e:
             return {"ok": False, "erro": str(e)}
@@ -281,6 +293,79 @@ class Api:
                                     "atualizados": n_atualizados,
                                     "ocultados": n_ocultados}
             return {"ok": False, "erro": "Turma não encontrada"}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
+    def sincronizar_alunos_lote_stream(self, turmas):
+        """
+        Sincroniza alunos de múltiplas turmas com suas planilhas Google Sheets.
+        Envia progresso via JS: _saProgressoEvento(i, total, turma, disciplina, status, detalhe)
+        detalhe: {novos:[nomes], atualizados:[nomes], ocultados:[nomes], erro:str}
+        turmas: lista de {escola, turma, disciplina}
+        """
+        try:
+            from sheets.gerador import (comparar_alunos, adicionar_aluno,
+                                        atualizar_situacao, ocultar_aluno)
+            dados = carregar()
+
+            # Índice rápido de turmas
+            turmas_idx = {}
+            for e in dados.get("escolas", []):
+                for t in e["turmas"]:
+                    turmas_idx[(e["nome"], t["turma"], t["disciplina"])] = t
+
+            total = len(turmas)
+
+            for i, item in enumerate(turmas, 1):
+                escola_nome = item["escola"]
+                turma_nome  = item["turma"]
+                disciplina  = item["disciplina"]
+                chave = (escola_nome, turma_nome, disciplina)
+
+                detalhe = {"novos": [], "atualizados": [], "ocultados": [], "erro": ""}
+                status  = "ok"
+
+                try:
+                    t_obj = turmas_idx.get(chave)
+                    if not t_obj:
+                        raise Exception("Turma não encontrada no banco")
+                    pid = t_obj.get("planilha_id", "")
+                    if not pid:
+                        raise Exception("Sem planilha vinculada")
+
+                    diff = comparar_alunos(pid, t_obj["alunos"])
+
+                    for a in diff["novos"]:
+                        adicionar_aluno(pid, a)
+                        detalhe["novos"].append(a["nome"])
+
+                    for a in diff["alterados"]:
+                        atualizar_situacao(pid, a["numero"], a["situacao_nova"])
+                        if a["acao"] == "ocultar":
+                            ocultar_aluno(pid, a["numero"])
+                            detalhe["ocultados"].append(a["nome"])
+                        else:
+                            detalhe["atualizados"].append(a["nome"])
+
+                    for a in diff["removidos"]:
+                        ocultar_aluno(pid, a["numero"])
+                        detalhe["ocultados"].append(a["nome"])
+
+                except Exception as ex:
+                    detalhe["erro"] = str(ex)
+                    status = "erro"
+
+                js = (
+                    f"_saProgressoEvento({i}, {total}, "
+                    f"{json.dumps(turma_nome)}, {json.dumps(disciplina)}, "
+                    f"{json.dumps(status)}, {json.dumps(detalhe)})"
+                )
+                try:
+                    webview.windows[0].evaluate_js(js)
+                except Exception:
+                    pass
+
+            return {"ok": True}
         except Exception as e:
             return {"ok": False, "erro": str(e)}
 
@@ -416,6 +501,101 @@ class Api:
         except Exception as e:
             return {"ok": False, "erro": str(e)}
 
+    def gerar_planilhas_em_lote_stream(self, turmas, config):
+        """
+        Gera planilhas em lote enviando progresso em tempo real via JS.
+        Mesmo resultado de gerar_planilhas_em_lote mas com eventos por turma.
+        """
+        try:
+            from sheets.gerador import gerar_diario
+            dados = carregar()
+
+            turmas_idx = {}
+            for e in dados.get("escolas", []):
+                for t in e["turmas"]:
+                    turmas_idx[(e["nome"], t["turma"], t["disciplina"])] = (e, t)
+
+            config_gerador = {
+                "modo":               config.get("modo", "diario"),
+                "frequencia_semanal": int(config.get("frequencia_semanal", 2)),
+                "avaliacoes": [
+                    {
+                        "nome":             a.get("nome", f"AV{i+1}"),
+                        "valor_maximo":     float(a["valor_maximo"]),
+                        "semana":           int(a["semana"]),
+                        "peso_engajamento": float(a.get("peso_engajamento", 0.0)),
+                        "peso_avaliacao":   float(a.get("peso_avaliacao",
+                                                        float(a["valor_maximo"]))),
+                    }
+                    for i, a in enumerate(config["avaliacoes"])
+                ],
+            }
+
+            total = len(turmas)
+            resultados = []
+            dados_modificados = False
+
+            for i, item in enumerate(turmas, 1):
+                escola_nome = item["escola"]
+                turma_nome  = item["turma"]
+                disciplina  = item["disciplina"]
+                chave = (escola_nome, turma_nome, disciplina)
+
+                if chave not in turmas_idx:
+                    resultado_item = {
+                        "turma": turma_nome, "disciplina": disciplina,
+                        "ok": False, "erro": "Turma não encontrada"
+                    }
+                    resultados.append(resultado_item)
+                else:
+                    _, t_obj = turmas_idx[chave]
+                    turma_data = {
+                        "escola":     escola_nome,
+                        "turma":      turma_nome,
+                        "disciplina": disciplina,
+                        "alunos":     t_obj["alunos"],
+                    }
+                    try:
+                        resultado    = gerar_diario(turma_data, config_gerador, PASTA_ID)
+                        planilha_id  = resultado["id"]
+                        url          = resultado["url"]
+                        t_obj["planilha_id"] = planilha_id
+                        dados_modificados = True
+                        resultado_item = {
+                            "turma": turma_nome, "disciplina": disciplina,
+                            "ok": True, "link": url
+                        }
+                    except Exception as ex:
+                        resultado_item = {
+                            "turma": turma_nome, "disciplina": disciplina,
+                            "ok": False, "erro": str(ex)
+                        }
+                    resultados.append(resultado_item)
+
+                # Envia progresso ao JS
+                status_str = "ok" if resultado_item["ok"] else "erro"
+                erro_str   = resultado_item.get("erro", "")
+                js = (
+                    f"_lbProgressoEvento({i}, {total}, "
+                    f"{json.dumps(turma_nome)}, {json.dumps(disciplina)}, "
+                    f"{json.dumps(status_str)}, {json.dumps(erro_str)})"
+                )
+                try:
+                    webview.windows[0].evaluate_js(js)
+                except Exception:
+                    pass
+
+            if dados_modificados:
+                with open(DADOS_JSON, "w", encoding="utf-8") as f:
+                    json.dump(dados, f, ensure_ascii=False, indent=2)
+
+            ok_count   = sum(1 for r in resultados if r["ok"])
+            fail_count = total - ok_count
+            return {"ok": True, "resultados": resultados,
+                    "ok_count": ok_count, "fail_count": fail_count}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
     def get_datas_aula(self, escola, turma, disciplina, trimestre):
         if not self.browser:
             return {"ok": False, "chrome": False,
@@ -544,6 +724,65 @@ class Api:
         except Exception as e:
             return {"ok": False, "erro": str(e)}
 
+    def get_notas_rco(self, escola, turma, disciplina, trimestre, tipo_av):
+        """
+        Lê as notas de uma AV já lançada diretamente do RCO (aba Alunos).
+        Retorna: {ok, alunos: [{numero, nome, nota}]}
+        nota: string como aparece no RCO, ex "30" (=3,0), "-" se vazio
+        """
+        if not self.browser:
+            return {"ok": False, "erro": "Chrome não conectado"}
+        try:
+            from database import entrar_turma
+            from rco.notas import navegar_avaliacao, buscar_notas_av_rco
+            from selenium.webdriver.common.by import By
+            from selenium.webdriver.support.ui import WebDriverWait
+            from selenium.webdriver.support import expected_conditions as EC
+
+            self.browser.get("https://rco.paas.pr.gov.br/livro")
+            WebDriverWait(self.browser, 15).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "div.card"))
+            )
+            ok = entrar_turma(self.browser, escola, turma, disciplina, trimestre)
+            if not ok:
+                return {"ok": False, "erro": f"Não foi possível entrar na turma {turma}"}
+
+            navegar_avaliacao(self.browser)
+            alunos = buscar_notas_av_rco(self.browser, tipo_av)
+            return {"ok": True, "alunos": alunos}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
+    def editar_notas(self, escola, turma, disciplina, trimestre, tipo_av, notas):
+        """
+        Edita notas de uma AV já lançada no RCO.
+        Vai direto ao botão Alterar da AV na aba Avaliações — sem passar pelo formulário.
+        notas: lista de {nome_normalizado, nota}
+        """
+        if not self.browser:
+            return {"ok": False, "erro": "Chrome não conectado"}
+        try:
+            from database import entrar_turma
+            from rco.notas import navegar_avaliacao, abrir_edicao_avaliacao, preencher_notas
+            from selenium.webdriver.common.by import By
+            from selenium.webdriver.support.ui import WebDriverWait
+            from selenium.webdriver.support import expected_conditions as EC
+
+            self.browser.get("https://rco.paas.pr.gov.br/livro")
+            WebDriverWait(self.browser, 15).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "div.card"))
+            )
+            ok = entrar_turma(self.browser, escola, turma, disciplina, trimestre)
+            if not ok:
+                return {"ok": False, "erro": f"Não foi possível entrar na turma {turma}"}
+
+            navegar_avaliacao(self.browser)
+            abrir_edicao_avaliacao(self.browser, tipo_av)
+            preencher_notas(self.browser, notas)
+            return {"ok": True}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
     def atualizar_resumo(self, escola, turma, disciplina, trimestre):
         """
         Entra na turma, lê as notas finais do RCO e atualiza a aba Resumo na planilha.
@@ -591,6 +830,99 @@ class Api:
         try:
             _atualizar_banco(self.browser, trimestre)
             return {"ok": True}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
+    def atualizar_banco_stream(self, trimestre):
+        """Atualiza o banco enviando progresso em tempo real via JS."""
+        if not self.browser:
+            return {"ok": False, "erro": "Chrome não conectado"}
+
+        def on_progresso(i, total, turma, disciplina, ok):
+            status = "ok" if ok else "erro"
+            js = (
+                f"_abProgressoEvento({i}, {total}, "
+                f"{json.dumps(turma)}, {json.dumps(disciplina)}, {json.dumps(status)})"
+            )
+            try:
+                webview.windows[0].evaluate_js(js)
+            except Exception:
+                pass
+
+        try:
+            dados = atualizar_banco_progresso(self.browser, trimestre, on_progresso)
+            ultima = dados.get("ultima_atualizacao", "")
+            return {"ok": True, "ultima_atualizacao": ultima}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
+    def sincronizar_notas_lote_stream(self, turmas, trimestre):
+        """
+        Para cada turma: entra no RCO, lê as AVs lançadas na aba 'Avaliações'
+        e atualiza notas_lancadas no dados.json.
+        Envia progresso via JS: _snProgressoEvento(i, total, turma, disciplina, status, info)
+        turmas: lista de {escola, turma, disciplina}
+        trimestre: 1, 2 ou 3 (int)
+        """
+        if not self.browser:
+            return {"ok": False, "erro": "Chrome não conectado"}
+        try:
+            from rco.notas import buscar_avaliacoes_lancadas_rco
+            from selenium.webdriver.common.by import By
+            from selenium.webdriver.support.ui import WebDriverWait
+            from selenium.webdriver.support import expected_conditions as EC
+            from calendario.calendario_pr import TRIMESTRES
+            from datetime import date
+
+            tri_num  = int(trimestre)
+            tri_str  = {1: "1º Tri", 2: "2º Tri", 3: "3º Tri"}.get(tri_num, "")
+            ano      = date.today().year
+            tri_info = TRIMESTRES.get(ano, {}).get(tri_num, {})
+            fim_tri  = tri_info.get("fim")
+            fechado  = fim_tri is not None and date.today() > fim_tri
+
+            total = len(turmas)
+
+            for i, item in enumerate(turmas, 1):
+                escola_nome = item["escola"]
+                turma_nome  = item["turma"]
+                disciplina  = item["disciplina"]
+
+                try:
+                    self.browser.get("https://rco.paas.pr.gov.br/livro")
+                    WebDriverWait(self.browser, 15).until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, "div.card"))
+                    )
+                    from database import entrar_turma
+                    ok = entrar_turma(self.browser, escola_nome, turma_nome,
+                                     disciplina, tri_str)
+                    if not ok:
+                        raise Exception(f"Não foi possível entrar na turma")
+
+                    avaliacoes = buscar_avaliacoes_lancadas_rco(self.browser)
+                    sincronizar_notas_lancadas(escola_nome, turma_nome, disciplina,
+                                              tri_num, avaliacoes)
+
+                    info = f"{len(avaliacoes)} AV(s) encontrada(s)"
+                    if fechado:
+                        info += " · trimestre fechado"
+                    status = "ok"
+                except Exception as ex:
+                    avaliacoes = []
+                    info   = str(ex)
+                    status = "erro"
+
+                js = (
+                    f"_snProgressoEvento({i}, {total}, "
+                    f"{json.dumps(turma_nome)}, {json.dumps(disciplina)}, "
+                    f"{json.dumps(status)}, {json.dumps(info)})"
+                )
+                try:
+                    webview.windows[0].evaluate_js(js)
+                except Exception:
+                    pass
+
+            return {"ok": True, "fechado": fechado}
         except Exception as e:
             return {"ok": False, "erro": str(e)}
 

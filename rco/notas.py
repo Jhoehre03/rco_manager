@@ -6,6 +6,15 @@ import unicodedata
 import time
 
 
+def _cell_text(browser, cells, idx):
+    """Extrai texto de uma célula pelo índice, retorna '' se fora do range."""
+    if idx >= len(cells):
+        return ""
+    return browser.execute_script(
+        "return arguments[0].textContent", cells[idx]
+    ).strip()
+
+
 def _normalizar(nome):
     return (
         unicodedata.normalize("NFKD", nome)
@@ -375,6 +384,63 @@ def lancar_comentarios_aula(browser, data, comentarios):
     print(f"Frequência do dia {data} salva.")
 
 
+def abrir_edicao_avaliacao(browser, nome_av):
+    """
+    Na aba 'Avaliações' da página /avaliacao, localiza a linha da AV pelo nome
+    e clica no botão Alterar, chegando direto na tabela de notas.
+
+    Args:
+        nome_av: nome da avaliação como aparece na tabela, ex. "ATV 1", "REC 1"
+    """
+    wait = WebDriverWait(browser, 15)
+
+    # Garante que está em /avaliacao
+    if "/avaliacao" not in browser.current_url:
+        link = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//a[contains(@href,'/avaliacao') and contains(.,'Avalia')]")
+        ))
+        browser.execute_script("arguments[0].click()", link)
+        wait.until(EC.url_contains("/avaliacao"))
+        time.sleep(1.5)
+
+    # Clica na aba "Avaliações"
+    abas = browser.find_elements(By.XPATH, "//a[@role='tab']")
+    for aba in abas:
+        txt = browser.execute_script("return arguments[0].textContent", aba).strip()
+        if "Avalia" in txt and "Aluno" not in txt:
+            browser.execute_script("arguments[0].click()", aba)
+            time.sleep(1.5)
+            break
+
+    wait.until(EC.presence_of_element_located(
+        (By.CSS_SELECTOR, ".tab-pane.active tbody tr")
+    ))
+
+    # Encontra a linha cuja célula contém o nome_av e clica em Alterar
+    linhas = browser.find_elements(By.CSS_SELECTOR, ".tab-pane.active tbody tr")
+    for linha in linhas:
+        cells = linha.find_elements(By.CSS_SELECTOR, "td")
+        texto_linha = " ".join(
+            browser.execute_script("return arguments[0].textContent", c).strip()
+            for c in cells
+        )
+        if nome_av.upper() in texto_linha.upper():
+            try:
+                btn = linha.find_element(
+                    By.XPATH, ".//a[@title='Alterar'] | .//button[@title='Alterar']"
+                )
+            except Exception:
+                # Fallback: qualquer link/botão de edição na linha
+                btn = linha.find_element(By.CSS_SELECTOR, "a.btn, button.btn")
+            browser.execute_script("arguments[0].click()", btn)
+            wait.until(EC.presence_of_element_located(
+                (By.CSS_SELECTOR, "input[id^='notaDecimal-']")
+            ))
+            return
+
+    raise Exception(f"Avaliação '{nome_av}' não encontrada na aba Avaliações")
+
+
 def debug_avaliacao(browser):
     """
     Navega para /avaliacao e imprime o HTML completo da página para
@@ -417,6 +483,139 @@ def debug_avaliacao(browser):
         for j, linha in enumerate(linhas[:5]):   # primeiras 5 linhas
             txt = browser.execute_script("return arguments[0].textContent", linha).strip()
             print(f"    Linha {j}: {txt[:120]}")
+
+
+def buscar_avaliacoes_lancadas_rco(browser):
+    """
+    Na página /avaliacao, clica na aba 'Avaliações' e lê quais AVs já foram lançadas.
+
+    Retorna lista de dicts:
+        nome  (str)  — ex. "ATV 1", "REC 1"
+        data  (str)  — ex. "15/03/2026" (ou "" se não disponível)
+    """
+    wait = WebDriverWait(browser, 15)
+
+    # Navega para /avaliacao se ainda não estiver lá
+    if "/avaliacao" not in browser.current_url:
+        link = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//a[contains(@href,'/avaliacao') and contains(.,'Avalia')]")
+        ))
+        browser.execute_script("arguments[0].click()", link)
+        wait.until(EC.url_contains("/avaliacao"))
+        time.sleep(1.5)
+
+    # Clica na aba "Avaliações" (não a aba "Alunos")
+    abas = browser.find_elements(By.XPATH, "//a[@role='tab']")
+    aba_avs = None
+    for aba in abas:
+        txt = browser.execute_script("return arguments[0].textContent", aba).strip()
+        if "Avalia" in txt and "Aluno" not in txt:
+            aba_avs = aba
+            break
+
+    if aba_avs:
+        browser.execute_script("arguments[0].click()", aba_avs)
+        time.sleep(1.5)
+
+    try:
+        wait.until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, ".tab-pane.active")
+        ))
+    except Exception:
+        pass
+
+    # Detecta cabeçalhos para achar índices de nome e data
+    ths = browser.find_elements(By.CSS_SELECTOR, ".tab-pane.active thead th")
+    cabecalhos = [
+        browser.execute_script("return arguments[0].textContent", th).strip().lower()
+        for th in ths
+    ]
+
+    idx_nome = next((i for i, h in enumerate(cabecalhos)
+                     if "tipo" in h or "avalia" in h or "descri" in h), 0)
+    idx_data = next((i for i, h in enumerate(cabecalhos)
+                     if "data" in h), 1)
+
+    linhas = browser.find_elements(By.CSS_SELECTOR, ".tab-pane.active tbody tr")
+    resultado = []
+    for linha in linhas:
+        cells = linha.find_elements(By.CSS_SELECTOR, "td")
+        if not cells:
+            continue
+
+        nome = _cell_text(browser, cells, idx_nome)
+        data = _cell_text(browser, cells, idx_data)
+        if nome:
+            resultado.append({"nome": nome, "data": data})
+
+    return resultado
+
+
+def buscar_notas_av_rco(browser, nome_av):
+    """
+    Na aba 'Alunos' da página /avaliacao, lê a nota de uma AV específica por aluno.
+    A tabela tem colunas: Nº | Nome | Situação | [AV dinâmicas] | Somatória
+    O cabeçalho de cada AV é o próprio nome (ex: "ATV 1", "REC 1").
+
+    Retorna lista de dicts:
+        numero  (int)
+        nome    (str)
+        nota    (str)  — valor como aparece no RCO, ex "30", "-" se vazio
+    """
+    wait = WebDriverWait(browser, 15)
+
+    if "/avaliacao" not in browser.current_url:
+        link = wait.until(EC.element_to_be_clickable(
+            (By.XPATH, "//a[contains(@href,'/avaliacao') and contains(.,'Avalia')]")
+        ))
+        browser.execute_script("arguments[0].click()", link)
+        wait.until(EC.url_contains("/avaliacao"))
+        time.sleep(1.5)
+
+    # Clica na aba "Alunos"
+    aba = wait.until(EC.element_to_be_clickable(
+        (By.XPATH, "//a[@role='tab' and contains(.,'Alunos')]")
+    ))
+    browser.execute_script("arguments[0].click()", aba)
+    time.sleep(1.5)
+
+    wait.until(EC.presence_of_element_located(
+        (By.CSS_SELECTOR, ".tab-pane.active tbody tr")
+    ))
+
+    # Detecta índice da coluna pelo cabeçalho
+    ths = browser.find_elements(By.CSS_SELECTOR, ".tab-pane.active thead th")
+    cabecalhos = [
+        browser.execute_script("return arguments[0].textContent", th).strip()
+        for th in ths
+    ]
+
+    idx_av = next(
+        (i for i, h in enumerate(cabecalhos) if h.upper() == nome_av.upper()),
+        None
+    )
+    if idx_av is None:
+        raise Exception(f"Coluna '{nome_av}' não encontrada na aba Alunos. "
+                        f"Colunas disponíveis: {cabecalhos}")
+
+    linhas = browser.find_elements(By.CSS_SELECTOR, ".tab-pane.active tbody tr")
+    resultado = []
+    for linha in linhas:
+        cells = linha.find_elements(By.CSS_SELECTOR, "td")
+        if len(cells) < 3:
+            continue
+
+        numero_s = _cell_text(browser, cells, 0)
+        if not numero_s.isdigit():
+            continue
+
+        resultado.append({
+            "numero": int(numero_s),
+            "nome":   _cell_text(browser, cells, 1),
+            "nota":   _cell_text(browser, cells, idx_av) or "-",
+        })
+
+    return resultado
 
 
 def buscar_notas_finais_rco(browser):
@@ -482,22 +681,15 @@ def buscar_notas_finais_rco(browser):
         if len(cells) < 3:
             continue
 
-        def _txt(idx):
-            if idx >= len(cells):
-                return ""
-            return browser.execute_script(
-                "return arguments[0].textContent", cells[idx]
-            ).strip()
-
-        numero_s = _txt(0)
+        numero_s = _cell_text(browser, cells, 0)
         if not numero_s.isdigit():
             continue
 
         resultado.append({
             "numero":   int(numero_s),
-            "nome":     _txt(1),
-            "situacao": _txt(2),
-            "soma":     _parse_soma(_txt(idx_soma)),
+            "nome":     _cell_text(browser, cells, 1),
+            "situacao": _cell_text(browser, cells, 2),
+            "soma":     _parse_soma(_cell_text(browser, cells, idx_soma)),
         })
 
     return resultado

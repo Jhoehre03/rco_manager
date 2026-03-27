@@ -159,17 +159,42 @@
       background: #fff;
       border-radius: 12px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-      overflow: hidden;
     }
+    .turma-item { border-bottom: 1px solid #f1f5f9; }
+    .turma-item:last-child { border-bottom: none; }
     .turma-row {
       display: flex;
       align-items: center;
       padding: 13px 20px;
-      border-bottom: 1px solid #f1f5f9;
       gap: 14px;
+      cursor: pointer;
+      user-select: none;
     }
-    .turma-row:last-child { border-bottom: none; }
     .turma-row:hover { background: #f8fafc; }
+    .turma-chevron { font-size: 11px; color: #94a3b8; transition: transform .2s; flex-shrink: 0; }
+    .turma-item.expanded .turma-chevron { transform: rotate(90deg); }
+    .turma-expand {
+      display: none;
+      padding: 0 20px 14px 70px;
+      gap: 6px;
+      flex-direction: column;
+    }
+    .turma-item.expanded .turma-expand { display: flex; }
+    .turma-expand-tri { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .05em; margin-top: 6px; margin-bottom: 2px; }
+    .av-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: #f8fafc;
+    }
+    .av-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .av-dot.ok  { background: #10b981; }
+    .av-dot.nao { background: #e2e8f0; }
+    .av-nome { flex: 1; color: #374151; }
+    .av-data { color: #94a3b8; font-size: 11px; }
 
     .turma-avatar {
       width: 36px;
@@ -512,6 +537,10 @@
         <button class="btn btn-primary" id="btn-buscar-notas" onclick="_buscarNotas()">
           Buscar notas da planilha
         </button>
+        <button class="btn" id="btn-buscar-rco" onclick="_buscarNotasRco()"
+          style="display:none;background:#e0e7ff;color:#3730a3">
+          Buscar do RCO
+        </button>
       </div>
 
       <!-- Tabela de notas -->
@@ -522,8 +551,9 @@
             <tr style="background:#f8fafc">
               <th style="padding:7px 10px;text-align:left;border-bottom:1px solid #e2e8f0;width:40px">Nº</th>
               <th style="padding:7px 10px;text-align:left;border-bottom:1px solid #e2e8f0">Nome</th>
-              <th style="padding:7px 10px;text-align:center;border-bottom:1px solid #e2e8f0;width:90px">Planilha</th>
-              <th style="padding:7px 10px;text-align:center;border-bottom:1px solid #e2e8f0;width:110px">RCO</th>
+              <th style="padding:7px 10px;text-align:center;border-bottom:1px solid #e2e8f0;width:80px">Planilha</th>
+              <th id="nt-th-rco-atual" style="padding:7px 10px;text-align:center;border-bottom:1px solid #e2e8f0;width:80px;display:none">RCO atual</th>
+              <th style="padding:7px 10px;text-align:center;border-bottom:1px solid #e2e8f0;width:100px">Enviar</th>
             </tr>
           </thead>
           <tbody id="nt-tbody"></tbody>
@@ -591,6 +621,149 @@
       <button class="btn" style="background:#f1f5f9;color:#374151" onclick="_fecharResumoLote()" id="rl-btn-fechar">Fechar</button>
       <button class="btn btn-primary" id="rl-btn-iniciar" onclick="_iniciarResumoLote()">
         Atualizar Resumo
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL SINCRONIZAR ALUNOS EM LOTE ─────── -->
+<div id="modal-sincronizar-alunos" class="modal-overlay hidden" onclick="if(event.target.id==='modal-sincronizar-alunos')_fecharSincronizarAlunos()">
+  <div class="modal-box" onclick="event.stopPropagation()" style="width:580px;max-height:88vh;display:flex;flex-direction:column">
+    <div class="modal-header">
+      <h3>Sincronizar Alunos em Lote</h3>
+      <button class="modal-close" onclick="_fecharSincronizarAlunos()">×</button>
+    </div>
+
+    <div class="modal-body" style="overflow-y:auto;flex:1">
+
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Turmas <span style="font-weight:400;text-transform:none;color:#94a3b8">(apenas com planilha vinculada)</span></label>
+        <div id="sa-turmas-lista" style="display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:8px;padding:8px"></div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button class="btn btn-sm" style="background:#f1f5f9;color:#374151" onclick="_saSelectAll(true)">Todas</button>
+          <button class="btn btn-sm" style="background:#f1f5f9;color:#374151" onclick="_saSelectAll(false)">Nenhuma</button>
+        </div>
+      </div>
+
+      <div id="sa-progresso-area" style="display:none;margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b;margin-bottom:4px">
+          <span id="sa-progresso-label">Aguardando...</span>
+          <span id="sa-progresso-pct">0%</span>
+        </div>
+        <div style="background:#e2e8f0;border-radius:8px;height:10px;overflow:hidden">
+          <div id="sa-progresso-bar" style="height:100%;width:0%;background:#3b82f6;border-radius:8px;transition:width .3s"></div>
+        </div>
+      </div>
+
+      <div id="sa-log" style="display:none;flex-direction:column;gap:4px;max-height:240px;overflow-y:auto"></div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn" id="sa-btn-fechar" style="background:#f1f5f9;color:#374151" onclick="_fecharSincronizarAlunos()">Fechar</button>
+      <button class="btn btn-primary" id="sa-btn-iniciar" onclick="_iniciarSincronizarAlunos()">Sincronizar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL SINCRONIZAR RCO ─────────────────── -->
+<div id="modal-sincronizar-rco" class="modal-overlay hidden" onclick="if(event.target.id==='modal-sincronizar-rco')_fecharSincronizarRco()">
+  <div class="modal-box" onclick="event.stopPropagation()" style="width:560px;max-height:88vh;display:flex;flex-direction:column">
+    <div class="modal-header">
+      <h3>Sincronizar Notas com RCO</h3>
+      <button class="modal-close" onclick="_fecharSincronizarRco()">×</button>
+    </div>
+
+    <div class="modal-body" style="overflow-y:auto;flex:1">
+
+      <div class="form-group" style="margin-bottom:16px">
+        <label>Trimestre</label>
+        <div class="trimestre-pills">
+          <label class="trim-pill"><input type="radio" name="sn-trim" value="1"> 1º</label>
+          <label class="trim-pill"><input type="radio" name="sn-trim" value="2"> 2º</label>
+          <label class="trim-pill"><input type="radio" name="sn-trim" value="3"> 3º</label>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Turmas</label>
+        <div id="sn-turmas-lista" style="display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:8px;padding:8px"></div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button class="btn btn-sm" style="background:#f1f5f9;color:#374151" onclick="_snSelectAll(true)">Todas</button>
+          <button class="btn btn-sm" style="background:#f1f5f9;color:#374151" onclick="_snSelectAll(false)">Nenhuma</button>
+        </div>
+      </div>
+
+      <div id="sn-aviso-fechado" style="display:none;background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:12px">
+        ⚠ Este trimestre já está encerrado — as notas não podem mais ser editadas no RCO. A sincronização é apenas leitura.
+      </div>
+
+      <div id="sn-progresso-area" style="display:none;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b;margin-bottom:4px">
+          <span id="sn-progresso-label">Sincronizando...</span>
+          <span id="sn-progresso-pct">0%</span>
+        </div>
+        <div style="background:#e2e8f0;border-radius:8px;height:10px;overflow:hidden">
+          <div id="sn-progresso-bar" style="height:100%;width:0%;background:#6366f1;border-radius:8px;transition:width .3s"></div>
+        </div>
+      </div>
+
+      <div id="sn-log" style="display:none;flex-direction:column;gap:4px;font-size:12px;max-height:200px;overflow-y:auto"></div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn" id="sn-btn-fechar" style="background:#f1f5f9;color:#374151" onclick="_fecharSincronizarRco()">Fechar</button>
+      <button class="btn btn-primary" id="sn-btn-iniciar" onclick="_iniciarSincronizarRco()">Sincronizar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL ATUALIZAR BANCO ─────────────────── -->
+<div id="modal-atualizar-banco" class="modal-overlay hidden" onclick="if(event.target.id==='modal-atualizar-banco')_fecharAtualizarBanco()">
+  <div class="modal-box" onclick="event.stopPropagation()" style="width:560px;max-height:88vh;display:flex;flex-direction:column">
+    <div class="modal-header">
+      <h3>Atualizar Banco de Dados</h3>
+      <button class="modal-close" onclick="_fecharAtualizarBanco()">×</button>
+    </div>
+
+    <div class="modal-body" style="overflow-y:auto;flex:1">
+
+      <!-- Seletor de trimestre -->
+      <div class="form-group" style="margin-bottom:16px">
+        <label>Trimestre</label>
+        <div class="trimestre-pills">
+          <label class="trim-pill"><input type="radio" name="ab-trim" value="1º Tri" checked> 1º</label>
+          <label class="trim-pill"><input type="radio" name="ab-trim" value="2º Tri"> 2º</label>
+          <label class="trim-pill"><input type="radio" name="ab-trim" value="3º Tri"> 3º</label>
+        </div>
+      </div>
+
+      <p style="font-size:13px;color:#64748b;margin-bottom:16px">
+        O sistema irá acessar o RCO e atualizar a lista de turmas e alunos de todas as escolas.
+        Não feche o Chrome durante o processo.
+      </p>
+
+      <!-- Barra de progresso (oculta até iniciar) -->
+      <div id="ab-progresso-area" style="display:none;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b;margin-bottom:4px">
+          <span id="ab-progresso-label">Iniciando...</span>
+          <span id="ab-progresso-pct">0%</span>
+        </div>
+        <div style="background:#e2e8f0;border-radius:8px;height:10px;overflow:hidden">
+          <div id="ab-progresso-bar" style="height:100%;width:0%;background:#3b82f6;border-radius:8px;transition:width .3s"></div>
+        </div>
+      </div>
+
+      <!-- Log por turma -->
+      <div id="ab-log" style="display:none;flex-direction:column;gap:4px;font-size:12px;max-height:240px;overflow-y:auto"></div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn" style="background:#f1f5f9;color:#374151" onclick="_fecharAtualizarBanco()" id="ab-btn-fechar">Fechar</button>
+      <button class="btn btn-primary" id="ab-btn-iniciar" onclick="_iniciarAtualizarBanco()">
+        Atualizar Banco
       </button>
     </div>
   </div>
@@ -669,14 +842,20 @@
       <!-- Progresso (oculto até iniciar) -->
       <div id="lb-progresso" class="hidden" style="margin-top:16px">
         <hr style="border:none;border-top:1px solid #f1f5f9;margin-bottom:12px">
-        <label style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em">Progresso</label>
-        <div id="lb-progresso-lista" style="margin-top:8px;display:flex;flex-direction:column;gap:4px"></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b;margin-bottom:4px">
+          <span id="lb-progresso-label">Gerando...</span>
+          <span id="lb-progresso-pct">0%</span>
+        </div>
+        <div style="background:#e2e8f0;border-radius:8px;height:10px;overflow:hidden;margin-bottom:10px">
+          <div id="lb-progresso-bar" style="height:100%;width:0%;background:#3b82f6;border-radius:8px;transition:width .3s"></div>
+        </div>
+        <div id="lb-progresso-lista" style="display:flex;flex-direction:column;gap:4px;font-size:12px;max-height:160px;overflow-y:auto"></div>
       </div>
 
     </div>
 
     <div class="modal-footer">
-      <button class="btn" style="background:#f1f5f9;color:#374151" onclick="_fecharLote()">Cancelar</button>
+      <button class="btn" id="lb-btn-fechar" style="background:#f1f5f9;color:#374151" onclick="_fecharLote()">Cancelar</button>
       <button class="btn btn-primary" id="btn-confirmar-lote" disabled onclick="_confirmarLote()">
         Gerar Planilhas
       </button>
@@ -788,8 +967,275 @@
     else if (state.secao === 'comentarios') renderComentarios();
     else if (state.secao === 'planilhas')   renderPlanilhas();
     else if (state.secao === 'notas')       renderNotas();
+    else if (state.secao === 'alunos')      renderAlunos();
     else document.getElementById('content').innerHTML =
       `<div class="placeholder">Em desenvolvimento</div>`;
+  }
+
+  // ── ALUNOS ───────────────────────────────────
+  let _saPreview = {};   // cache de previews: key → {novos, alterados, removidos}
+
+  function renderAlunos() {
+    const turmasComPlanilha = state.turmas.filter(t => t.planilha_id);
+    const turmasSem         = state.turmas.filter(t => !t.planilha_id);
+
+    const rows = state.turmas.map(t => {
+      const tem  = !!t.planilha_id;
+      const k    = JSON.stringify({escola: t.escola, turma: t.turma, disciplina: t.disciplina});
+      const prev = _saPreview[k];
+
+      let badgeStatus = '';
+      let logHtml     = '';
+
+      if (!tem) {
+        badgeStatus = `<span class="badge badge-sem">Sem planilha</span>`;
+      } else if (!prev) {
+        badgeStatus = `<span class="badge" style="background:#f1f5f9;color:#64748b">Não verificado</span>`;
+      } else if (prev.novos.length === 0 && prev.alterados.length === 0 && prev.removidos.length === 0) {
+        badgeStatus = `<span class="badge badge-ok">✓ Sincronizada</span>`;
+      } else {
+        const n = prev.novos.length + prev.alterados.length + prev.removidos.length;
+        badgeStatus = `<span class="badge" style="background:#fef9c3;color:#854d0e">${n} pendente(s)</span>`;
+
+        const linhas = [
+          ...prev.novos.map(a     => `<div style="color:#16a34a;font-size:12px">+ ${a.nome}</div>`),
+          ...prev.alterados.map(a => `<div style="color:#d97706;font-size:12px">~ ${a.nome} → ${a.situacao_nova || 'ocultar'}</div>`),
+          ...prev.removidos.map(a => `<div style="color:#dc2626;font-size:12px">− ${a.nome}</div>`),
+        ];
+        logHtml = `<div style="margin-top:6px;padding:8px 10px;background:#f8fafc;border-radius:8px;display:flex;flex-direction:column;gap:2px">
+          ${linhas.join('')}
+        </div>`;
+      }
+
+      return `
+        <div class="plan-row" style="flex-direction:column;align-items:stretch;gap:6px;padding:13px 20px">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div class="turma-avatar">${t.disciplina.slice(0,2).toUpperCase()}</div>
+            <div class="plan-info">
+              <div class="plan-nome">${t.turma} — ${t.disciplina}</div>
+              <div class="plan-escola">${t.escola}</div>
+            </div>
+            <div class="plan-actions">
+              ${badgeStatus}
+              ${tem ? `<button class="btn btn-sm" style="background:#f1f5f9;color:#374151"
+                onclick="_saVerificar(${k})">Verificar</button>` : ''}
+            </div>
+          </div>
+          ${logHtml}
+        </div>`;
+    }).join('');
+
+    document.getElementById('content').innerHTML = `
+      <div class="section-header">
+        <span class="section-title">Gestão de Alunos</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm" style="background:#f1f5f9;color:#374151" id="sa-btn-verificar-todas"
+            onclick="_saVerificarTodas()">Verificar todas</button>
+          <button class="btn btn-primary btn-sm"
+            onclick="_abrirSincronizarAlunos()">Sincronizar em Lote</button>
+        </div>
+      </div>
+      <div id="sa-verificar-progresso-area" style="display:none;padding:10px 20px 0">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b;margin-bottom:4px">
+          <span id="sa-vp-label">Verificando...</span>
+          <span id="sa-vp-pct">0%</span>
+        </div>
+        <div style="background:#e2e8f0;border-radius:999px;height:7px;overflow:hidden">
+          <div id="sa-vp-bar" style="height:100%;background:#3b82f6;border-radius:999px;width:0%;transition:width .3s"></div>
+        </div>
+      </div>
+      <div class="plan-list">
+        ${state.turmas.length === 0
+          ? '<div class="empty">Nenhuma turma cadastrada.</div>'
+          : rows}
+      </div>
+    `;
+  }
+
+  async function _saVerificar(turmaKey) {
+    const {escola, turma, disciplina} = typeof turmaKey === 'string' ? JSON.parse(turmaKey) : turmaKey;
+    const k = JSON.stringify({escola, turma, disciplina});
+    try {
+      const res = await window.pywebview.api.preview_sincronizacao(escola, turma, disciplina);
+      if (!res.ok) { toast('Erro: ' + res.erro, 'error'); return; }
+      _saPreview[k] = res;
+      renderAlunos();
+    } catch(e) {
+      toast('Erro inesperado', 'error');
+    }
+  }
+
+  async function _saVerificarTodas() {
+    const turmasComPlanilha = state.turmas.filter(t => t.planilha_id);
+    if (turmasComPlanilha.length === 0) { toast('Nenhuma turma com planilha vinculada', 'error'); return; }
+
+    const total = turmasComPlanilha.length;
+    const btnVerificar = document.getElementById('sa-btn-verificar-todas');
+    const areaProgresso = document.getElementById('sa-verificar-progresso-area');
+    const bar   = document.getElementById('sa-vp-bar');
+    const pct   = document.getElementById('sa-vp-pct');
+    const label = document.getElementById('sa-vp-label');
+
+    if (btnVerificar) btnVerificar.disabled = true;
+    if (areaProgresso) areaProgresso.style.display = 'block';
+
+    for (let i = 0; i < total; i++) {
+      const t = turmasComPlanilha[i];
+      const k = JSON.stringify({escola: t.escola, turma: t.turma, disciplina: t.disciplina});
+
+      if (label) label.textContent = `${t.turma} — ${t.disciplina}`;
+      const p = Math.round((i / total) * 100);
+      if (bar) bar.style.width = p + '%';
+      if (pct) pct.textContent = p + '%';
+
+      try {
+        const res = await window.pywebview.api.preview_sincronizacao(t.escola, t.turma, t.disciplina);
+        if (res.ok) _saPreview[k] = res;
+      } catch(e) {}
+    }
+
+    if (bar) bar.style.width = '100%';
+    if (pct) pct.textContent = '100%';
+    if (label) label.textContent = `${total} turma(s) verificada(s)`;
+    if (btnVerificar) btnVerificar.disabled = false;
+
+    renderAlunos();
+    toast('Verificação concluída.', 'success');
+  }
+
+  function _abrirSincronizarAlunos() {
+    const turmasComPlanilha = state.turmas.filter(t => t.planilha_id);
+    if (turmasComPlanilha.length === 0) { toast('Nenhuma turma com planilha vinculada', 'error'); return; }
+
+    // Reset
+    document.getElementById('sa-progresso-area').style.display = 'none';
+    document.getElementById('sa-log').style.display = 'none';
+    document.getElementById('sa-log').innerHTML = '';
+    document.getElementById('sa-progresso-bar').style.width = '0%';
+    document.getElementById('sa-progresso-pct').textContent = '0%';
+    document.getElementById('sa-progresso-label').textContent = 'Aguardando...';
+    document.getElementById('sa-btn-iniciar').disabled = false;
+    document.getElementById('sa-btn-fechar').disabled = false;
+    document.getElementById('sa-btn-fechar').textContent = 'Fechar';
+    document.getElementById('sa-btn-iniciar').textContent = 'Sincronizar';
+
+    // Popula lista — apenas turmas com planilha
+    const lista = document.getElementById('sa-turmas-lista');
+    lista.innerHTML = turmasComPlanilha.map(t => {
+      const k    = JSON.stringify({escola: t.escola, turma: t.turma, disciplina: t.disciplina});
+      const prev = _saPreview[k];
+      const pendentes = prev
+        ? prev.novos.length + prev.alterados.length + prev.removidos.length
+        : null;
+      const badge = pendentes === null
+        ? ''
+        : pendentes === 0
+          ? '<span style="font-size:10px;color:#065f46;background:#d1fae5;padding:1px 6px;border-radius:10px;margin-left:4px">✓</span>'
+          : `<span style="font-size:10px;color:#854d0e;background:#fef9c3;padding:1px 6px;border-radius:10px;margin-left:4px">${pendentes} pend.</span>`;
+      return `<label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:3px 4px;border-radius:6px;font-size:13px">
+        <input type="checkbox" class="sa-chk" data-key='${k}' checked>
+        ${t.turma} — ${t.disciplina}${badge}
+        <span style="color:#94a3b8;font-size:11px">${t.escola}</span>
+      </label>`;
+    }).join('');
+
+    document.getElementById('modal-sincronizar-alunos').classList.remove('hidden');
+  }
+
+  function _fecharSincronizarAlunos() {
+    document.getElementById('modal-sincronizar-alunos').classList.add('hidden');
+  }
+
+  function _saSelectAll(v) {
+    document.querySelectorAll('.sa-chk').forEach(c => c.checked = v);
+  }
+
+  // Chamada pelo Python via evaluate_js
+  function _saProgressoEvento(i, total, turma, disciplina, status, detalhe) {
+    const pct = Math.round((i / total) * 100);
+    document.getElementById('sa-progresso-bar').style.width = pct + '%';
+    document.getElementById('sa-progresso-pct').textContent = pct + '%';
+    document.getElementById('sa-progresso-label').textContent = `${i} de ${total} turmas`;
+
+    const log = document.getElementById('sa-log');
+    const ok  = status === 'ok';
+
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = `border-radius:6px;overflow:hidden;margin-bottom:2px`;
+
+    // Cabeçalho da turma
+    const header = document.createElement('div');
+    header.style.cssText = `padding:4px 8px;font-size:12px;font-weight:600;
+      color:${ok?'#166534':'#dc2626'};background:${ok?'#f0fdf4':'#fef2f2'}`;
+    header.textContent = `${ok ? '✓' : '✗'} ${turma} — ${disciplina}`;
+    wrapper.appendChild(header);
+
+    if (ok) {
+      const { novos, atualizados, ocultados } = detalhe;
+      const linhas = [
+        ...novos.map(n      => ({txt: `+ ${n}`,   cor: '#16a34a', bg: '#f0fdf4'})),
+        ...atualizados.map(n => ({txt: `~ ${n}`,   cor: '#d97706', bg: '#fffbeb'})),
+        ...ocultados.map(n   => ({txt: `− ${n}`,   cor: '#dc2626', bg: '#fef2f2'})),
+      ];
+      if (linhas.length === 0) {
+        const sem = document.createElement('div');
+        sem.style.cssText = 'padding:3px 8px;font-size:11px;color:#94a3b8;background:#f8fafc';
+        sem.textContent = 'Nenhuma alteração';
+        wrapper.appendChild(sem);
+      } else {
+        linhas.forEach(({txt, cor, bg}) => {
+          const linha = document.createElement('div');
+          linha.style.cssText = `padding:2px 8px 2px 16px;font-size:11px;color:${cor};background:${bg}`;
+          linha.textContent = txt;
+          wrapper.appendChild(linha);
+        });
+      }
+    } else {
+      const err = document.createElement('div');
+      err.style.cssText = 'padding:3px 8px;font-size:11px;color:#dc2626;background:#fef2f2';
+      err.textContent = detalhe.erro;
+      wrapper.appendChild(err);
+    }
+
+    log.appendChild(wrapper);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  async function _iniciarSincronizarAlunos() {
+    const turmas = [...document.querySelectorAll('.sa-chk:checked')]
+      .map(c => JSON.parse(c.dataset.key));
+    if (turmas.length === 0) { toast('Selecione ao menos uma turma', 'error'); return; }
+
+    document.getElementById('sa-btn-iniciar').disabled = true;
+    document.getElementById('sa-btn-fechar').disabled  = true;
+    document.getElementById('sa-progresso-area').style.display = 'block';
+    const log = document.getElementById('sa-log');
+    log.style.display = 'flex';
+    log.innerHTML = '';
+
+    try {
+      const res = await window.pywebview.api.sincronizar_alunos_lote_stream(turmas);
+      if (res.ok) {
+        document.getElementById('sa-progresso-bar').style.width = '100%';
+        document.getElementById('sa-progresso-pct').textContent = '100%';
+        document.getElementById('sa-progresso-label').textContent = 'Concluído!';
+        document.getElementById('sa-btn-iniciar').textContent = 'Concluído';
+        toast('Sincronização concluída!', 'success');
+        // Limpa preview cache para forçar nova verificação
+        _saPreview = {};
+        await carregarDados();
+        renderAlunos();
+      } else {
+        toast('Erro: ' + res.erro, 'error');
+        document.getElementById('sa-btn-iniciar').disabled = false;
+      }
+    } catch(e) {
+      toast('Erro inesperado', 'error');
+      document.getElementById('sa-btn-iniciar').disabled = false;
+    } finally {
+      document.getElementById('sa-btn-fechar').disabled = false;
+      document.getElementById('sa-btn-fechar').textContent = 'Fechar';
+    }
   }
 
   // ── PLANILHAS ─────────────────────────────────
@@ -1328,6 +1774,12 @@
     document.getElementById('lb-trim-info').textContent = '';
     document.getElementById('lb-progresso').classList.add('hidden');
     document.getElementById('lb-progresso-lista').innerHTML = '';
+    document.getElementById('lb-progresso-bar').style.width = '0%';
+    document.getElementById('lb-progresso-pct').textContent = '0%';
+    document.getElementById('lb-progresso-label').textContent = 'Iniciando...';
+    document.getElementById('lb-btn-fechar').disabled = false;
+    document.getElementById('lb-btn-fechar').textContent = 'Cancelar';
+    document.getElementById('btn-confirmar-lote').textContent = 'Gerar Planilhas';
     _lbRenderTurmas();
     _lbOnModoChange();
     _lbRenderAvals();
@@ -1491,6 +1943,26 @@
       !(trim && dataOk && somaOk && semsOk && semsUnicas && freqOk && turmasOk);
   }
 
+  // Chamada pelo Python via evaluate_js a cada planilha gerada
+  function _lbProgressoEvento(i, total, turma, disciplina, status, erro) {
+    const pct = Math.round((i / total) * 100);
+    document.getElementById('lb-progresso-bar').style.width = pct + '%';
+    document.getElementById('lb-progresso-pct').textContent = pct + '%';
+    document.getElementById('lb-progresso-label').textContent = `${i} de ${total} planilhas`;
+
+    const lista = document.getElementById('lb-progresso-lista');
+    const cor   = status === 'ok' ? '#16a34a' : '#dc2626';
+    const icone = status === 'ok' ? '✓' : '✗';
+    const linha = document.createElement('div');
+    linha.style.cssText = `color:${cor};padding:3px 6px;background:${status==='ok'?'#f0fdf4':'#fef2f2'};border-radius:4px`;
+    linha.textContent   = `${icone} ${turma} — ${disciplina}${erro ? ': ' + erro : ''}`;
+    lista.appendChild(linha);
+    lista.scrollTop = lista.scrollHeight;
+
+    const btn = document.getElementById('btn-confirmar-lote');
+    btn.innerHTML = `<span class="spinner"></span>${i} / ${total}`;
+  }
+
   async function _confirmarLote() {
     if (!state.status.google_autorizado) {
       toast('Autorize o Google Sheets primeiro', 'error'); return;
@@ -1517,23 +1989,21 @@
 
     const btn = document.getElementById('btn-confirmar-lote');
     btn.disabled = true;
-    btn.innerHTML = `<span class="spinner"></span>Gerando 0 / ${turmas.length}...`;
+    btn.innerHTML = `<span class="spinner"></span>Iniciando...`;
+    document.getElementById('lb-btn-fechar').disabled = true;
 
-    // Mostra área de progresso com itens pendentes
+    // Mostra área de progresso
     const progDiv  = document.getElementById('lb-progresso');
     const progLista = document.getElementById('lb-progresso-lista');
     progDiv.classList.remove('hidden');
-    progLista.innerHTML = turmas.map(t =>
-      `<div id="lb-prog-${t.turma.replace(/\W/g,'_')}_${t.disciplina.replace(/\W/g,'_')}"
-            style="display:flex;align-items:center;gap:8px;font-size:12px;padding:3px 0">
-        <span style="width:12px;height:12px;border-radius:50%;background:#e2e8f0;flex-shrink:0"></span>
-        <span>${t.turma} — ${t.disciplina}</span>
-      </div>`
-    ).join('');
+    progLista.innerHTML = '';
+    document.getElementById('lb-progresso-bar').style.width = '0%';
+    document.getElementById('lb-progresso-pct').textContent = '0%';
+    document.getElementById('lb-progresso-label').textContent = 'Iniciando...';
     progLista.scrollIntoView({behavior:'smooth', block:'nearest'});
 
     try {
-      const res = await window.pywebview.api.gerar_planilhas_em_lote(turmas, config);
+      const res = await window.pywebview.api.gerar_planilhas_em_lote_stream(turmas, config);
 
       if (!res.ok) {
         toast('Erro: ' + res.erro, 'error');
@@ -1542,32 +2012,23 @@
         return;
       }
 
-      let ok = 0, fail = 0;
-      for (const r of res.resultados) {
-        const id  = `lb-prog-${r.turma.replace(/\W/g,'_')}_${r.disciplina.replace(/\W/g,'_')}`;
-        const el  = document.getElementById(id);
-        if (el) {
-          const dot  = el.querySelector('span');
-          if (r.ok) {
-            dot.style.background = '#10b981';
-            ok++;
-          } else {
-            dot.style.background = '#ef4444';
-            el.querySelector('span:last-child').textContent += ` — ${r.erro}`;
-            fail++;
-          }
-        }
-      }
+      document.getElementById('lb-progresso-bar').style.width = '100%';
+      document.getElementById('lb-progresso-pct').textContent = '100%';
+      document.getElementById('lb-progresso-label').textContent = 'Concluído!';
 
-      btn.textContent = `Concluído (${ok} ok${fail ? ', ' + fail + ' erro(s)' : ''})`;
-      toast(`${ok} planilha(s) gerada(s)${fail ? ', ' + fail + ' erro(s)' : ''}`,
-            fail ? 'error' : 'success');
+      const { ok_count, fail_count } = res;
+      btn.textContent = `Concluído (${ok_count} ok${fail_count ? ', ' + fail_count + ' erro(s)' : ''})`;
+      document.getElementById('lb-btn-fechar').disabled = false;
+      document.getElementById('lb-btn-fechar').textContent = 'Fechar';
+      toast(`${ok_count} planilha(s) gerada(s)${fail_count ? ', ' + fail_count + ' erro(s)' : ''}`,
+            fail_count ? 'error' : 'success');
       await carregarDados();
       renderPlanilhas();
     } catch(e) {
       toast('Erro inesperado: ' + e, 'error');
       btn.disabled = false;
       btn.textContent = 'Gerar Planilhas';
+      document.getElementById('lb-btn-fechar').disabled = false;
     }
   }
 
@@ -1642,7 +2103,6 @@
     const trim   = parseInt(trimEl.value);
     const av     = document.getElementById('nt-av').value;
     if (!av) return;   // seletor ainda vazio (carregando ou sem avs)
-    const isRec  = av.startsWith('REC');
     const triKey = trim + 'T';
 
     const nl        = (_ntTurma && _ntTurma.notas_lancadas) ? _ntTurma.notas_lancadas : {};
@@ -1656,19 +2116,15 @@
       statusDiv.innerHTML = `<span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:10px;font-weight:600">
         ✓ Lançada em ${dataLanc}</span>`;
       modoRow.style.display = 'flex';
-      // Padrão: ATV → editar; REC → novo lançamento
-      const padrao = isRec ? 'novo' : 'editar';
-      const radio  = document.querySelector(`input[name="nt-modo"][value="${padrao}"]`);
-      if (radio && !document.querySelector('input[name="nt-modo"]:checked')) radio.checked = true;
-      // Garante que um rádio esteja sempre marcado ao trocar av
-      if (!document.querySelector('input[name="nt-modo"]:checked')) radio.checked = true;
-      document.querySelector(`input[name="nt-modo"][value="${padrao}"]`).checked = true;
+      // Já lançada → padrão sempre "editar", independente de ser ATV ou REC
+      document.querySelector('input[name="nt-modo"][value="editar"]').checked = true;
     } else {
       statusDiv.style.display = 'none';
       modoRow.style.display   = 'none';
       const novo = document.querySelector('input[name="nt-modo"][value="novo"]');
       if (novo) novo.checked = true;
     }
+    _ntModoChanged();
   }
 
   function _ntAvChanged() {
@@ -1676,7 +2132,25 @@
   }
 
   function _ntModoChanged() {
-    // Sem efeito visual adicional por ora — o modo é lido em _lancarNotas
+    const modo     = document.querySelector('input[name="nt-modo"]:checked')?.value;
+    const editando = modo === 'editar';
+
+    // No modo editar, data e valor não são necessários
+    document.getElementById('nt-data').closest('.form-row-2').style.opacity = editando ? '.4' : '1';
+    document.getElementById('nt-data').closest('.form-row-2').style.pointerEvents = editando ? 'none' : '';
+
+    // Botão e coluna RCO atual só aparecem no modo editar
+    document.getElementById('btn-buscar-rco').style.display = editando ? '' : 'none';
+    document.getElementById('nt-th-rco-atual').style.display = editando ? '' : 'none';
+
+    // Limpa coluna RCO atual ao sair do modo editar
+    if (!editando) {
+      _ntAlunos.forEach(a => { a.nota_rco_atual = null; });
+      _renderTabelaNotas();
+    }
+
+    const btn = document.getElementById('btn-lancar-notas');
+    if (!btn.disabled) btn.textContent = editando ? 'Editar no RCO' : 'Lançar no RCO';
   }
 
   async function _ntCarregarDatas() {
@@ -1762,7 +2236,7 @@
       const res = await window.pywebview.api.get_notas_planilha(escola, turma, disciplina, trim, coluna);
       if (!res.ok) { toast('Erro: ' + res.erro, 'error'); return; }
 
-      _ntAlunos = res.alunos;
+      _ntAlunos = res.alunos.map(a => ({...a, nota_rco_atual: null}));
       _renderTabelaNotas();
       document.getElementById('nt-tabela').classList.remove('hidden');
       document.getElementById('btn-lancar-notas').disabled = !state.chrome;
@@ -1784,16 +2258,30 @@
   }
 
   function _renderTabelaNotas() {
+    const editando = document.querySelector('input[name="nt-modo"]:checked')?.value === 'editar';
     document.getElementById('nt-tbody').innerHTML = _ntAlunos.map((a, i) => {
       const inBadge = a.inativo
         ? '<span style="font-size:10px;background:#fee2e2;color:#991b1b;padding:1px 6px;border-radius:10px;margin-left:6px">Inativo</span>'
         : '';
-      return `<tr style="${a.inativo ? 'opacity:.5' : ''}">
+
+      // Coluna RCO atual — só no modo editar
+      const tdRcoAtual = editando ? `
+        <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;text-align:center;color:#6366f1;font-weight:500">
+          ${a.nota_rco_atual != null ? a.nota_rco_atual : '<span style="color:#cbd5e1">—</span>'}
+        </td>` : '';
+
+      // Destaca linha se planilha e RCO divergem
+      const diverge = editando && a.nota_rco_atual != null && a.nota_rco_atual !== '-'
+        && a.nota_rco && a.nota_rco !== a.nota_rco_atual;
+      const rowBg = diverge ? 'background:#fffbeb' : '';
+
+      return `<tr style="${a.inativo ? 'opacity:.5;' : ''}${rowBg}">
         <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;color:#94a3b8">${a.numero}</td>
         <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9">${a.nome}${inBadge}</td>
         <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;text-align:center;color:#64748b">
           ${a.nota || '—'}
         </td>
+        ${tdRcoAtual}
         <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;text-align:center">
           <input type="text" maxlength="3" ${a.inativo ? 'disabled' : ''}
                  value="${a.nota_rco}"
@@ -1806,6 +2294,49 @@
     }).join('');
   }
 
+  async function _buscarNotasRco() {
+    if (!state.chrome) { toast('Conecte o Chrome primeiro', 'error'); return; }
+    const trimEl = document.querySelector('input[name="nt-trim"]:checked');
+    if (!trimEl) { toast('Selecione o trimestre', 'error'); return; }
+    const tipoAv = document.getElementById('nt-av').value;
+    if (!tipoAv) { toast('Selecione a avaliação', 'error'); return; }
+    if (_ntAlunos.length === 0) { toast('Busque as notas da planilha primeiro', 'error'); return; }
+
+    const trim   = parseInt(trimEl.value);
+    const triStr = trim === 1 ? '1º Tri' : trim === 2 ? '2º Tri' : '3º Tri';
+    const btn    = document.getElementById('btn-buscar-rco');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner" style="border-top-color:#3730a3;border-color:rgba(55,48,163,.2)"></span>Buscando...';
+
+    try {
+      const {escola, turma, disciplina} = _ntTurma;
+      const res = await window.pywebview.api.get_notas_rco(
+        escola, turma, disciplina, triStr, tipoAv
+      );
+      if (!res.ok) { toast('Erro: ' + res.erro, 'error'); return; }
+
+      // Mapeia por número de chamada
+      const rcoIdx = {};
+      res.alunos.forEach(a => { rcoIdx[a.numero] = a.nota; });
+
+      // Preenche nota_rco_atual e usa como padrão para "Enviar" se ainda não editado
+      _ntAlunos.forEach(a => {
+        const notaRco = rcoIdx[a.numero] ?? null;
+        a.nota_rco_atual = notaRco;
+        // Pré-preenche coluna Enviar com o valor do RCO (professor edita apenas o que muda)
+        if (notaRco && notaRco !== '-') a.nota_rco = notaRco;
+      });
+
+      _renderTabelaNotas();
+      toast('Notas do RCO carregadas.', 'success');
+    } catch(e) {
+      toast('Erro inesperado: ' + e, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Buscar do RCO';
+    }
+  }
+
   async function _lancarNotas() {
     if (!state.chrome) { toast('Conecte o Chrome primeiro', 'error'); return; }
 
@@ -1813,18 +2344,9 @@
     if (!trimEl) { toast('Selecione o trimestre', 'error'); return; }
     const trim   = parseInt(trimEl.value);
     const triStr = trim === 1 ? '1º Tri' : trim === 2 ? '2º Tri' : '3º Tri';
-
     const tipoAv = document.getElementById('nt-av').value;
-    const data   = document.getElementById('nt-data').value;
-    const valor  = document.getElementById('nt-valor').value.trim();
-
-    if (!data) { toast('Selecione a data da avaliação', 'error'); return; }
-    if (!valor || isNaN(parseFloat(valor))) { toast('Informe o valor máximo', 'error'); return; }
-
-    // Tipo para o formulário do RCO: ATV N → "AV1"; REC N → "Recuperação"
-    const tipoRco = tipoAv;   // app.py faz o mapeamento para o RCO
-    // Valor no formato RCO (ex: 3.0 → "30")
-    const valorRco = String(Math.round(parseFloat(valor) * 10)).padStart(2, '0');
+    const modo   = document.querySelector('input[name="nt-modo"]:checked')?.value || 'novo';
+    const editando = modo === 'editar';
 
     // Monta lista apenas dos alunos ativos com nota_rco preenchida
     const notas = _ntAlunos
@@ -1839,32 +2361,61 @@
 
     const btn = document.getElementById('btn-lancar-notas');
     btn.disabled = true;
-    btn.innerHTML = `<span class="spinner"></span>Lançando ${notas.length} notas...`;
 
-    try {
-      const {escola, turma, disciplina} = _ntTurma;
-      const res = await window.pywebview.api.lancar_notas(
-        escola, turma, disciplina, triStr, tipoRco, data, valorRco, notas
-      );
-      if (res.ok) {
-        toast('Notas lançadas! Marque os conteúdos no RCO e clique em Salvar.', 'success');
-        // Atualiza cache local de notas_lancadas
-        const hoje = new Date();
-        const dd = String(hoje.getDate()).padStart(2,'0');
-        const mm = String(hoje.getMonth()+1).padStart(2,'0');
-        const dataHoje = `${dd}/${mm}/${hoje.getFullYear()}`;
-        if (!_ntTurma.notas_lancadas) _ntTurma.notas_lancadas = {};
-        if (!_ntTurma.notas_lancadas[trim+'T']) _ntTurma.notas_lancadas[trim+'T'] = {};
-        _ntTurma.notas_lancadas[trim+'T'][tipoAv] = dataHoje;
-        _ntAtualizarStatusAv();
-      } else {
-        toast('Erro: ' + res.erro, 'error');
+    if (editando) {
+      // ── MODO EDITAR: vai direto ao botão Alterar da AV no RCO ──
+      btn.innerHTML = `<span class="spinner"></span>Editando ${notas.length} notas...`;
+      try {
+        const {escola, turma, disciplina} = _ntTurma;
+        const res = await window.pywebview.api.editar_notas(
+          escola, turma, disciplina, triStr, tipoAv, notas
+        );
+        if (res.ok) {
+          toast('Notas editadas! Confira no RCO e clique em Salvar.', 'success');
+        } else {
+          toast('Erro: ' + res.erro, 'error');
+        }
+      } catch(e) {
+        toast('Erro inesperado: ' + e, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Editar no RCO';
       }
-    } catch(e) {
-      toast('Erro inesperado: ' + e, 'error');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Lançar no RCO';
+    } else {
+      // ── MODO NOVO LANÇAMENTO ──
+      const data  = document.getElementById('nt-data').value;
+      const valor = document.getElementById('nt-valor').value.trim();
+
+      if (!data) { toast('Selecione a data da avaliação', 'error'); btn.disabled = false; return; }
+      if (!valor || isNaN(parseFloat(valor))) { toast('Informe o valor máximo', 'error'); btn.disabled = false; return; }
+
+      const valorRco = String(Math.round(parseFloat(valor) * 10)).padStart(2, '0');
+      btn.innerHTML = `<span class="spinner"></span>Lançando ${notas.length} notas...`;
+
+      try {
+        const {escola, turma, disciplina} = _ntTurma;
+        const res = await window.pywebview.api.lancar_notas(
+          escola, turma, disciplina, triStr, tipoAv, data, valorRco, notas
+        );
+        if (res.ok) {
+          toast('Notas lançadas! Marque os conteúdos no RCO e clique em Salvar.', 'success');
+          const hoje = new Date();
+          const dd = String(hoje.getDate()).padStart(2,'0');
+          const mm = String(hoje.getMonth()+1).padStart(2,'0');
+          const dataHoje = `${dd}/${mm}/${hoje.getFullYear()}`;
+          if (!_ntTurma.notas_lancadas) _ntTurma.notas_lancadas = {};
+          if (!_ntTurma.notas_lancadas[trim+'T']) _ntTurma.notas_lancadas[trim+'T'] = {};
+          _ntTurma.notas_lancadas[trim+'T'][tipoAv] = dataHoje;
+          _ntAtualizarStatusAv();
+        } else {
+          toast('Erro: ' + res.erro, 'error');
+        }
+      } catch(e) {
+        toast('Erro inesperado: ' + e, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Lançar no RCO';
+      }
     }
   }
 
@@ -1943,31 +2494,37 @@
     const totalAlunos = _grupos_comentarios.reduce((s, g) => s + g.alunos.length, 0);
 
     const gruposHtml = _grupos_comentarios.map((g, gi) => {
+      const jaLancado = !!g.ja_lancado;
       const rows = g.alunos.map((a, ai) => `
         <div class="ocorr-row">
-          <input type="checkbox" class="ocorr-check" id="chk-${gi}-${ai}" checked>
+          <input type="checkbox" class="ocorr-check" id="chk-${gi}-${ai}" ${jaLancado ? '' : 'checked'} ${jaLancado ? 'disabled' : ''}>
           <div class="ocorr-num">${a.numero ?? '—'}</div>
           <div class="ocorr-info">
             <div class="ocorr-nome">${a.nome}</div>
             <div class="ocorr-badge">${a.ocorrencia}</div>
-            <textarea class="ocorr-textarea" id="txt-${gi}-${ai}">${a.comentario}</textarea>
+            <textarea class="ocorr-textarea" id="txt-${gi}-${ai}" ${jaLancado ? 'disabled style="opacity:.6"' : ''}>${a.comentario}</textarea>
           </div>
         </div>
       `).join('');
 
+      const badgeLancado = jaLancado
+        ? `<span style="font-size:11px;color:#065f46;background:#d1fae5;padding:2px 8px;border-radius:10px;font-weight:600">✓ Já lançado</span>`
+        : `<span class="badge" style="font-size:11px;margin-left:8px">${g.trimestre}</span>`;
+
+      const btnLancar = jaLancado
+        ? `<button class="btn btn-sm" id="btn-lancar-${gi}" style="background:#f1f5f9;color:#94a3b8" disabled>✓ Lançado</button>`
+        : `<button class="btn btn-primary btn-sm" id="btn-lancar-${gi}" onclick="lancarGrupo(${gi})">Lançar no RCO</button>`;
+
       return `
-        <div class="form-card" style="margin-top:10px">
+        <div class="form-card" style="margin-top:10px${jaLancado ? ';opacity:.75' : ''}">
           <div class="section-header" style="margin-bottom:8px">
             <span class="section-title">${g.data} — ${g.turma} (${g.disciplina})</span>
-            <span class="badge" style="font-size:11px;margin-left:8px">${g.trimestre}</span>
+            ${badgeLancado}
           </div>
           <div class="ocorr-list">${rows}</div>
           <div class="lancar-bar" style="margin-top:8px">
             <span class="lancar-info">${g.alunos.length} aluno(s)</span>
-            <button class="btn btn-primary btn-sm" id="btn-lancar-${gi}"
-              onclick="lancarGrupo(${gi})">
-              Lançar no RCO
-            </button>
+            ${btnLancar}
           </div>
         </div>
       `;
@@ -1976,8 +2533,21 @@
     area.innerHTML = `
       <div class="section-header" style="margin-top:4px">
         <span class="section-title">${totalAlunos} ocorrência(s) em ${_grupos_comentarios.length} aula(s)</span>
-        <button class="btn btn-primary" onclick="lancarTudo()">Lançar tudo no RCO</button>
+        <button class="btn btn-primary" id="btn-lancar-tudo" onclick="lancarTudo()">Lançar tudo no RCO</button>
       </div>
+
+      <!-- Barra de progresso do lançamento em lote (oculta até iniciar) -->
+      <div id="ct-progresso-area" style="display:none;margin:10px 0 4px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b;margin-bottom:4px">
+          <span id="ct-progresso-label">Lançando...</span>
+          <span id="ct-progresso-pct">0%</span>
+        </div>
+        <div style="background:#e2e8f0;border-radius:8px;height:10px;overflow:hidden;margin-bottom:8px">
+          <div id="ct-progresso-bar" style="height:100%;width:0%;background:#3b82f6;border-radius:8px;transition:width .3s"></div>
+        </div>
+        <div id="ct-log" style="display:flex;flex-direction:column;gap:4px;font-size:12px;max-height:120px;overflow-y:auto"></div>
+      </div>
+
       ${gruposHtml}
     `;
   }
@@ -2007,8 +2577,11 @@
       );
       if (res.ok) {
         toast(`${selecionados.length} comentário(s) lançado(s) — ${g.turma} ${g.data}`, 'success');
+        _grupos_comentarios[gi].ja_lancado = true;
         btn.textContent = '✓ Lançado';
-        btn.classList.replace('btn-primary', 'btn-secondary');
+        btn.disabled = true;
+        btn.style.cssText = 'background:#f1f5f9;color:#94a3b8';
+        btn.onclick = null;
       } else {
         toast('Erro: ' + res.erro, 'error');
         btn.disabled = false;
@@ -2023,39 +2596,90 @@
 
   async function lancarTudo() {
     if (!state.chrome) { toast('Conecte o Chrome primeiro', 'error'); return; }
+
+    // Filtra grupos pendentes (não lançados e com alunos selecionados)
+    const pendentes = _grupos_comentarios
+      .map((g, gi) => {
+        if (g.ja_lancado) return null; // já lançado
+        const selecionados = g.alunos
+          .map((a, ai) => {
+            const checked = document.getElementById(`chk-${gi}-${ai}`)?.checked;
+            const texto   = document.getElementById(`txt-${gi}-${ai}`)?.value.trim();
+            return checked && texto ? { numero: a.numero, nome: a.nome, comentario: texto } : null;
+          })
+          .filter(Boolean);
+        return selecionados.length > 0 ? { gi, g, selecionados } : null;
+      })
+      .filter(Boolean);
+
+    if (pendentes.length === 0) { toast('Nenhum comentário pendente para lançar', 'error'); return; }
+
+    // Inicializa barra de progresso
+    const btnTudo = document.getElementById('btn-lancar-tudo');
+    btnTudo.disabled = true;
+    const progArea = document.getElementById('ct-progresso-area');
+    const progBar  = document.getElementById('ct-progresso-bar');
+    const progPct  = document.getElementById('ct-progresso-pct');
+    const progLabel = document.getElementById('ct-progresso-label');
+    const logEl    = document.getElementById('ct-log');
+    progArea.style.display = 'block';
+    logEl.innerHTML = '';
+    progBar.style.width = '0%';
+    progPct.textContent = '0%';
+
     let ok = 0, erros = 0;
-    for (let gi = 0; gi < _grupos_comentarios.length; gi++) {
+    const total = pendentes.length;
+
+    for (let idx = 0; idx < total; idx++) {
+      const { gi, g, selecionados } = pendentes[idx];
       const btn = document.getElementById(`btn-lancar-${gi}`);
-      if (btn && btn.classList.contains('btn-secondary')) continue; // já lançado
-      const g = _grupos_comentarios[gi];
-      const selecionados = g.alunos
-        .map((a, ai) => {
-          const checked = document.getElementById(`chk-${gi}-${ai}`)?.checked;
-          const texto   = document.getElementById(`txt-${gi}-${ai}`)?.value.trim();
-          return checked && texto ? { numero: a.numero, nome: a.nome, comentario: texto } : null;
-        })
-        .filter(Boolean);
-      if (selecionados.length === 0) continue;
+
+      progLabel.textContent = `${idx + 1} de ${total} grupos`;
       if (btn) { btn.disabled = true; btn.innerHTML = `<span class="spinner"></span>`; }
+
       try {
         const tri = { '1T': '1º Tri', '2T': '2º Tri', '3T': '3º Tri' }[g.trimestre] || g.trimestre;
         const res = await window.pywebview.api.lancar_comentarios(
           g.escola, g.turma, g.disciplina, tri, g.data, selecionados
         );
+
+        const pct = Math.round(((idx + 1) / total) * 100);
+        progBar.style.width = pct + '%';
+        progPct.textContent = pct + '%';
+
+        const linha = document.createElement('div');
         if (res.ok) {
           ok++;
-          if (btn) { btn.textContent = '✓ Lançado'; btn.classList.replace('btn-primary','btn-secondary'); }
+          _grupos_comentarios[gi].ja_lancado = true;
+          if (btn) {
+            btn.textContent = '✓ Lançado';
+            btn.disabled = true;
+            btn.style.cssText = 'background:#f1f5f9;color:#94a3b8';
+            btn.onclick = null;
+          }
+          linha.style.cssText = 'color:#16a34a;padding:3px 6px;background:#f0fdf4;border-radius:4px';
+          linha.textContent = `✓ ${g.data} — ${g.turma} (${g.disciplina}) · ${selecionados.length} aluno(s)`;
         } else {
           erros++;
           if (btn) { btn.disabled = false; btn.textContent = 'Lançar no RCO'; }
-          toast(`Erro em ${g.turma} ${g.data}: ${res.erro}`, 'error');
+          linha.style.cssText = 'color:#dc2626;padding:3px 6px;background:#fef2f2;border-radius:4px';
+          linha.textContent = `✗ ${g.data} — ${g.turma}: ${res.erro}`;
         }
+        logEl.appendChild(linha);
+        logEl.scrollTop = logEl.scrollHeight;
       } catch (e) {
         erros++;
         if (btn) { btn.disabled = false; btn.textContent = 'Lançar no RCO'; }
+        const linha = document.createElement('div');
+        linha.style.cssText = 'color:#dc2626;padding:3px 6px;background:#fef2f2;border-radius:4px';
+        linha.textContent = `✗ ${g.data} — ${g.turma}: erro inesperado`;
+        logEl.appendChild(linha);
       }
     }
-    if (ok > 0) toast(`${ok} grupo(s) lançado(s) com sucesso!${erros ? ' ' + erros + ' com erro.' : ''}`, 'success');
+
+    progLabel.textContent = 'Concluído!';
+    btnTudo.disabled = false;
+    if (ok > 0) toast(`${ok} grupo(s) lançado(s)${erros ? ', ' + erros + ' com erro' : ''}`, erros ? 'error' : 'success');
   }
 
   // ── CHROME ───────────────────────────────────
@@ -2169,14 +2793,60 @@
   }
 
   // ── ATUALIZAR BANCO ───────────────────────────
-  async function atualizarBanco(trimestre, btn) {
+  function _abrirAtualizarBanco() {
     if (!state.chrome) { toast('Conecte o Chrome primeiro', 'error'); return; }
-    btn.disabled = true;
-    const orig = btn.innerHTML;
-    btn.innerHTML = '<span class="spinner" style="border-top-color:#1d4ed8;border-color:rgba(29,78,216,.2)"></span>Atualizando...';
+    // Reset estado
+    document.getElementById('ab-progresso-area').style.display = 'none';
+    document.getElementById('ab-log').style.display = 'none';
+    document.getElementById('ab-log').innerHTML = '';
+    document.getElementById('ab-progresso-bar').style.width = '0%';
+    document.getElementById('ab-progresso-pct').textContent = '0%';
+    document.getElementById('ab-progresso-label').textContent = 'Iniciando...';
+    document.getElementById('ab-btn-iniciar').disabled = false;
+    document.getElementById('ab-btn-fechar').disabled = false;
+    document.getElementById('modal-atualizar-banco').classList.remove('hidden');
+  }
+
+  function _fecharAtualizarBanco() {
+    document.getElementById('modal-atualizar-banco').classList.add('hidden');
+  }
+
+  // Chamada pelo Python via evaluate_js a cada turma processada
+  function _abProgressoEvento(i, total, turma, disciplina, status) {
+    const pct = Math.round((i / total) * 100);
+    document.getElementById('ab-progresso-bar').style.width = pct + '%';
+    document.getElementById('ab-progresso-pct').textContent = pct + '%';
+    document.getElementById('ab-progresso-label').textContent = `${i} de ${total} turmas`;
+
+    const log = document.getElementById('ab-log');
+    const cor = status === 'ok' ? '#16a34a' : '#dc2626';
+    const icone = status === 'ok' ? '✓' : '✗';
+    const linha = document.createElement('div');
+    linha.style.cssText = `color:${cor};padding:3px 6px;background:${status==='ok'?'#f0fdf4':'#fef2f2'};border-radius:4px`;
+    linha.textContent = `${icone} ${turma} — ${disciplina}`;
+    log.appendChild(linha);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  async function _iniciarAtualizarBanco() {
+    if (!state.chrome) { toast('Conecte o Chrome primeiro', 'error'); return; }
+    const trimEl = document.querySelector('input[name="ab-trim"]:checked');
+    if (!trimEl) { toast('Selecione o trimestre', 'error'); return; }
+    const trimestre = trimEl.value;
+
+    document.getElementById('ab-btn-iniciar').disabled = true;
+    document.getElementById('ab-btn-fechar').disabled = true;
+    document.getElementById('ab-progresso-area').style.display = 'block';
+    const log = document.getElementById('ab-log');
+    log.style.display = 'flex';
+    log.innerHTML = '';
+
     try {
-      const res = await window.pywebview.api.atualizar_banco(trimestre);
+      const res = await window.pywebview.api.atualizar_banco_stream(trimestre);
       if (res.ok) {
+        document.getElementById('ab-progresso-bar').style.width = '100%';
+        document.getElementById('ab-progresso-pct').textContent = '100%';
+        document.getElementById('ab-progresso-label').textContent = 'Concluído!';
         toast('Banco atualizado com sucesso!', 'success');
         await carregarDados();
       } else {
@@ -2185,8 +2855,110 @@
     } catch (e) {
       toast('Erro inesperado', 'error');
     } finally {
-      btn.disabled = false;
-      btn.innerHTML = orig;
+      document.getElementById('ab-btn-iniciar').disabled = false;
+      document.getElementById('ab-btn-fechar').disabled = false;
+    }
+  }
+
+  // ── SINCRONIZAR RCO ──────────────────────────
+  function _abrirSincronizarRco() {
+    if (!state.chrome) { toast('Conecte o Chrome primeiro', 'error'); return; }
+    // Reset
+    document.querySelectorAll('input[name="sn-trim"]').forEach(r => r.checked = false);
+    document.getElementById('sn-aviso-fechado').style.display = 'none';
+    document.getElementById('sn-progresso-area').style.display = 'none';
+    document.getElementById('sn-log').style.display = 'none';
+    document.getElementById('sn-log').innerHTML = '';
+    document.getElementById('sn-progresso-bar').style.width = '0%';
+    document.getElementById('sn-progresso-pct').textContent = '0%';
+    document.getElementById('sn-progresso-label').textContent = 'Sincronizando...';
+    document.getElementById('sn-btn-iniciar').disabled = false;
+    document.getElementById('sn-btn-fechar').disabled = false;
+    document.getElementById('sn-btn-fechar').textContent = 'Fechar';
+
+    // Popula lista de turmas
+    const lista = document.getElementById('sn-turmas-lista');
+    lista.innerHTML = state.turmas.map(t => {
+      const key = JSON.stringify({escola: t.escola, turma: t.turma, disciplina: t.disciplina});
+      return `<label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:3px 4px;border-radius:6px;font-size:13px">
+        <input type="checkbox" class="sn-chk" data-key='${key}' checked>
+        ${t.turma} — ${t.disciplina}
+        <span style="color:#94a3b8;font-size:11px">${t.escola}</span>
+      </label>`;
+    }).join('') || '<div style="color:#94a3b8;font-size:12px">Nenhuma turma cadastrada.</div>';
+
+    // Detecta trimestre fechado ao mudar seleção
+    document.querySelectorAll('input[name="sn-trim"]').forEach(r => r.addEventListener('change', _snOnTrimChange));
+
+    document.getElementById('modal-sincronizar-rco').classList.remove('hidden');
+  }
+
+  function _fecharSincronizarRco() {
+    document.getElementById('modal-sincronizar-rco').classList.add('hidden');
+  }
+
+  function _snSelectAll(v) {
+    document.querySelectorAll('.sn-chk').forEach(c => c.checked = v);
+  }
+
+  function _snOnTrimChange() {
+    const trim = parseInt(document.querySelector('input[name="sn-trim"]:checked')?.value);
+    if (!trim) return;
+    // Datas de fim dos trimestres 2026
+    const fimTri = { 1: new Date(2026,4,14), 2: new Date(2026,8,4), 3: new Date(2026,11,18) };
+    const fechado = fimTri[trim] && new Date() > fimTri[trim];
+    document.getElementById('sn-aviso-fechado').style.display = fechado ? 'block' : 'none';
+  }
+
+  // Chamada pelo Python via evaluate_js
+  function _snProgressoEvento(i, total, turma, disciplina, status, info) {
+    const pct = Math.round((i / total) * 100);
+    document.getElementById('sn-progresso-bar').style.width = pct + '%';
+    document.getElementById('sn-progresso-pct').textContent = pct + '%';
+    document.getElementById('sn-progresso-label').textContent = `${i} de ${total} turmas`;
+
+    const log = document.getElementById('sn-log');
+    const ok  = status === 'ok';
+    const linha = document.createElement('div');
+    linha.style.cssText = `color:${ok?'#16a34a':'#dc2626'};padding:3px 6px;background:${ok?'#f0fdf4':'#fef2f2'};border-radius:4px`;
+    linha.textContent = `${ok?'✓':'✗'} ${turma} — ${disciplina}${info ? ' · ' + info : ''}`;
+    log.appendChild(linha);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  async function _iniciarSincronizarRco() {
+    if (!state.chrome) { toast('Conecte o Chrome primeiro', 'error'); return; }
+    const trimEl = document.querySelector('input[name="sn-trim"]:checked');
+    if (!trimEl) { toast('Selecione o trimestre', 'error'); return; }
+    const turmas = [...document.querySelectorAll('.sn-chk:checked')]
+      .map(c => JSON.parse(c.dataset.key));
+    if (turmas.length === 0) { toast('Selecione ao menos uma turma', 'error'); return; }
+
+    document.getElementById('sn-btn-iniciar').disabled = true;
+    document.getElementById('sn-btn-fechar').disabled = true;
+    document.getElementById('sn-progresso-area').style.display = 'block';
+    const log = document.getElementById('sn-log');
+    log.style.display = 'flex';
+    log.innerHTML = '';
+
+    try {
+      const res = await window.pywebview.api.sincronizar_notas_lote_stream(turmas, parseInt(trimEl.value));
+      if (res.ok) {
+        document.getElementById('sn-progresso-bar').style.width = '100%';
+        document.getElementById('sn-progresso-pct').textContent = '100%';
+        document.getElementById('sn-progresso-label').textContent = 'Concluído!';
+        toast('Sincronização concluída!', 'success');
+        await carregarDados();
+        if (state.secao === 'dashboard') renderDashboard();
+      } else {
+        toast('Erro: ' + res.erro, 'error');
+      }
+    } catch (e) {
+      toast('Erro inesperado', 'error');
+    } finally {
+      document.getElementById('sn-btn-iniciar').disabled = false;
+      document.getElementById('sn-btn-fechar').disabled = false;
+      document.getElementById('sn-btn-fechar').textContent = 'Fechar';
     }
   }
 
@@ -2228,11 +3000,11 @@
       </div>
 
       <div class="actions-grid">
-        <button class="btn-action" onclick="atualizarBanco('1º Tri', this)">
+        <button class="btn-action" onclick="_abrirAtualizarBanco()">
           <div class="btn-icon blue">↻</div>
           <div class="btn-action-text">
             <div>Atualizar Banco</div>
-            <div>1º Trimestre</div>
+            <div id="ab-ultima-dash">${status.ultima_atualizacao ? status.ultima_atualizacao : 'Nunca atualizado'}</div>
           </div>
         </button>
         <button class="btn-action" onclick="navegar(document.querySelector('[data-section=planilhas]'))">
@@ -2260,6 +3032,7 @@
 
       <div class="section-header">
         <span class="section-title">Turmas Cadastradas</span>
+        <button class="btn btn-sm" style="background:#e0e7ff;color:#3730a3" onclick="_abrirSincronizarRco()">↺ Sincronizar RCO</button>
       </div>
       <div class="turmas-list">
         ${turmas.length === 0
@@ -2271,19 +3044,64 @@
 
   function renderTurmaRow(t) {
     const iniciais = t.disciplina.slice(0, 2).toUpperCase();
-    return `
-      <div class="turma-row">
-        <div class="turma-avatar">${iniciais}</div>
-        <div class="turma-info">
-          <div class="turma-nome">${t.turma}</div>
-          <div class="turma-escola">${t.escola}</div>
+    const nl = t.notas_lancadas || {};
+
+    // Datas de fim dos trimestres 2026
+    const FIM_TRI = { '1T': new Date(2026,4,14), '2T': new Date(2026,8,4), '3T': new Date(2026,11,18) };
+    const hoje = new Date();
+
+    const TRIS = [
+      { key: '1T', label: '1º Trimestre' },
+      { key: '2T', label: '2º Trimestre' },
+      { key: '3T', label: '3º Trimestre' },
+    ];
+
+    const triSections = TRIS.map(({ key, label }) => {
+      const avs     = nl[key];
+      const fechado = FIM_TRI[key] && hoje > FIM_TRI[key];
+      const badgeFechado = fechado
+        ? `<span style="font-size:10px;background:#fee2e2;color:#991b1b;padding:1px 7px;border-radius:10px;font-weight:600;margin-left:6px">Fechado</span>`
+        : '';
+      if (!avs || Object.keys(avs).length === 0) {
+        // Só mostra a seção se o trimestre já começou (tem data de fim definida) mas não fechou — pendente
+        if (!fechado) return '';
+        return `<div class="turma-expand-tri">${label}${badgeFechado}</div>
+          <div class="av-row" style="color:#94a3b8;font-size:11px">Nenhuma AV sincronizada</div>`;
+      }
+      const rows = Object.entries(avs).map(([av, data]) => `
+        <div class="av-row">
+          <span class="av-dot ok"></span>
+          <span class="av-nome">${av}</span>
+          <span class="av-data">${data}</span>
         </div>
-        <div class="turma-badges">
-          <span class="badge badge-disc">${t.disciplina}</span>
-          <span class="badge badge-count">${t.ativos} aluno${t.ativos !== 1 ? 's' : ''}</span>
-          ${t.inativos > 0
-            ? `<span class="badge badge-inativos">${t.inativos} inativo${t.inativos > 1 ? 's' : ''}</span>`
-            : ''}
+      `).join('');
+      return `<div class="turma-expand-tri">${label}${badgeFechado}</div>${rows}`;
+    }).join('');
+
+    const temNotas = triSections.trim().length > 0;
+    const expandContent = temNotas
+      ? triSections
+      : `<div style="font-size:12px;color:#94a3b8;padding:4px 0">Nenhuma avaliação lançada ainda.</div>`;
+
+    return `
+      <div class="turma-item">
+        <div class="turma-row" onclick="this.closest('.turma-item').classList.toggle('expanded')">
+          <div class="turma-avatar">${iniciais}</div>
+          <div class="turma-info">
+            <div class="turma-nome">${t.turma}</div>
+            <div class="turma-escola">${t.escola}</div>
+          </div>
+          <div class="turma-badges">
+            <span class="badge badge-disc">${t.disciplina}</span>
+            <span class="badge badge-count">${t.ativos} aluno${t.ativos !== 1 ? 's' : ''}</span>
+            ${t.inativos > 0
+              ? `<span class="badge badge-inativos">${t.inativos} inativo${t.inativos > 1 ? 's' : ''}</span>`
+              : ''}
+          </div>
+          <span class="turma-chevron">▶</span>
+        </div>
+        <div class="turma-expand">
+          ${expandContent}
         </div>
       </div>
     `;
