@@ -94,6 +94,41 @@ def entrar_turma(browser, nome_escola, nome_turma, disciplina, trimestre):
     return False
 
 
+def marcar_nota_lancada(escola, turma, disciplina, trimestre, avaliacao):
+    """
+    Registra que uma avaliação foi lançada no RCO.
+    trimestre: int 1/2/3
+    avaliacao: ex "ATV 1", "REC 1"
+    """
+    dados = carregar()
+    tri_key = f"{trimestre}T"
+    hoje = datetime.now().strftime("%d/%m/%Y")
+
+    for e in dados.get("escolas", []):
+        if e["nome"] == escola:
+            for t in e["turmas"]:
+                if t["turma"] == turma and t["disciplina"] == disciplina:
+                    if "notas_lancadas" not in t:
+                        t["notas_lancadas"] = {}
+                    if tri_key not in t["notas_lancadas"]:
+                        t["notas_lancadas"][tri_key] = {}
+                    t["notas_lancadas"][tri_key][avaliacao] = hoje
+                    with open(ARQUIVO, "w", encoding="utf-8") as f:
+                        json.dump(dados, f, ensure_ascii=False, indent=2)
+                    return
+
+
+def get_notas_lancadas(escola, turma, disciplina):
+    """Retorna o dict notas_lancadas da turma ou {} se não existir."""
+    dados = carregar()
+    for e in dados.get("escolas", []):
+        if e["nome"] == escola:
+            for t in e["turmas"]:
+                if t["turma"] == turma and t["disciplina"] == disciplina:
+                    return t.get("notas_lancadas", {})
+    return {}
+
+
 def atualizar_banco(browser, trimestre="1º Tri"):
     from rco.escolas import get_escolas_turmas, get_alunos
 

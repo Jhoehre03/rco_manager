@@ -33,10 +33,41 @@ PENALIDADES = [
     ("Evasão(Gaseio)",      -200),
 ]
 
-# Colunas fixas: A=Aluno B=Situação C=ATV1 D=REC1 E=ATV2 F=REC2 G=ATV3 H=REC3 I=Nota J=Nº
-COL_FIXAS        = 10
-COL_AULAS_INICIO = COL_FIXAS + 1   # K = 11
-MEDIAS_COLS      = ["C", "D", "E", "F", "G", "H"]   # ATV1,REC1,ATV2,REC2,ATV3,REC3
+# Colunas fixas: A=Aluno B=Situação C=ATV1 D=REC1 … X=ATVn Y=RECn Z=Nota AA=Nº
+# O número exato depende de quantas avaliações foram configuradas (N avs → 2+N*2 colunas fixas)
+# Use _col_fixas(n_avs) e _col_aulas_inicio(n_avs) em vez das constantes abaixo.
+# As constantes abaixo são mantidas apenas para compatibilidade com funções que não recebem n_avs.
+COL_FIXAS        = 10   # padrão legado (3 avs)
+COL_AULAS_INICIO = COL_FIXAS + 1
+
+
+def _col_fixas(n_avs):
+    """Número total de colunas fixas para N avaliações: A, B + N pares ATV/REC + Nota + Nº."""
+    return 2 + n_avs * 2 + 2
+
+
+def _col_aulas_inicio(n_avs):
+    """Índice 1-based da primeira coluna dinâmica (logo após as colunas fixas)."""
+    return _col_fixas(n_avs) + 1
+
+
+def _medias_cols(n_avs):
+    """Lista de letras de coluna para ATV1,REC1,ATV2,REC2,...,ATVn,RECn (colunas C em diante)."""
+    cols = []
+    for i in range(n_avs):
+        cols.append(_col_letter(3 + i * 2))      # ATV i+1
+        cols.append(_col_letter(3 + i * 2 + 1))  # REC i+1
+    return cols
+
+
+def _nota_col(n_avs):
+    """Letra da coluna Nota (penúltima coluna fixa)."""
+    return _col_letter(_col_fixas(n_avs) - 1)
+
+
+def _num_col(n_avs):
+    """Letra da coluna Nº (última coluna fixa)."""
+    return _col_letter(_col_fixas(n_avs))
 
 SITUACOES_ATIVAS = {"", "ativo", "matriculado", "cursando"}
 
@@ -164,6 +195,12 @@ def _trimestre_ranges(nome_aba, turma_data, config, tri_num):
     avaliacoes  = config.get("avaliacoes", [])
     alunos      = sorted(turma_data.get("alunos", []), key=lambda a: a["numero"])
 
+    n_avs           = len(avaliacoes)
+    col_aulas_ini   = _col_aulas_inicio(n_avs)
+    medias_cols     = _medias_cols(n_avs)   # [ATV1, REC1, ATV2, REC2, ...]
+    nota_col        = _nota_col(n_avs)
+    num_col         = _num_col(n_avs)
+
     datas_por_semana = _gerar_datas_por_semana(data_inicio, num_semanas, freq)
     colunas          = _colunas_v2(num_semanas, freq, avaliacoes, modo)
 
@@ -177,12 +214,12 @@ def _trimestre_ranges(nome_aba, turma_data, config, tri_num):
     ranges.append({"range": f"{p}A1", "values": [[titulo]]})
 
     for i, col in enumerate(colunas):
-        cl = _col_letter(COL_AULAS_INICIO + i)
+        cl = _col_letter(col_aulas_ini + i)
         if col["tipo"] == "ocorr":
-            semana       = col["semana"]
-            aula         = col["aula"]
+            semana        = col["semana"]
+            aula          = col["aula"]
             idx_na_semana = (aula - 1) % freq if freq > 0 else 0
-            datas_sem    = datas_por_semana.get(semana, [])
+            datas_sem     = datas_por_semana.get(semana, [])
             if idx_na_semana < len(datas_sem):
                 ranges.append({"range": f"{p}{cl}1",
                                "values": [[datas_sem[idx_na_semana].strftime("%d/%m")]]})
@@ -194,36 +231,31 @@ def _trimestre_ranges(nome_aba, turma_data, config, tri_num):
     # Linha 2 — "Tema da Aula" na primeira coluna de dados
     # ------------------------------------------------------------------
     if colunas:
-        first_cl = _col_letter(COL_AULAS_INICIO)
+        first_cl = _col_letter(col_aulas_ini)
         ranges.append({"range": f"{p}{first_cl}2", "values": [["Tema da Aula"]]})
 
     # ------------------------------------------------------------------
-    # Linha 3 — cabeçalhos fixos + cabeçalhos das colunas de aula
+    # Linha 3 — cabeçalhos fixos (dinâmicos) + cabeçalhos das colunas de aula
     # ------------------------------------------------------------------
-    # C=ATV1, D=REC1, E=ATV2, F=REC2, G=ATV3, H=REC3, I=Nota, J=Nº
-    av_names = [av["nome"] for av in avaliacoes[:3]]
-    while len(av_names) < 3:
-        av_names.append("")
     fixed_headers = ["Aluno", "Situação"]
-    for n in av_names:
-        fixed_headers.append(n)           # ATV N
-        fixed_headers.append(f"REC {n[-1]}" if n else "")  # REC N
+    for i, av in enumerate(avaliacoes):
+        fixed_headers.append(f"ATV {i+1}")
+        fixed_headers.append(f"REC {i+1}")
     fixed_headers += ["Nota", "Nº"]
     ranges.append({"range": f"{p}A3", "values": [fixed_headers]})
 
-    av_col_letters     = {}   # av_idx  → col_letter  (coluna da nota ATV na área dinâmica)
-    rec_col_letters    = {}   # av_idx  → col_letter  (coluna da nota REC na área dinâmica)
-    eng_cols_por_sem   = {}   # semana  → [col_letters das eng]
+    av_col_letters   = {}   # av_idx → col_letter (coluna ATV na área dinâmica)
+    rec_col_letters  = {}   # av_idx → col_letter (coluna REC na área dinâmica)
+    eng_cols_por_sem = {}   # semana → [col_letters das eng]
 
     for i, col in enumerate(colunas):
-        cl = _col_letter(COL_AULAS_INICIO + i)
+        cl = _col_letter(col_aulas_ini + i)
         if col["tipo"] == "ocorr":
             ranges.append({"range": f"{p}{cl}3", "values": [["Ocorrência"]]})
         elif col["tipo"] == "eng":
             ranges.append({"range": f"{p}{cl}3", "values": [["Engaj."]]})
             eng_cols_por_sem.setdefault(col["semana"], []).append(cl)
         elif col["tipo"] == "av":
-            av = avaliacoes[col["av_idx"]]
             ranges.append({"range": f"{p}{cl}3", "values": [[f"ATV {col['av_idx']+1} (0-10)"]]})
             av_col_letters[col["av_idx"]] = cl
         elif col["tipo"] == "rec":
@@ -231,8 +263,8 @@ def _trimestre_ranges(nome_aba, turma_data, config, tri_num):
             rec_col_letters[col["av_idx"]] = cl
 
     # Períodos de engajamento por AV (semanas desde a AV anterior até esta)
-    prev_semana     = 0
-    av_eng_periods  = {}
+    prev_semana    = 0
+    av_eng_periods = {}
     for av_idx, av in enumerate(avaliacoes):
         av_sem = av.get("semana") or num_semanas
         cols   = []
@@ -246,69 +278,58 @@ def _trimestre_ranges(nome_aba, turma_data, config, tri_num):
     # ------------------------------------------------------------------
     for idx, aluno in enumerate(alunos):
         row = 4 + idx
-        num_col = _col_letter(COL_FIXAS)   # J quando COL_FIXAS=10
         ranges.append({"range": f"{p}{num_col}{row}", "values": [[aluno["numero"]]]})
-        ranges.append({"range": f"{p}A{row}", "values": [[aluno["nome"]]]})
+        ranges.append({"range": f"{p}A{row}",         "values": [[aluno["nome"]]]})
         situacao = aluno.get("situacao", "").strip() or "Regular"
         ranges.append({"range": f"{p}B{row}", "values": [[situacao]]})
 
-        # Fórmula de engajamento: 100 + PROCV(ocorrência)
+        # Fórmula de engajamento
         for i, col in enumerate(colunas):
             if col["tipo"] == "eng":
-                eng_cl   = _col_letter(COL_AULAS_INICIO + i)
-                ocorr_cl = _col_letter(COL_AULAS_INICIO + i - 1)
+                eng_cl   = _col_letter(col_aulas_ini + i)
+                ocorr_cl = _col_letter(col_aulas_ini + i - 1)
                 formula  = (
                     f'=SE(ÉCÉL.VAZIA({ocorr_cl}{row});"";'
                     f'100+PROCV({ocorr_cl}{row};Penalidades!A:B;2;0))'
                 )
                 ranges.append({"range": f"{p}{eng_cl}{row}", "values": [[formula]]})
 
-        # Fórmulas das AVs (colunas C, E, G = ATV1, ATV2, ATV3)
-        # Colunas D, F, H (REC1, REC2, REC3) ficam em branco para preenchimento manual
+        # Fórmulas das AVs nas colunas fixas (ATV1→C, ATV2→E, ...)
         for av_idx, av in enumerate(avaliacoes):
-            av_cl    = av_col_letters.get(av_idx)
-            # med_col index: ATV1→C(0), ATV2→E(2), ATV3→G(4)
-            med_col_idx = av_idx * 2
-            if med_col_idx >= len(MEDIAS_COLS):
-                break
-            med_col = MEDIAS_COLS[med_col_idx]
+            av_cl   = av_col_letters.get(av_idx)
+            med_col = medias_cols[av_idx * 2]   # coluna ATV na área fixa
             if not av_cl:
                 continue
 
-            peso_eng  = av.get("peso_engajamento", 0.0)
-            eng_cols  = av_eng_periods.get(av_idx, [])
+            peso_eng = av.get("peso_engajamento", 0.0)
+            eng_cols = av_eng_periods.get(av_idx, [])
 
             if modo == "completo" and peso_eng > 0 and eng_cols:
                 eng_args = ";".join(f"{c}{row}" for c in eng_cols)
-                # eng: média/10 * peso_eng  (100% eng com peso 2 → 20)
-                # av:  nota lançada pelo professor já no valor correto
                 eng_part = f"SEERRO(MÉDIA({eng_args});0)/10*{_fmt(peso_eng)}"
                 formula  = (
                     f'=SEERRO(SE(ÉCÉL.VAZIA({av_cl}{row});"";'
                     f'ARRED({eng_part}+{av_cl}{row};0));"")'
                 )
             else:
-                # Nota direta — professor já lança o valor correto
                 formula = (
                     f'=SEERRO(SE(ÉCÉL.VAZIA({av_cl}{row});"";'
                     f'ARRED({av_cl}{row};0));"")'
                 )
             ranges.append({"range": f"{p}{med_col}{row}", "values": [[formula]]})
 
-        # Nota final (I) = soma de ATV1+ATV2+ATV3 (C, E, G)
-        # Considera REC: se REC preenchida, usa REC no lugar da ATV correspondente
+        # Nota final = soma de todas as AVs, substituindo por REC quando preenchida
         partes_nota = []
-        for av_idx in range(min(len(avaliacoes), 3)):
-            atv_col = MEDIAS_COLS[av_idx * 2]      # C, E, G
-            rec_col = MEDIAS_COLS[av_idx * 2 + 1]  # D, F, H
-            # SE REC preenchida usa REC, senão usa ATV
+        for av_idx in range(n_avs):
+            atv_col = medias_cols[av_idx * 2]       # ATV i
+            rec_col = medias_cols[av_idx * 2 + 1]   # REC i
             partes_nota.append(
                 f'SE(ÉCÉL.VAZIA({rec_col}{row});SEERRO({atv_col}{row};0);{rec_col}{row})'
             )
         if partes_nota:
             soma_formula = "+".join(partes_nota)
-            ranges.append({"range": f"{p}I{row}",
-                           "values": [[f'=SEERRO({soma_formula};"")']]})
+            ranges.append({"range": f"{p}{nota_col}{row}",
+                           "values": [[f'=SEERRO({soma_formula};"")']]})\
 
     return ranges
 
@@ -339,10 +360,11 @@ def _requests_ocultar_inativos(ws_id, alunos):
     return requests
 
 
-def _requests_cores_cabecalho(ws_id, colunas, num_alunos):
+def _requests_cores_cabecalho(ws_id, colunas, num_alunos, n_avs):
     """Coloração das colunas ATV (azul claro) e REC (laranja claro) na linha 3 e dados."""
     requests = []
-    ultima_linha = 4 + num_alunos
+    ultima_linha  = 4 + num_alunos
+    col_aulas_ini = _col_aulas_inicio(n_avs)
 
     _AZUL   = {"red": 0.776, "green": 0.871, "blue": 0.953}  # #C6DEFF aprox
     _LARANJA = {"red": 0.988, "green": 0.871, "blue": 0.706}  # #FCDED4 aprox
@@ -350,7 +372,7 @@ def _requests_cores_cabecalho(ws_id, colunas, num_alunos):
     for i, col in enumerate(colunas):
         if col["tipo"] not in ("av", "rec"):
             continue
-        col_idx = COL_AULAS_INICIO + i - 1   # 0-based
+        col_idx = col_aulas_ini + i - 1   # 0-based
         cor = _AZUL if col["tipo"] == "av" else _LARANJA
         requests.append({
             "repeatCell": {
@@ -372,16 +394,17 @@ def _requests_cores_cabecalho(ws_id, colunas, num_alunos):
     return requests
 
 
-def _requests_validacao(ws_id, colunas, num_alunos):
+def _requests_validacao(ws_id, colunas, num_alunos, n_avs):
     """Menu suspenso nas colunas 'Ocorrência'."""
     ultima_linha  = 4 + num_alunos
     intervalo_pen = f"Penalidades!$A$2:$A${1 + len(PENALIDADES)}"
+    col_aulas_ini = _col_aulas_inicio(n_avs)
     requests      = []
 
     for i, col in enumerate(colunas):
         if col["tipo"] != "ocorr":
             continue
-        col_idx = COL_AULAS_INICIO + i - 1   # 0-based
+        col_idx = col_aulas_ini + i - 1   # 0-based
         requests.append({
             "setDataValidation": {
                 "range": {
@@ -421,6 +444,61 @@ AV_TIPOS = {
 _SITUACOES_INATIVAS = {"transferido", "desistente", "cancelado", "evadido", "afastado"}
 
 
+def _aliases_av(coluna_av):
+    """
+    Retorna lista de prefixos (uppercase) aceitos para a coluna_av.
+    Suporta qualquer N: "ATV 4" → ["ATV 4"], "REC 4" → ["REC 4"],
+    e mantém compatibilidade com o formato antigo "AV1"/"AV2"/"AV3".
+    """
+    mapa_legado = {
+        "ATV 1": ("ATV 1", "AV1"),
+        "REC 1": ("REC 1",),
+        "ATV 2": ("ATV 2", "AV2"),
+        "REC 2": ("REC 2",),
+        "ATV 3": ("ATV 3", "AV3"),
+        "REC 3": ("REC 3",),
+    }
+    return [p.upper() for p in mapa_legado.get(coluna_av, (coluna_av,))]
+
+
+def get_avaliacoes_planilha(planilha_id, trimestre):
+    """
+    Lê a linha 3 da aba do trimestre e retorna a lista de avaliações disponíveis.
+
+    Retorna lista de dicts: [{av: "ATV 1", rec: "REC 1"}, {av: "ATV 2", rec: "REC 2"}, ...]
+    com quantas avaliações existirem na planilha (não limitado a 3).
+    """
+    creds = _get_creds()
+    gc    = gspread.authorize(creds)
+    sh    = gc.open_by_key(planilha_id)
+
+    nome_aba = _NOMES_ABA.get(int(trimestre))
+    ws = next((w for w in sh.worksheets() if w.title == nome_aba), None)
+    if ws is None:
+        return []
+
+    row3 = ws.row_values(3)
+
+    # Detecta coluna Nº
+    num_col_idx = next(
+        (i for i, h in enumerate(row3) if h.strip() in ("Nº", "N°")),
+        9
+    )
+
+    avaliacoes = []
+    i = 2
+    while i < num_col_idx:
+        h = row3[i].strip().upper() if i < len(row3) else ""
+        if h.startswith("ATV "):
+            n = h.split()[1]   # "ATV 3 (0-10)" → "3"
+            av_key  = f"ATV {n}"
+            rec_key = f"REC {n}"
+            avaliacoes.append({"av": av_key, "rec": rec_key})
+        i += 1
+
+    return avaliacoes
+
+
 def ler_notas_planilha(planilha_id, trimestre, coluna_av):
     """
     Lê a coluna de nota calculada (C, D ou E) referente a `coluna_av` na aba do trimestre.
@@ -450,20 +528,17 @@ def ler_notas_planilha(planilha_id, trimestre, coluna_av):
 
     row3 = linhas[2]   # índice 2 = linha 3 (cabeçalhos)
 
-    # Descobre a coluna que corresponde a coluna_av nas colunas fixas C–H (índices 2–7)
-    # Aceita tanto o formato novo ("ATV 1") quanto o antigo ("AV1", "AV2", "AV3")
-    _ALIASES = {
-        "ATV 1": ("ATV 1", "AV1"),
-        "REC 1": ("REC 1",),
-        "ATV 2": ("ATV 2", "AV2"),
-        "REC 2": ("REC 2",),
-        "ATV 3": ("ATV 3", "AV3"),
-        "REC 3": ("REC 3",),
-    }
-    prefixos = [p.upper() for p in _ALIASES.get(coluna_av, (coluna_av,))]
+    # Detecta coluna Nº (última coluna fixa) pelo header
+    NUM_COL_IDX = next(
+        (i for i, h in enumerate(row3) if h.strip() in ("Nº", "N°")),
+        9   # fallback: J (planilhas com 3 avs)
+    )
+
+    # Busca a coluna da avaliação entre C (idx 2) e a coluna antes de Nº
+    prefixos = _aliases_av(coluna_av)
 
     av_col_idx = None
-    for idx in range(2, min(10, len(row3))):   # C=2 … J=9
+    for idx in range(2, NUM_COL_IDX):   # C=2 … até antes de Nº
         header = row3[idx].strip().upper()
         if any(header.startswith(p) for p in prefixos):
             av_col_idx = idx
@@ -472,15 +547,8 @@ def ler_notas_planilha(planilha_id, trimestre, coluna_av):
     if av_col_idx is None:
         raise ValueError(
             f"Coluna '{coluna_av}' não encontrada na aba '{nome_aba}'. "
-            f"Cabeçalhos disponíveis: {row3[2:10]}"
+            f"Cabeçalhos disponíveis: {row3[2:NUM_COL_IDX]}"
         )
-
-    # Número de chamada: novo formato → coluna J (índice 9); antigo → coluna G (índice 6)
-    # Detecta pelo cabeçalho "Nº" na linha 3
-    NUM_COL_IDX = next(
-        (i for i, h in enumerate(row3) if h.strip() in ("Nº", "N°", "Nº")),
-        COL_FIXAS - 1   # fallback: J
-    )
 
     resultado = []
     for linha in linhas[3:]:
@@ -501,9 +569,9 @@ def ler_notas_planilha(planilha_id, trimestre, coluna_av):
             try:
                 nota_rco = str(int(round(float(nota_raw))))
             except ValueError:
-                nota_rco = ""
+                nota_rco = "0"
         else:
-            nota_rco = ""
+            nota_rco = "0"
 
         resultado.append({
             "numero":   int(num_s),
@@ -537,9 +605,17 @@ def get_datas_aula(planilha_id, trimestre):
         raise ValueError(f"Aba '{nome_aba}' não encontrada na planilha.")
 
     row1 = ws.row_values(1)
+    row3 = ws.row_values(3)
+
+    # Detecta onde começam as colunas dinâmicas: logo após a coluna "Nº"
+    num_col_idx = next(
+        (i for i, h in enumerate(row3) if h.strip() in ("Nº", "N°")),
+        9   # fallback: J (planilhas com 3 avs)
+    )
+    aulas_inicio_idx = num_col_idx + 1   # 0-based
 
     datas = []
-    for cell in row1[COL_AULAS_INICIO - 1:]:   # a partir da coluna H (índice 7)
+    for cell in row1[aulas_inicio_idx:]:   # a partir da primeira coluna dinâmica
         v = cell.strip()
         if not v:
             continue
@@ -910,7 +986,7 @@ def gerar_diario(turma_data, config, pasta_id):
     n_avs   = len(config.get("avaliacoes", []))
     ano     = date.today().year
     max_sem = max(calcular_semanas_trimestre(t, ano) for t in [1, 2, 3])
-    max_cols = COL_FIXAS + max_sem * freq * 2 + n_avs + 10
+    max_cols = _col_fixas(n_avs) + max_sem * freq * 2 + n_avs + 10
 
     ws_pen  = planilha.add_worksheet("Penalidades",  rows=20,  cols=2)
     ws_tri1 = planilha.add_worksheet("1 Trimestre",  rows=200, cols=max(80, max_cols))
@@ -952,28 +1028,32 @@ def gerar_diario(turma_data, config, pasta_id):
     num_alunos = len(alunos_ord)
     format_requests = []
 
+    col_fixas_n = _col_fixas(n_avs)
     for tri_num, ws in [(1, ws_tri1), (2, ws_tri2), (3, ws_tri3)]:
         colunas = tri_colunas[tri_num]
-        format_requests.extend(_requests_validacao(ws.id, colunas, num_alunos))
-        format_requests.extend(_requests_cores_cabecalho(ws.id, colunas, num_alunos))
+        format_requests.extend(_requests_validacao(ws.id, colunas, num_alunos, n_avs))
+        format_requests.extend(_requests_cores_cabecalho(ws.id, colunas, num_alunos, n_avs))
         format_requests.extend(_requests_ocultar_inativos(ws.id, alunos_ord))
         format_requests.append({
             "updateSheetProperties": {
                 "properties": {
                     "sheetId": ws.id,
-                    "gridProperties": {"frozenColumnCount": COL_FIXAS},
+                    "gridProperties": {
+                        "frozenColumnCount": col_fixas_n,
+                        "frozenRowCount":    3,
+                    },
                 },
-                "fields": "gridProperties.frozenColumnCount",
+                "fields": "gridProperties.frozenColumnCount,gridProperties.frozenRowCount",
             }
         })
-        # Colunas C–J (ATV1/REC1/ATV2/REC2/ATV3/REC3/Nota/Nº) → 45 px
+        # Colunas C até Nº (todas as colunas fixas exceto A e B) → 45 px
         format_requests.append({
             "updateDimensionProperties": {
                 "range": {
                     "sheetId":    ws.id,
                     "dimension":  "COLUMNS",
-                    "startIndex": 2,   # C
-                    "endIndex":   10,  # até J inclusive
+                    "startIndex": 2,            # C (0-based)
+                    "endIndex":   col_fixas_n,  # até Nº inclusive
                 },
                 "properties": {"pixelSize": 45},
                 "fields": "pixelSize",

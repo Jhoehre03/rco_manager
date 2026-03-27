@@ -22,13 +22,14 @@ class Api:
             for t in escola["turmas"]:
                 ativos = [a for a in t["alunos"] if not a.get("situacao", "").strip()]
                 turmas.append({
-                    "escola":       escola["nome"],
-                    "turma":        t["turma"],
-                    "disciplina":   t["disciplina"],
-                    "total_alunos": len(t["alunos"]),
-                    "ativos":       len(ativos),
-                    "inativos":     len(t["alunos"]) - len(ativos),
-                    "planilha_id":  t.get("planilha_id", ""),
+                    "escola":          escola["nome"],
+                    "turma":           t["turma"],
+                    "disciplina":      t["disciplina"],
+                    "total_alunos":    len(t["alunos"]),
+                    "ativos":          len(ativos),
+                    "inativos":        len(t["alunos"]) - len(ativos),
+                    "planilha_id":     t.get("planilha_id", ""),
+                    "notas_lancadas":  t.get("notas_lancadas", {}),
                 })
         return turmas
 
@@ -448,15 +449,38 @@ class Api:
         except Exception as e:
             return {"ok": False, "erro": str(e)}
 
+    def get_avaliacoes_planilha(self, escola, turma, disciplina, trimestre):
+        """
+        Lê a linha 3 da aba do trimestre e retorna as avaliações disponíveis.
+        Retorna: {ok, avaliacoes: [{av: "ATV 1", rec: "REC 1"}, ...]}
+        """
+        try:
+            from sheets.gerador import get_avaliacoes_planilha
+            dados = carregar()
+            planilha_id = None
+            for e in dados.get("escolas", []):
+                if e["nome"] == escola:
+                    for t in e["turmas"]:
+                        if t["turma"] == turma and t["disciplina"] == disciplina:
+                            planilha_id = t.get("planilha_id")
+                            break
+            if not planilha_id:
+                return {"ok": False, "erro": "Planilha não associada."}
+            avs = get_avaliacoes_planilha(planilha_id, trimestre)
+            return {"ok": True, "avaliacoes": avs}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
     def get_notas_planilha(self, escola, turma, disciplina, trimestre, coluna_av):
         """
         Lê a planilha do Sheets e retorna as notas de uma avaliação.
         trimestre: 1, 2 ou 3
-        coluna_av: "AV1", "AV2", "AV3", "Recuperação 1", etc.
-        Retorna: {ok, alunos: [{numero, nome, nota, nota_rco, inativo}]}
+        coluna_av: "ATV 1", "REC 1", etc.
+        Retorna: {ok, alunos: [...], ja_lancada: bool, data_lancamento: str|None}
         """
         try:
             from sheets.gerador import ler_notas_planilha
+            from database import get_notas_lancadas
             dados = carregar()
             planilha_id = None
             for e in dados.get("escolas", []):
@@ -468,7 +492,15 @@ class Api:
             if not planilha_id:
                 return {"ok": False, "erro": "Planilha não associada. Gere a planilha primeiro."}
             alunos = ler_notas_planilha(planilha_id, trimestre, coluna_av)
-            return {"ok": True, "alunos": alunos}
+            nl = get_notas_lancadas(escola, turma, disciplina)
+            tri_key = f"{trimestre}T"
+            data_lanc = nl.get(tri_key, {}).get(coluna_av)
+            return {
+                "ok": True,
+                "alunos": alunos,
+                "ja_lancada":      data_lanc is not None,
+                "data_lancamento": data_lanc,
+            }
         except Exception as e:
             return {"ok": False, "erro": str(e)}
 
@@ -495,11 +527,19 @@ class Api:
                 return {"ok": False, "erro": f"Não foi possível entrar na turma {turma}"}
 
             navegar_avaliacao(self.browser)
-            _REC_DE = {"REC 1": "AV1", "REC 2": "AV2", "REC 3": "AV3"}
-            rec_de  = _REC_DE.get(tipo_av)
-            tipo_rco = "Recuperação" if rec_de else "AV1"
+            # "REC N" → recuperação da "AV N"; qualquer outro → AV normal
+            if tipo_av.upper().startswith("REC "):
+                n      = tipo_av.split()[-1]   # "REC 4" → "4"
+                rec_de = f"AV{n}"
+                tipo_rco = "Recuperação"
+            else:
+                rec_de   = None
+                tipo_rco = "AV1"
             preencher_formulario_avaliacao(self.browser, tipo_rco, data, str(valor), rec_de=rec_de)
             preencher_notas(self.browser, notas)
+
+            from database import marcar_nota_lancada
+            marcar_nota_lancada(escola, turma, disciplina, int(trimestre[0]), tipo_av)
             return {"ok": True}
         except Exception as e:
             return {"ok": False, "erro": str(e)}

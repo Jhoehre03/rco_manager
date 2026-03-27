@@ -475,14 +475,10 @@
         </div>
         <div class="form-group">
           <label>Avaliação</label>
-          <select id="nt-av">
-            <option value="ATV 1">ATV 1</option>
-            <option value="REC 1">REC 1</option>
-            <option value="ATV 2">ATV 2</option>
-            <option value="REC 2">REC 2</option>
-            <option value="ATV 3">ATV 3</option>
-            <option value="REC 3">REC 3</option>
+          <select id="nt-av" disabled onchange="_ntAvChanged()">
+            <option value="">Selecione o trimestre primeiro</option>
           </select>
+          <div id="nt-av-status" style="margin-top:5px;font-size:12px;display:none"></div>
         </div>
       </div>
 
@@ -500,6 +496,16 @@
           <label>Valor máximo</label>
           <input type="number" id="nt-valor" step="0.5" min="0.5" max="10" placeholder="ex: 3">
         </div>
+      </div>
+
+      <div id="nt-modo-row" style="display:none;margin-bottom:12px;align-items:center;gap:10px">
+        <label style="font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em">Modo</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer">
+          <input type="radio" name="nt-modo" value="novo" onchange="_ntModoChanged()"> Novo lançamento
+        </label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer">
+          <input type="radio" name="nt-modo" value="editar" onchange="_ntModoChanged()"> Editar existente
+        </label>
       </div>
 
       <div style="display:flex;gap:8px;margin-bottom:16px">
@@ -1361,7 +1367,7 @@
   function renderNotas() {
     const rows = state.turmas.map(t => {
       const tem = !!t.planilha_id;
-      const k   = JSON.stringify({escola:t.escola, turma:t.turma, disciplina:t.disciplina});
+      const k   = JSON.stringify({escola:t.escola, turma:t.turma, disciplina:t.disciplina, notas_lancadas:t.notas_lancadas||{}});
       return `
         <div class="plan-row">
           <div class="turma-avatar">${t.disciplina.slice(0,2).toUpperCase()}</div>
@@ -1397,7 +1403,9 @@
     _ntAlunos = [];
     document.getElementById('notas-modal-title').textContent = `Notas — ${nomeTurma}`;
     document.querySelectorAll('input[name="nt-trim"]').forEach(r => r.checked = false);
-    document.getElementById('nt-av').value    = 'ATV 1';
+    const selAv = document.getElementById('nt-av');
+    selAv.innerHTML = '<option value="">Selecione o trimestre primeiro</option>';
+    selAv.disabled  = true;
     document.getElementById('nt-valor').value = '';
     const sel = document.getElementById('nt-data');
     sel.innerHTML = '<option value="">Selecione o trimestre primeiro</option>';
@@ -1406,6 +1414,9 @@
     document.getElementById('nt-tabela').classList.add('hidden');
     document.getElementById('nt-tbody').innerHTML = '';
     document.getElementById('btn-lancar-notas').disabled = true;
+    // Reset status badge e modo
+    document.getElementById('nt-av-status').style.display = 'none';
+    document.getElementById('nt-modo-row').style.display  = 'none';
     document.getElementById('modal-notas').classList.remove('hidden');
   }
 
@@ -1413,47 +1424,115 @@
     document.getElementById('modal-notas').classList.add('hidden');
   }
 
+  // Atualiza badge de status e toggle de modo ao trocar avaliação ou trimestre
+  function _ntAtualizarStatusAv() {
+    const trimEl = document.querySelector('input[name="nt-trim"]:checked');
+    if (!trimEl) return;
+    const trim   = parseInt(trimEl.value);
+    const av     = document.getElementById('nt-av').value;
+    if (!av) return;   // seletor ainda vazio (carregando ou sem avs)
+    const isRec  = av.startsWith('REC');
+    const triKey = trim + 'T';
+
+    const nl        = (_ntTurma && _ntTurma.notas_lancadas) ? _ntTurma.notas_lancadas : {};
+    const dataLanc  = (nl[triKey] || {})[av] || null;
+
+    const statusDiv = document.getElementById('nt-av-status');
+    const modoRow   = document.getElementById('nt-modo-row');
+
+    if (dataLanc) {
+      statusDiv.style.display = '';
+      statusDiv.innerHTML = `<span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:10px;font-weight:600">
+        ✓ Lançada em ${dataLanc}</span>`;
+      modoRow.style.display = 'flex';
+      // Padrão: ATV → editar; REC → novo lançamento
+      const padrao = isRec ? 'novo' : 'editar';
+      const radio  = document.querySelector(`input[name="nt-modo"][value="${padrao}"]`);
+      if (radio && !document.querySelector('input[name="nt-modo"]:checked')) radio.checked = true;
+      // Garante que um rádio esteja sempre marcado ao trocar av
+      if (!document.querySelector('input[name="nt-modo"]:checked')) radio.checked = true;
+      document.querySelector(`input[name="nt-modo"][value="${padrao}"]`).checked = true;
+    } else {
+      statusDiv.style.display = 'none';
+      modoRow.style.display   = 'none';
+      const novo = document.querySelector('input[name="nt-modo"][value="novo"]');
+      if (novo) novo.checked = true;
+    }
+  }
+
+  function _ntAvChanged() {
+    _ntAtualizarStatusAv();
+  }
+
+  function _ntModoChanged() {
+    // Sem efeito visual adicional por ora — o modo é lido em _lancarNotas
+  }
+
   async function _ntCarregarDatas() {
     const trimEl = document.querySelector('input[name="nt-trim"]:checked');
     if (!trimEl) return;
-    const trim    = parseInt(trimEl.value);
-    const sel     = document.getElementById('nt-data');
-    const aviso   = document.getElementById('nt-data-aviso');
+    const trim  = parseInt(trimEl.value);
+    const selAv = document.getElementById('nt-av');
+    const sel   = document.getElementById('nt-data');
+    const aviso = document.getElementById('nt-data-aviso');
 
-    sel.disabled = true;
+    // Reseta controles
+    selAv.disabled = true;
+    selAv.innerHTML = '<option value="">Carregando...</option>';
+    sel.disabled  = true;
     sel.innerHTML = '<option value="">Carregando...</option>';
     aviso.style.display = 'none';
-
-    // Limpa tabela ao trocar trimestre
     document.getElementById('nt-tabela').classList.add('hidden');
     document.getElementById('btn-lancar-notas').disabled = true;
+    document.getElementById('nt-av-status').style.display = 'none';
+    document.getElementById('nt-modo-row').style.display  = 'none';
     _ntAlunos = [];
 
+    const {escola, turma, disciplina} = _ntTurma;
+
+    // Busca AVs e datas em paralelo
     try {
-      const {escola, turma, disciplina} = _ntTurma;
-      const res = await window.pywebview.api.get_datas_aula(escola, turma, disciplina, trim);
-      if (!res.ok) {
-        sel.innerHTML = '<option value="">—</option>';
-        aviso.textContent = res.chrome === false
-          ? 'Conecte o Chrome para ver as datas disponíveis no RCO'
-          : 'Erro ao carregar: ' + res.erro;
-        aviso.style.color  = res.chrome === false ? '#d97706' : '#ef4444';
-        aviso.style.display = '';
-        return;
+      const [resAvs, resDatas] = await Promise.all([
+        window.pywebview.api.get_avaliacoes_planilha(escola, turma, disciplina, trim),
+        window.pywebview.api.get_datas_aula(escola, turma, disciplina, trim),
+      ]);
+
+      // Popula seletor de avaliação
+      if (!resAvs.ok || resAvs.avaliacoes.length === 0) {
+        selAv.innerHTML = '<option value="">Sem avaliações na planilha</option>';
+      } else {
+        const opts = resAvs.avaliacoes.flatMap(({av, rec}) => [
+          `<option value="${av}">${av}</option>`,
+          `<option value="${rec}">${rec}</option>`,
+        ]).join('');
+        selAv.innerHTML = opts;
+        selAv.disabled = false;
       }
-      if (res.datas.length === 0) {
+
+      // Popula seletor de datas
+      if (!resDatas.ok) {
+        sel.innerHTML = '<option value="">—</option>';
+        aviso.textContent = resDatas.chrome === false
+          ? 'Conecte o Chrome para ver as datas disponíveis no RCO'
+          : 'Erro ao carregar datas: ' + resDatas.erro;
+        aviso.style.color   = resDatas.chrome === false ? '#d97706' : '#ef4444';
+        aviso.style.display = '';
+      } else if (resDatas.datas.length === 0) {
         sel.innerHTML = '<option value="">—</option>';
         aviso.textContent   = 'Nenhuma aula cadastrada neste trimestre';
         aviso.style.color   = '#ef4444';
         aviso.style.display = '';
-        return;
+      } else {
+        sel.innerHTML = '<option value="">Selecione a data...</option>' +
+          resDatas.datas.map(d => `<option value="${d}">${d}</option>`).join('');
+        sel.disabled = false;
       }
-      sel.innerHTML = '<option value="">Selecione a data...</option>' +
-        res.datas.map(d => `<option value="${d}">${d}</option>`).join('');
-      sel.disabled = false;
     } catch(e) {
-      sel.innerHTML = '<option value="">Erro</option>';
+      selAv.innerHTML = '<option value="">Erro</option>';
+      sel.innerHTML   = '<option value="">Erro</option>';
     }
+
+    _ntAtualizarStatusAv();
   }
 
   async function _buscarNotas() {
@@ -1461,6 +1540,7 @@
     if (!trimEl) { toast('Selecione o trimestre', 'error'); return; }
     const trim     = parseInt(trimEl.value);
     const coluna   = document.getElementById('nt-av').value;
+    if (!coluna) { toast('Selecione a avaliação', 'error'); return; }
     const btn      = document.getElementById('btn-buscar-notas');
 
     btn.disabled = true;
@@ -1475,6 +1555,15 @@
       _renderTabelaNotas();
       document.getElementById('nt-tabela').classList.remove('hidden');
       document.getElementById('btn-lancar-notas').disabled = !state.chrome;
+      // Atualiza badge com info do backend (fonte de verdade)
+      if (res.ja_lancada && _ntTurma) {
+        const av  = document.getElementById('nt-av').value;
+        const tri = parseInt(document.querySelector('input[name="nt-trim"]:checked').value);
+        if (!_ntTurma.notas_lancadas) _ntTurma.notas_lancadas = {};
+        if (!_ntTurma.notas_lancadas[tri+'T']) _ntTurma.notas_lancadas[tri+'T'] = {};
+        _ntTurma.notas_lancadas[tri+'T'][av] = res.data_lancamento;
+        _ntAtualizarStatusAv();
+      }
     } catch(e) {
       toast('Erro inesperado: ' + e, 'error');
     } finally {
@@ -1548,6 +1637,15 @@
       );
       if (res.ok) {
         toast('Notas lançadas! Marque os conteúdos no RCO e clique em Salvar.', 'success');
+        // Atualiza cache local de notas_lancadas
+        const hoje = new Date();
+        const dd = String(hoje.getDate()).padStart(2,'0');
+        const mm = String(hoje.getMonth()+1).padStart(2,'0');
+        const dataHoje = `${dd}/${mm}/${hoje.getFullYear()}`;
+        if (!_ntTurma.notas_lancadas) _ntTurma.notas_lancadas = {};
+        if (!_ntTurma.notas_lancadas[trim+'T']) _ntTurma.notas_lancadas[trim+'T'] = {};
+        _ntTurma.notas_lancadas[trim+'T'][tipoAv] = dataHoje;
+        _ntAtualizarStatusAv();
       } else {
         toast('Erro: ' + res.erro, 'error');
       }
