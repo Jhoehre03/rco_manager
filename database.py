@@ -165,6 +165,35 @@ def sincronizar_notas_lancadas(escola, turma, disciplina, trimestre, avaliacoes)
                     return
 
 
+def get_planilhas_externas():
+    """Retorna lista de planilhas externas cadastradas."""
+    return carregar().get("planilhas_externas", [])
+
+
+def cadastrar_planilha_externa(planilha_id, nome):
+    """Cadastra uma planilha externa. nome é o rótulo dado pelo usuário."""
+    dados = carregar()
+    externas = dados.setdefault("planilhas_externas", [])
+    # Atualiza se já existir, senão adiciona
+    for p in externas:
+        if p["id"] == planilha_id:
+            p["nome"] = nome
+            break
+    else:
+        externas.append({"id": planilha_id, "nome": nome})
+    with open(ARQUIVO, "w", encoding="utf-8") as f:
+        json.dump(dados, f, ensure_ascii=False, indent=2)
+
+
+def remover_planilha_externa(planilha_id):
+    """Remove uma planilha externa pelo ID."""
+    dados = carregar()
+    externas = dados.get("planilhas_externas", [])
+    dados["planilhas_externas"] = [p for p in externas if p["id"] != planilha_id]
+    with open(ARQUIVO, "w", encoding="utf-8") as f:
+        json.dump(dados, f, ensure_ascii=False, indent=2)
+
+
 def marcar_comentario_lancado(escola, turma, disciplina, data):
     """
     Registra que os comentários de uma data foram lançados no RCO.

@@ -6,7 +6,9 @@ import webview
 from database import (carregar, atualizar_banco as _atualizar_banco,
                       atualizar_banco_progresso, marcar_comentario_lancado,
                       get_comentarios_lancados, sincronizar_notas_lancadas,
-                      get_config, salvar_config)
+                      get_config, salvar_config,
+                      get_planilhas_externas, cadastrar_planilha_externa,
+                      remover_planilha_externa)
 from rco.auth import conectar_chrome as _conectar_chrome
 
 BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
@@ -45,6 +47,34 @@ class Api:
             "chrome_conectado":      self._browser_vivo(),
             "google_autorizado":     os.path.exists("token.json"),
         }
+
+    def get_planilhas_externas(self):
+        try:
+            return {"ok": True, "planilhas": get_planilhas_externas()}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
+    def cadastrar_planilha_externa(self, planilha_id, nome):
+        try:
+            cadastrar_planilha_externa(planilha_id, nome)
+            return {"ok": True}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
+    def remover_planilha_externa(self, planilha_id):
+        try:
+            remover_planilha_externa(planilha_id)
+            return {"ok": True}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
+    def diagnosticar_planilha(self, planilha_id):
+        try:
+            from sheets.gerador import diagnosticar_planilha
+            resultado = diagnosticar_planilha(planilha_id)
+            return {"ok": True, **resultado}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
 
     def get_configuracoes(self):
         try:
@@ -400,6 +430,22 @@ class Api:
         except Exception as e:
             return {"ok": False, "erro": str(e)}
 
+    def vincular_planilha_externa(self, escola, turma, disciplina, planilha_id):
+        """Vincula manualmente um planilha_id a uma turma, sem gerar nova planilha."""
+        try:
+            dados = carregar()
+            for e in dados.get("escolas", []):
+                if e["nome"] == escola:
+                    for t in e["turmas"]:
+                        if t["turma"] == turma and t["disciplina"] == disciplina:
+                            t["planilha_id"] = planilha_id
+                            with open(DADOS_JSON, "w", encoding="utf-8") as f:
+                                json.dump(dados, f, ensure_ascii=False, indent=2)
+                            return {"ok": True}
+            return {"ok": False, "erro": "Turma não encontrada"}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
     def desvincular_planilha(self, escola, turma, disciplina):
         try:
             dados = carregar()
@@ -730,7 +776,8 @@ class Api:
             return {"ok": False, "erro": "Chrome não conectado"}
         try:
             from database import entrar_turma
-            from rco.notas import navegar_avaliacao, preencher_formulario_avaliacao, preencher_notas
+            from rco.notas import (navegar_avaliacao, preencher_formulario_avaliacao,
+                                   lancar_notas_completo)
             from selenium.webdriver.common.by import By
             from selenium.webdriver.support.ui import WebDriverWait
             from selenium.webdriver.support import expected_conditions as EC
@@ -744,16 +791,18 @@ class Api:
                 return {"ok": False, "erro": f"Não foi possível entrar na turma {turma}"}
 
             navegar_avaliacao(self.browser)
-            # "REC N" → recuperação da "AV N"; qualquer outro → AV normal
             if tipo_av.upper().startswith("REC "):
-                n      = tipo_av.split()[-1]   # "REC 4" → "4"
-                rec_de = f"AV{n}"
+                n        = tipo_av.split()[-1]
+                rec_de   = f"AV{n}"
                 tipo_rco = "Recuperação"
+                modo     = "rec"
             else:
                 rec_de   = None
                 tipo_rco = "AV1"
+                modo     = "novo_av"
+
             preencher_formulario_avaliacao(self.browser, tipo_rco, data, str(valor), rec_de=rec_de)
-            preencher_notas(self.browser, notas)
+            lancar_notas_completo(self.browser, notas, modo)
 
             from database import marcar_nota_lancada
             marcar_nota_lancada(escola, turma, disciplina, int(trimestre[0]), tipo_av)
@@ -800,7 +849,7 @@ class Api:
             return {"ok": False, "erro": "Chrome não conectado"}
         try:
             from database import entrar_turma
-            from rco.notas import navegar_avaliacao, abrir_edicao_avaliacao, preencher_notas
+            from rco.notas import navegar_avaliacao, abrir_edicao_avaliacao, lancar_notas_completo
             from selenium.webdriver.common.by import By
             from selenium.webdriver.support.ui import WebDriverWait
             from selenium.webdriver.support import expected_conditions as EC
@@ -815,7 +864,7 @@ class Api:
 
             navegar_avaliacao(self.browser)
             abrir_edicao_avaliacao(self.browser, tipo_av)
-            preencher_notas(self.browser, notas)
+            lancar_notas_completo(self.browser, notas, "editar_av")
             return {"ok": True}
         except Exception as e:
             return {"ok": False, "erro": str(e)}
