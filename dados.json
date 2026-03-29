@@ -242,12 +242,10 @@
               "situacao": ""
             }
           ],
-          "planilha_id": "1Xwrj-EwGB24aCYfj14-SOB0VGQrZcMHooxagh1UNWqc",
-          "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/16tyk8WBMHYasTIsOtqvZtPcyWH1aVpObbZpi4S9xmlU",
+          "planilha_id": "",
+          "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1Xwrj-EwGB24aCYfj14-SOB0VGQrZcMHooxagh1UNWqc",
           "notas_lancadas": {
-            "1T": {
-              "Não existem registros para o Livro selecionado": ""
-            }
+            "1T": {}
           }
         },
         {
@@ -517,8 +515,8 @@
           "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1mmJdg3iOYDpiei7n5C3BuiBW2eOX0fDMAA2LvsbEWgs",
           "notas_lancadas": {
             "1T": {
-              "AV1\n (3.0)": "04/03/2026",
-              "Recuperação AV1\n (3.0)": "18/03/2026"
+              "ATV 1": "04/03/2026",
+              "REC 1": "18/03/2026"
             }
           }
         },
@@ -807,8 +805,8 @@
           "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1UOpkvLqrvf4Q7HfM-XXprid2oe_itQJFbTjXXcYyrqQ",
           "notas_lancadas": {
             "1T": {
-              "AV1\n (3.0)": "04/03/2026",
-              "Recuperação AV1\n (3.0)": "11/03/2026"
+              "ATV 1": "04/03/2026",
+              "REC 1": "11/03/2026"
             }
           }
         },
@@ -1078,9 +1076,7 @@
           "planilha_id": "1ODk3EXArUjiYOiafj6Oggu8tPTpX92zV-oTKMzqYORo",
           "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1I_N814620lpta5tW9l9jgsfNM7ruin9eByfgpWlkrGs",
           "notas_lancadas": {
-            "1T": {
-              "Não existem registros para o Livro selecionado": ""
-            }
+            "1T": {}
           }
         }
       ]
@@ -1264,9 +1260,7 @@
           "planilha_id": "11yGAmidVyhDuo5A2tYR7c4ClMDbdh8mBpJ08dAZIXEo",
           "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1nL_lJVl-msqYkua5cVOfilUVsWjGgyJsOMJQ-VRMNVk",
           "notas_lancadas": {
-            "1T": {
-              "Não existem registros para o Livro selecionado": ""
-            }
+            "1T": {}
           }
         },
         {
@@ -1517,9 +1511,7 @@
           "planilha_id": "1FM2PTLmGhov4rI11x8UOwi9oD5j43A9vk1l6R8cfxwY",
           "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1POH4AlHMZtwEsuvQ7bBgf7ex5g9n2eIizfLbzNsKTms",
           "notas_lancadas": {
-            "1T": {
-              "Não existem registros para o Livro selecionado": ""
-            }
+            "1T": {}
           }
         },
         {
@@ -1776,9 +1768,7 @@
           "planilha_id": "1CwyzSjxSfHguObmPFS3NuYysPbELZOXGzzYEueBR_9Q",
           "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1oq7wVY_jfUzxEdtEV9WAmEkeMlug6YPeOQKLSwU8mZM",
           "notas_lancadas": {
-            "1T": {
-              "Não existem registros para o Livro selecionado": ""
-            }
+            "1T": {}
           }
         },
         {
@@ -2035,9 +2025,7 @@
           "planilha_id": "1K17CEjD8xrfPfi-eoj-d-Kr3fp95fAPjgCXy5Kw-k_U",
           "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/14Zjrh5PFm1FujlhBg9xKjz-UO9nIJCO7_fwZnNTLJHs",
           "notas_lancadas": {
-            "1T": {
-              "Não existem registros para o Livro selecionado": ""
-            }
+            "1T": {}
           }
         },
         {
@@ -2210,9 +2198,7 @@
           "planilha_id": "1vdduVj83k-yzVKY_WUMpUMGVWK_e7cNKo5CW1S1rt3c",
           "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1aQIXy93wRXo5JQnFfBoXVQuLOXyz_WTrjzpCEVVJGOs",
           "notas_lancadas": {
-            "1T": {
-              "Não existem registros para o Livro selecionado": ""
-            }
+            "1T": {}
           }
         },
         {
@@ -2349,9 +2335,7 @@
           "planilha_id": "1871VeMHxiUNE7SGjBdXg-CTwag2WouWHqcGWSUmufQg",
           "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1x09cflbBofrwmFyCQ3OdFmfu2exq1_7EFmE1L2HMK_w",
           "notas_lancadas": {
-            "1T": {
-              "Não existem registros para o Livro selecionado": ""
-            }
+            "1T": {}
           }
         }
       ]
@@ -2589,9 +2573,7 @@
           "planilha_id": "1Y4BAce06e_21ykM-CZ8onaLt5hg_Qd5xYaD5eQQcf2Y",
           "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1te8oVjkZAvLRSziHa8u_z_1m_sJZfM8GENAraWxGn3k",
           "notas_lancadas": {
-            "1T": {
-              "Não existem registros para o Livro selecionado": ""
-            }
+            "1T": {}
           }
         },
         {
@@ -2824,13 +2806,17 @@
           "planilha_id": "1EOzguwSqtDKjCTzKbS9SBpdQgRu9hT9OI9DSzbOlRqw",
           "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1c2Gngex5LZ9tyeebSm2XxBpqNvqIx45j0QRAMCPXRdI",
           "notas_lancadas": {
-            "1T": {
-              "Não existem registros para o Livro selecionado": ""
-            }
+            "1T": {}
           }
         }
       ]
     }
   ],
-  "ultima_atualizacao": "26/03/2026 18:27"
+  "ultima_atualizacao": "26/03/2026 18:27",
+  "planilhas_externas": [
+    {
+      "id": "1IaDQ3KaJiRkdSEi6lmp5dvnn6rngiCAS_Vi792s-r9k",
+      "nome": "Algate Noite 3A"
+    }
+  ]
 }

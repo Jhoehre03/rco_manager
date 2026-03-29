@@ -71,6 +71,31 @@ def _num_col(n_avs):
 
 SITUACOES_ATIVAS = {"", "ativo", "matriculado", "cursando"}
 
+# Cabeçalhos reconhecidos para cada coluna (case-insensitive, strip)
+_HEADERS_NOME    = {"nome", "aluno", "alunos"}
+_HEADERS_SIT     = {"situação", "situacao", "sit.", "sit", "status"}
+_HEADERS_NUM     = {"nº", "n°", "num", "número", "numero", "nro", "chamada"}
+
+
+def _detectar_colunas_alunos(row3):
+    """
+    A partir da linha de cabeçalhos (row3), detecta os índices das colunas
+    de nome, situação e número de chamada.
+
+    Retorna dict com chaves 'nome', 'situacao', 'numero'.
+    Qualquer coluna não encontrada retorna None.
+    """
+    nome_idx = sit_idx = num_idx = None
+    for i, h in enumerate(row3):
+        h_norm = h.strip().lower()
+        if nome_idx is None and h_norm in _HEADERS_NOME:
+            nome_idx = i
+        if sit_idx is None and h_norm in _HEADERS_SIT:
+            sit_idx = i
+        if num_idx is None and h_norm in _HEADERS_NUM:
+            num_idx = i
+    return {"nome": nome_idx, "situacao": sit_idx, "numero": num_idx}
+
 
 # ---------------------------------------------------------------------------
 # Autenticação OAuth2
@@ -528,35 +553,40 @@ def ler_notas_planilha(planilha_id, trimestre, coluna_av):
 
     row3 = linhas[2]   # índice 2 = linha 3 (cabeçalhos)
 
-    # Detecta coluna Nº (última coluna fixa) pelo header
+    # Detecta coluna Nº pelo header (sem assumir posição fixa)
     NUM_COL_IDX = next(
         (i for i, h in enumerate(row3) if h.strip() in ("Nº", "N°")),
         9   # fallback: J (planilhas com 3 avs)
     )
 
-    # Busca a coluna da avaliação entre C (idx 2) e a coluna antes de Nº
+    # Busca a coluna da avaliação em toda a linha 3 (sem restringir intervalo)
     prefixos = _aliases_av(coluna_av)
 
     av_col_idx = None
-    for idx in range(2, NUM_COL_IDX):   # C=2 … até antes de Nº
-        header = row3[idx].strip().upper()
-        if any(header.startswith(p) for p in prefixos):
+    for idx, header in enumerate(row3):
+        if any(header.strip().upper().startswith(p) for p in prefixos):
             av_col_idx = idx
             break
 
     if av_col_idx is None:
         raise ValueError(
             f"Coluna '{coluna_av}' não encontrada na aba '{nome_aba}'. "
-            f"Cabeçalhos disponíveis: {row3[2:NUM_COL_IDX]}"
+            f"Cabeçalhos disponíveis: {row3}"
         )
+
+    cols = _detectar_colunas_alunos(row3)
+    nome_col_idx = cols["nome"] if cols["nome"] is not None else 0
+    sit_col_idx  = cols["situacao"]
 
     resultado = []
     for linha in linhas[3:]:
-        if not linha or not linha[0].strip():
+        if not linha or not linha[nome_col_idx].strip():
             continue
-        nome   = linha[0].strip()
-        sit    = linha[1].strip().lower() if len(linha) > 1 else ""
-        num_s  = linha[NUM_COL_IDX].strip() if len(linha) > NUM_COL_IDX else ""
+        nome  = linha[nome_col_idx].strip()
+        sit   = ""
+        if sit_col_idx is not None and len(linha) > sit_col_idx:
+            sit = linha[sit_col_idx].strip().lower()
+        num_s = linha[NUM_COL_IDX].strip() if len(linha) > NUM_COL_IDX else ""
         if not num_s.isdigit():
             continue
 
@@ -649,25 +679,31 @@ def _ler_alunos_planilha(planilha_id):
         if len(linhas) < 3:
             return {}
 
-        # Detecta coluna Nº dinamicamente pelo cabeçalho da linha 3
         row3 = linhas[2]
-        num_col_idx = next(
-            (i for i, h in enumerate(row3) if h.strip() in ("Nº", "N°")),
-            None
-        )
+        cols = _detectar_colunas_alunos(row3)
+        num_col_idx  = cols["numero"]
+        nome_col_idx = cols["nome"]
+        sit_col_idx  = cols["situacao"]
+
         if num_col_idx is None:
             return {}
+        # Nome: usa coluna detectada ou fallback para coluna 0
+        if nome_col_idx is None:
+            nome_col_idx = 0
 
         result = {}
         for i, linha in enumerate(linhas[3:], start=4):
-            if not linha or not linha[0].strip():
+            if not linha or not linha[nome_col_idx].strip():
                 continue
             num_str = linha[num_col_idx].strip() if len(linha) > num_col_idx else ""
             if not num_str.isdigit():
                 continue
+            sit = ""
+            if sit_col_idx is not None and len(linha) > sit_col_idx:
+                sit = linha[sit_col_idx].strip()
             result[int(num_str)] = {
-                "nome":     linha[0].strip(),
-                "situacao": linha[1].strip() if len(linha) > 1 else "",
+                "nome":     linha[nome_col_idx].strip(),
+                "situacao": sit,
                 "row":      i,
             }
         return result
@@ -719,14 +755,28 @@ def adicionar_aluno(planilha_id, aluno):
         if ws.title == "Penalidades":
             continue
         linhas = ws.get_all_values()
+        if len(linhas) < 3:
+            continue
+        cols = _detectar_colunas_alunos(linhas[2])
+        num_col_idx  = cols["numero"]
+        nome_col_idx = cols["nome"]   if cols["nome"]    is not None else 0
+        sit_col_idx  = cols["situacao"]
+
+        # Encontra última linha com conteúdo na coluna nome
         ultima = 3
         for i, linha in enumerate(linhas[3:], start=4):
-            if linha and linha[0].strip():
+            if linha and len(linha) > nome_col_idx and linha[nome_col_idx].strip():
                 ultima = i
         nova = ultima + 1
-        ws.update([[aluno["nome"]]],        f"A{nova}", value_input_option="USER_ENTERED")
-        ws.update([[situacao_texto]],       f"B{nova}", value_input_option="USER_ENTERED")
-        ws.update([[int(aluno["numero"])]], f"G{nova}", value_input_option="USER_ENTERED")
+
+        col_nome = gspread.utils.rowcol_to_a1(nova, nome_col_idx + 1)[:-len(str(nova))]
+        ws.update([[aluno["nome"]]], f"{col_nome}{nova}", value_input_option="USER_ENTERED")
+        if sit_col_idx is not None:
+            col_sit = gu.rowcol_to_a1(nova, sit_col_idx + 1)[:-len(str(nova))]
+            ws.update([[situacao_texto]], f"{col_sit}{nova}", value_input_option="USER_ENTERED")
+        if num_col_idx is not None:
+            col_num = gu.rowcol_to_a1(nova, num_col_idx + 1)[:-len(str(nova))]
+            ws.update([[int(aluno["numero"])]], f"{col_num}{nova}", value_input_option="USER_ENTERED")
 
 
 def atualizar_situacao(planilha_id, numero_chamada, nova_situacao):
@@ -739,10 +789,18 @@ def atualizar_situacao(planilha_id, numero_chamada, nova_situacao):
         if ws.title == "Penalidades":
             continue
         linhas = ws.get_all_values()
+        if len(linhas) < 3:
+            continue
+        cols = _detectar_colunas_alunos(linhas[2])
+        num_col_idx = cols["numero"]
+        sit_col_idx = cols["situacao"]
+        if num_col_idx is None or sit_col_idx is None:
+            continue
+        col_sit = gspread.utils.rowcol_to_a1(1, sit_col_idx + 1)[:-1]
         for i, linha in enumerate(linhas[3:], start=4):
-            if len(linha) > 6 and linha[6].strip().isdigit():
-                if int(linha[6].strip()) == numero_chamada:
-                    ws.update([[texto]], f"B{i}", value_input_option="USER_ENTERED")
+            if len(linha) > num_col_idx and linha[num_col_idx].strip().isdigit():
+                if int(linha[num_col_idx].strip()) == numero_chamada:
+                    ws.update([[texto]], f"{col_sit}{i}", value_input_option="USER_ENTERED")
                     break
 
 
@@ -757,9 +815,15 @@ def ocultar_aluno(planilha_id, numero_chamada):
         if ws.title == "Penalidades":
             continue
         linhas = ws.get_all_values()
+        if len(linhas) < 3:
+            continue
+        cols = _detectar_colunas_alunos(linhas[2])
+        num_col_idx = cols["numero"]
+        if num_col_idx is None:
+            continue
         for i, linha in enumerate(linhas[3:], start=4):
-            if len(linha) > 6 and linha[6].strip().isdigit():
-                if int(linha[6].strip()) == numero_chamada:
+            if len(linha) > num_col_idx and linha[num_col_idx].strip().isdigit():
+                if int(linha[num_col_idx].strip()) == numero_chamada:
                     requests.append({
                         "updateDimensionProperties": {
                             "range": {
@@ -929,11 +993,14 @@ def ler_ocorrencias_planilha(planilha_id, data_str):
             6   # fallback: coluna G (planilhas antigas)
         )
 
+        cols = _detectar_colunas_alunos(row3)
+        nome_col_idx_oc = cols["nome"] if cols["nome"] is not None else 0
+
         resultado = []
         for linha in linhas[3:]:
-            if not linha or not linha[0].strip():
+            if not linha or not linha[nome_col_idx_oc].strip():
                 continue
-            nome   = linha[0].strip()
+            nome   = linha[nome_col_idx_oc].strip()
             numero = linha[num_col_idx].strip() if len(linha) > num_col_idx else ""
             ocorr  = linha[ocorr_idx].strip() if len(linha) > ocorr_idx else ""
 
@@ -955,6 +1022,95 @@ def ler_ocorrencias_planilha(planilha_id, data_str):
 # ---------------------------------------------------------------------------
 # Aba Resumo
 # ---------------------------------------------------------------------------
+
+def diagnosticar_planilha(planilha_id):
+    """
+    Analisa uma planilha externa e retorna quais módulos foram encontrados.
+
+    Retorna dict:
+        nome_planilha  (str)
+        abas           (list of str)  — abas encontradas
+        modulos        (list of dict) — {nome, encontrado, detalhe}
+    """
+    creds = _get_creds()
+    gc    = gspread.authorize(creds)
+    sh    = gc.open_by_key(planilha_id)
+
+    nome_planilha = sh.title
+    abas = [ws.title for ws in sh.worksheets() if ws.title != "Penalidades"]
+
+    modulos = []
+
+    for aba_titulo in abas:
+        ws     = sh.worksheet(aba_titulo)
+        linhas = ws.get_all_values()
+
+        if len(linhas) < 3:
+            modulos.append({
+                "nome":      f"Aba '{aba_titulo}'",
+                "encontrado": False,
+                "detalhe":   "Menos de 3 linhas — sem cabeçalho na linha 3",
+            })
+            continue
+
+        row3 = linhas[2]
+        cols = _detectar_colunas_alunos(row3)
+
+        # Módulo: número de chamada
+        modulos.append({
+            "nome":       f"[{aba_titulo}] Nº de chamada",
+            "encontrado": cols["numero"] is not None,
+            "detalhe":    f"Coluna {cols['numero']+1}" if cols["numero"] is not None
+                          else "Cabeçalho 'Nº'/'N°' não encontrado na linha 3",
+        })
+
+        # Módulo: nome do aluno
+        modulos.append({
+            "nome":       f"[{aba_titulo}] Nome do aluno",
+            "encontrado": cols["nome"] is not None,
+            "detalhe":    f"Coluna {cols['nome']+1}" if cols["nome"] is not None
+                          else "Cabeçalho 'Nome'/'Aluno' não encontrado na linha 3",
+        })
+
+        # Módulo: situação
+        modulos.append({
+            "nome":       f"[{aba_titulo}] Situação",
+            "encontrado": cols["situacao"] is not None,
+            "detalhe":    f"Coluna {cols['situacao']+1}" if cols["situacao"] is not None
+                          else "Cabeçalho 'Situação'/'Status' não encontrado (opcional)",
+        })
+
+        # Módulo: AVs — detecta todas as colunas com prefixo ATV/REC/AV
+        import re as _re
+        avs_encontradas = [
+            h.strip() for h in row3
+            if _re.match(r'(ATV|REC|AV)\s*\d+', h.strip(), _re.IGNORECASE)
+        ]
+        modulos.append({
+            "nome":       f"[{aba_titulo}] Avaliações (ATV/REC)",
+            "encontrado": len(avs_encontradas) > 0,
+            "detalhe":    ", ".join(avs_encontradas) if avs_encontradas
+                          else "Nenhuma coluna ATV/REC encontrada na linha 3",
+        })
+
+        # Módulo: ocorrências
+        tem_ocorr = any(
+            h.strip() in ("Ocorrência", "Ocorrencias", "Ocorrência")
+            for h in row3
+        )
+        modulos.append({
+            "nome":       f"[{aba_titulo}] Ocorrências",
+            "encontrado": tem_ocorr,
+            "detalhe":    "Coluna 'Ocorrência' encontrada" if tem_ocorr
+                          else "Coluna 'Ocorrência' não encontrada",
+        })
+
+    return {
+        "nome_planilha": nome_planilha,
+        "abas":          abas,
+        "modulos":       modulos,
+    }
+
 
 def adicionar_aba_resumo(planilha_id, notas_finais):
     """

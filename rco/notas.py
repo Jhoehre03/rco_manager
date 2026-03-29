@@ -4,6 +4,33 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 import unicodedata
 import time
+import re
+
+
+def _normalizar_nome_av(nome):
+    """
+    Normaliza o nome de uma AV para comparação entre o formato da planilha
+    ("ATV 1", "REC 1") e o formato do RCO ("AV1 (3.0)", "Recuperação AV1 (3.0)").
+    Retorna tupla (tipo, numero) onde tipo é "AV" ou "REC" e numero é int.
+    Retorna None se não reconhecer o padrão.
+    """
+    s = re.sub(r'\s*\(.*?\)', '', nome).strip().upper()
+    m = re.match(r'(?:ATV\s*|AV\s*)(\d+)$', s)
+    if m:
+        return ('AV', int(m.group(1)))
+    m = re.match(r'(?:REC(?:UPERA[ÇC]ÃO)?\s*(?:AV\s*)?)(\d+)$', s)
+    if m:
+        return ('REC', int(m.group(1)))
+    return None
+
+
+def _av_corresponde(nome_planilha, nome_rco):
+    """
+    Retorna True se nome_planilha (ex: "ATV 1") corresponde a nome_rco (ex: "AV1 (3.0)").
+    """
+    a = _normalizar_nome_av(nome_planilha)
+    b = _normalizar_nome_av(nome_rco)
+    return a is not None and b is not None and a == b
 
 
 def _cell_text(browser, cells, idx):
@@ -420,11 +447,13 @@ def abrir_edicao_avaliacao(browser, nome_av):
     linhas = browser.find_elements(By.CSS_SELECTOR, ".tab-pane.active tbody tr")
     for linha in linhas:
         cells = linha.find_elements(By.CSS_SELECTOR, "td")
-        texto_linha = " ".join(
-            browser.execute_script("return arguments[0].textContent", c).strip()
-            for c in cells
-        )
-        if nome_av.upper() in texto_linha.upper():
+        if not cells:
+            continue
+        nome_celula = browser.execute_script(
+            "return arguments[0].textContent", cells[0]
+        ).strip()
+        if (nome_av.upper() in nome_celula.upper() or
+                _av_corresponde(nome_av, nome_celula)):
             try:
                 btn = linha.find_element(
                     By.XPATH, ".//a[@title='Alterar'] | .//button[@title='Alterar']"
@@ -439,6 +468,92 @@ def abrir_edicao_avaliacao(browser, nome_av):
             return
 
     raise Exception(f"Avaliação '{nome_av}' não encontrada na aba Avaliações")
+
+
+def marcar_todos_conteudos(browser):
+    """
+    Na tela de lançamento de notas, marca todos os checkboxes de conteúdo
+    que ainda não estão marcados.
+    """
+    wait = WebDriverWait(browser, 10)
+
+    # Aguarda a seção de conteúdos aparecer (pode não existir no modo edição)
+    try:
+        wait.until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, "input[type='checkbox']")
+        ))
+    except Exception:
+        print("[INFO] Nenhum checkbox de conteúdo encontrado — pulando.")
+        return
+
+    checkboxes = browser.find_elements(By.CSS_SELECTOR, "input[type='checkbox']")
+    marcados = 0
+    for cb in checkboxes:
+        try:
+            checked = browser.execute_script("return arguments[0].checked", cb)
+            if not checked:
+                browser.execute_script("arguments[0].scrollIntoView({block:'center'})", cb)
+                browser.execute_script("arguments[0].click()", cb)
+                marcados += 1
+                time.sleep(0.05)
+        except Exception:
+            continue
+
+    print(f"[INFO] {marcados} checkbox(es) de conteúdo marcado(s).")
+    time.sleep(0.3)
+
+
+def clicar_salvar(browser):
+    """
+    Clica no botão Salvar/Alterar da página de avaliação e aguarda confirmação.
+    Retorna True em caso de sucesso, lança Exception em caso de erro.
+    """
+    wait = WebDriverWait(browser, 15)
+    url_antes = browser.current_url
+
+    # Botão Salvar ou Alterar no card-footer fora de modais
+    btn = wait.until(EC.element_to_be_clickable((
+        By.XPATH,
+        "//button[contains(@class,'btn-primary') and "
+        "(contains(.,'Salvar') or contains(.,'Alterar') or contains(.,'Gravar'))]"
+        "[not(ancestor::div[contains(@class,'modal')])]"
+    )))
+    browser.execute_script("arguments[0].scrollIntoView({block:'center'})", btn)
+    browser.execute_script("arguments[0].click()", btn)
+
+    # Aguarda mudança de URL ou aparecimento de mensagem de sucesso
+    try:
+        wait.until(lambda d:
+            d.current_url != url_antes or
+            len(d.find_elements(By.CSS_SELECTOR,
+                ".alert-success, .toast-success, [class*='success']")) > 0
+        )
+    except Exception:
+        # Se não detectar confirmação, verifica se houve erro visível
+        erros = browser.find_elements(By.CSS_SELECTOR, ".alert-danger, .alert-warning")
+        if erros:
+            msg = browser.execute_script(
+                "return arguments[0].textContent", erros[0]
+            ).strip()
+            raise Exception(f"Erro ao salvar: {msg}")
+        # Sem erro visível — assumimos sucesso (RCO nem sempre muda URL)
+    time.sleep(0.5)
+
+
+def lancar_notas_completo(browser, notas, modo):
+    """
+    Preenche notas e executa o fluxo completo de acordo com o modo:
+      - "novo_av":   preencher_notas → marcar_todos_conteudos → clicar_salvar
+      - "editar_av": preencher_notas → clicar_salvar
+      - "rec":       preencher_notas → clicar_salvar
+    Pressupõe que a tela de notas já está aberta (input[id^='notaDecimal-'] visível).
+    """
+    preencher_notas(browser, notas)
+
+    if modo == "novo_av":
+        marcar_todos_conteudos(browser)
+
+    clicar_salvar(browser)
 
 
 def debug_avaliacao(browser):
@@ -513,28 +628,45 @@ def buscar_avaliacoes_lancadas_rco(browser):
             aba_avs = aba
             break
 
-    if aba_avs:
-        browser.execute_script("arguments[0].click()", aba_avs)
-        time.sleep(1.5)
+    if not aba_avs:
+        return []   # Aba de avaliações não encontrada
 
+    browser.execute_script("arguments[0].click()", aba_avs)
+    time.sleep(1.5)
+
+    wait.until(EC.presence_of_element_located(
+        (By.CSS_SELECTOR, ".tab-pane.active")
+    ))
+
+    # Aguarda tabela terminar de carregar (desaparece "Pesquisando...")
     try:
-        wait.until(EC.presence_of_element_located(
-            (By.CSS_SELECTOR, ".tab-pane.active")
+        wait.until(lambda d: all(
+            "pesquisando" not in browser.execute_script(
+                "return arguments[0].textContent", tr
+            ).strip().lower()
+            for tr in d.find_elements(By.CSS_SELECTOR, ".tab-pane.active tbody tr")
+            if tr.find_elements(By.CSS_SELECTOR, "td")
         ))
     except Exception:
         pass
 
     # Detecta cabeçalhos para achar índices de nome e data
     ths = browser.find_elements(By.CSS_SELECTOR, ".tab-pane.active thead th")
+    if not ths:
+        return []
+
     cabecalhos = [
         browser.execute_script("return arguments[0].textContent", th).strip().lower()
         for th in ths
     ]
 
     idx_nome = next((i for i, h in enumerate(cabecalhos)
-                     if "tipo" in h or "avalia" in h or "descri" in h), 0)
+                     if "avalia" in h or "tipo" in h or "descri" in h), None)
     idx_data = next((i for i, h in enumerate(cabecalhos)
-                     if "data" in h), 1)
+                     if "data" in h), None)
+
+    if idx_nome is None or idx_data is None:
+        return []
 
     linhas = browser.find_elements(By.CSS_SELECTOR, ".tab-pane.active tbody tr")
     resultado = []
@@ -543,10 +675,30 @@ def buscar_avaliacoes_lancadas_rco(browser):
         if not cells:
             continue
 
-        nome = _cell_text(browser, cells, idx_nome)
-        data = _cell_text(browser, cells, idx_data)
-        if nome:
-            resultado.append({"nome": nome, "data": data})
+        nome_raw = _cell_text(browser, cells, idx_nome)
+        data     = _cell_text(browser, cells, idx_data)
+
+        # Limpa quebras de linha e conteúdo entre parênteses  ex: "AV1\n (3.0)" → "AV1"
+        nome = re.sub(r'\s*\(.*?\)', '', nome_raw).strip()
+
+        # Filtra mensagens do sistema
+        if not nome or "não exist" in nome.lower() or "pesquisando" in nome.lower():
+            continue
+
+        # Normaliza para o formato da planilha:
+        #   "AV1"           → "ATV 1"
+        #   "AV2"           → "ATV 2"
+        #   "Recuperação AV1" → "REC 1"
+        nome_upper = nome.upper()
+        m_rec = re.match(r'RECUPERA[ÇC]ÃO\s+AV(\d+)', nome_upper)
+        m_av  = re.match(r'AV(\d+)$', nome_upper)
+        if m_rec:
+            nome = f"REC {m_rec.group(1)}"
+        elif m_av:
+            nome = f"ATV {m_av.group(1)}"
+        # Se não bater em nenhum padrão, mantém o nome limpo como está
+
+        resultado.append({"nome": nome, "data": data})
 
     return resultado
 
@@ -591,7 +743,8 @@ def buscar_notas_av_rco(browser, nome_av):
     ]
 
     idx_av = next(
-        (i for i, h in enumerate(cabecalhos) if h.upper() == nome_av.upper()),
+        (i for i, h in enumerate(cabecalhos)
+         if h.upper() == nome_av.upper() or _av_corresponde(nome_av, h)),
         None
     )
     if idx_av is None:
