@@ -1323,67 +1323,57 @@
   }
 
   // ── PLANILHAS ─────────────────────────────────
-  let _planilhasExternas = [];
+
 
   async function renderPlanilhas() {
-    // Carrega planilhas externas
-    try {
-      const res = await window.pywebview.api.get_planilhas_externas();
-      if (res.ok) _planilhasExternas = res.planilhas;
-    } catch(e) { _planilhasExternas = []; }
-
-    const rows = state.turmas.map(t => {
-      const tem = !!t.planilha_id;
-      const k   = JSON.stringify({escola:t.escola, turma:t.turma, disciplina:t.disciplina});
+    _planDiagCarregado = {};
+    const rows = state.turmas.map((t, idx) => {
+      const tem    = !!t.planilha_id;
+      const nomeTurma = (t.turma + ' — ' + t.disciplina).replace(/'/g, "\\'");
+      if (tem) {
+        return `
+          <div class="turma-item" id="plan-item-${idx}">
+            <div class="turma-row" onclick="_togglePlanDiag(${idx})" style="cursor:pointer">
+              <div class="turma-avatar">${t.disciplina.slice(0,2).toUpperCase()}</div>
+              <div class="plan-info">
+                <div class="plan-nome">${t.turma} — ${t.disciplina}</div>
+                <div class="plan-escola">${t.escola}</div>
+                <div class="plan-compat-hint" style="font-size:11px;color:#94a3b8;margin-top:2px">▼ Ver compatibilidade</div>
+              </div>
+              <div class="plan-actions">
+                <span class="badge badge-ok">Vinculada</span>
+                <button class="btn btn-sm" style="background:#d1fae5;color:#065f46;border:none"
+                  onclick="event.stopPropagation();_abrirPlanilhaIdx(${idx})">Abrir</button>
+                <button class="btn btn-sm" style="background:#f1f5f9;color:#374151;border:none"
+                  onclick="event.stopPropagation();sincronizarAlunosIdx(${idx})">Sincronizar</button>
+                <button class="btn btn-sm" style="background:#e0e7ff;color:#3730a3;border:none"
+                  onclick="event.stopPropagation();_atualizarResumoUnicoIdx(${idx}, this)">Resumo</button>
+                <button class="btn btn-sm" style="background:#fee2e2;color:#991b1b;border:none"
+                  onclick="event.stopPropagation();_desvincularPlanilhaIdx(${idx})">Desvincular</button>
+              </div>
+            </div>
+            <div class="turma-expand" id="plan-diag-${idx}" style="display:none;padding:12px 16px;flex-direction:column;gap:6px">
+            </div>
+          </div>`;
+      }
       return `
-        <div class="plan-row">
-          <div class="turma-avatar">${t.disciplina.slice(0,2).toUpperCase()}</div>
-          <div class="plan-info">
-            <div class="plan-nome">${t.turma} — ${t.disciplina}</div>
-            <div class="plan-escola">${t.escola}</div>
-          </div>
-          <div class="plan-actions">
-            <span class="badge ${tem ? 'badge-ok' : 'badge-sem'}">
-              ${tem ? 'Vinculada' : 'Sem planilha'}
-            </span>
-            ${tem
-              ? `<button class="btn btn-sm" style="background:#d1fae5;color:#065f46;border:none"
-                   onclick='_abrirPlanilha(${k})'>Abrir</button>
-                 <button class="btn btn-sm" style="background:#f1f5f9;color:#374151;border:none"
-                   onclick='sincronizarAlunos(${k})'>Sincronizar</button>
-                 <button class="btn btn-sm" style="background:#e0e7ff;color:#3730a3;border:none"
-                   onclick='_atualizarResumoUnico(${k}, this)'>Resumo</button>
-                 <button class="btn btn-sm" style="background:#fee2e2;color:#991b1b;border:none"
-                   onclick='_desvincularPlanilha(${k})'>Desvincular</button>`
-              : `<button class="btn btn-primary btn-sm"
-                   onclick='_abrirModal(${k}, "${t.turma.replace(/"/g,"")}")'>Gerar</button>
-                 <button class="btn btn-sm" style="background:#f1f5f9;color:#374151;border:none"
-                   onclick='_abrirVincularExterno(${k}, "${t.turma.replace(/"/g,"")} — ${t.disciplina.replace(/"/g,"")}")'>Usar existente</button>`
-            }
+        <div class="turma-item">
+          <div class="turma-row">
+            <div class="turma-avatar">${t.disciplina.slice(0,2).toUpperCase()}</div>
+            <div class="plan-info">
+              <div class="plan-nome">${t.turma} — ${t.disciplina}</div>
+              <div class="plan-escola">${t.escola}</div>
+            </div>
+            <div class="plan-actions">
+              <span class="badge badge-sem">Sem planilha</span>
+              <button class="btn btn-primary btn-sm"
+                onclick="_abrirModalIdx(${idx})">Gerar</button>
+              <button class="btn btn-sm" style="background:#f1f5f9;color:#374151;border:none"
+                onclick="_abrirVincularExternoIdx(${idx})">Usar existente</button>
+            </div>
           </div>
         </div>`;
     }).join('');
-
-    // Rows de planilhas externas
-    const rowsExt = _planilhasExternas.map((p, idx) => `
-      <div class="turma-item" id="ext-item-${idx}">
-        <div class="turma-row" onclick="_toggleExtDiag(${idx})" style="cursor:pointer">
-          <div class="turma-avatar" style="background:#6366f1">EX</div>
-          <div class="plan-info">
-            <div class="plan-nome">${p.nome || 'Planilha externa'}</div>
-            <div class="plan-escola" style="font-size:11px;color:#94a3b8">${p.id}</div>
-          </div>
-          <div class="plan-actions">
-            <span class="badge" style="background:#e0e7ff;color:#3730a3">Externa</span>
-            <button class="btn btn-sm" style="background:#fee2e2;color:#991b1b;border:none"
-              onclick="event.stopPropagation();_removerExternal('${p.id}')">Remover</button>
-          </div>
-          <span class="turma-chevron">▶</span>
-        </div>
-        <div class="turma-expand" id="ext-diag-${idx}" style="display:none;padding:12px 16px;flex-direction:column;gap:6px">
-          <div style="font-size:12px;color:#94a3b8">Clique para analisar compatibilidade...</div>
-        </div>
-      </div>`).join('');
 
     document.getElementById('content').innerHTML = `
       <div class="section-header">
@@ -1399,19 +1389,9 @@
           : rows}
       </div>
 
-      <div class="section-header" style="margin-top:20px">
-        <span class="section-title">Planilhas Externas</span>
-        <button class="btn btn-primary btn-sm" onclick="_abrirCadastroExternal()">+ Cadastrar</button>
-      </div>
-      <div class="turmas-list" id="ext-lista">
-        ${_planilhasExternas.length === 0
-          ? '<div class="empty">Nenhuma planilha externa cadastrada.</div>'
-          : rowsExt}
-      </div>
-
       <!-- Modal vincular planilha existente -->
       <div id="modal-vincular" class="modal-overlay hidden" onclick="if(event.target.id==='modal-vincular')_fecharVincularExterno()">
-        <div class="modal" style="max-width:480px">
+        <div class="modal-box" style="max-width:480px;width:480px">
           <div class="modal-header">
             <span class="modal-title" id="vincular-title">Usar planilha existente</span>
             <button class="modal-close" onclick="_fecharVincularExterno()">×</button>
@@ -1434,72 +1414,74 @@
           </div>
         </div>
       </div>
-
-      <!-- Modal cadastro externo -->
-      <div id="modal-ext" class="modal-overlay hidden" onclick="if(event.target.id==='modal-ext')_fecharCadastroExternal()">
-        <div class="modal" style="max-width:480px">
-          <div class="modal-header">
-            <span class="modal-title">Cadastrar Planilha Externa</span>
-            <button class="modal-close" onclick="_fecharCadastroExternal()">×</button>
-          </div>
-          <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
-            <div>
-              <label style="font-size:12px;font-weight:500;color:#374151">Nome / rótulo</label>
-              <input id="ext-nome" type="text" placeholder="Ex: Diário Física 3A"
-                style="width:100%;margin-top:5px;padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px">
-            </div>
-            <div>
-              <label style="font-size:12px;font-weight:500;color:#374151">Link de compartilhamento ou ID</label>
-              <input id="ext-link" type="text" placeholder="https://docs.google.com/spreadsheets/d/... ou ID"
-                style="width:100%;margin-top:5px;padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px">
-            </div>
-            <div id="ext-msg" style="font-size:12px"></div>
-          </div>
-          <div class="modal-footer">
-            <button class="btn" onclick="_fecharCadastroExternal()">Cancelar</button>
-            <button class="btn btn-primary" onclick="_salvarExternal()">Cadastrar</button>
-          </div>
-        </div>
-      </div>
     `;
   }
 
-  // ── Planilhas Externas ────────────────────────────────────────────────────
+  // ── Wrappers por índice (evita JSON no onclick) ───────────────────────────
 
-  let _extDiagCarregado = {};
+  function _turmaKey(idx) {
+    const t = state.turmas[idx];
+    return {escola: t.escola, turma: t.turma, disciplina: t.disciplina};
+  }
 
-  function _toggleExtDiag(idx) {
-    const panel = document.getElementById(`ext-diag-${idx}`);
-    const item  = document.getElementById(`ext-item-${idx}`);
+  function _abrirPlanilhaIdx(idx)               { _abrirPlanilha(_turmaKey(idx)); }
+  function sincronizarAlunosIdx(idx)             { sincronizarAlunos(_turmaKey(idx)); }
+  function _atualizarResumoUnicoIdx(idx, btn)    { _atualizarResumoUnico(_turmaKey(idx), btn); }
+  function _desvincularPlanilhaIdx(idx)          { _desvincularPlanilha(_turmaKey(idx)); }
+  function _abrirModalIdx(idx) {
+    const t = state.turmas[idx];
+    _abrirModal(_turmaKey(idx), t.turma);
+  }
+  function _abrirVincularExternoIdx(idx) {
+    const t = state.turmas[idx];
+    _abrirVincularExterno(_turmaKey(idx), `${t.turma} — ${t.disciplina}`);
+  }
+
+  // ── Diagnóstico de planilha vinculada ────────────────────────────────────
+
+  let _planDiagCarregado = {};
+
+  function _togglePlanDiag(idx) {
+    const panel = document.getElementById(`plan-diag-${idx}`);
+    const item  = document.getElementById(`plan-item-${idx}`);
     if (!panel) return;
     const aberto = panel.style.display === 'flex';
     panel.style.display = aberto ? 'none' : 'flex';
-    const chevron = item ? item.querySelector('.turma-chevron') : null;
-    if (chevron) chevron.textContent = aberto ? '▶' : '▼';
-    if (!aberto && !_extDiagCarregado[idx]) {
-      _extDiagCarregado[idx] = true;
-      _carregarDiagExternal(idx);
+    const hint = item ? item.querySelector('.plan-compat-hint') : null;
+    if (hint) hint.textContent = aberto ? '▼ Ver compatibilidade' : '▲ Ocultar compatibilidade';
+    if (!aberto) {
+      // Sempre recarrega se houve erro anterior; caso contrário usa cache
+      if (!_planDiagCarregado[idx] || _planDiagCarregado[idx] === 'erro') {
+        _planDiagCarregado[idx] = true;
+        _carregarDiagPlan(idx);
+      }
+    } else {
+      // Ao fechar: se foi erro, limpa cache para tentar de novo na próxima abertura
+      if (_planDiagCarregado[idx] === 'erro') {
+        delete _planDiagCarregado[idx];
+      }
     }
   }
 
-  async function _carregarDiagExternal(idx) {
-    const panel = document.getElementById(`ext-diag-${idx}`);
+  async function _carregarDiagPlan(idx) {
+    const panel = document.getElementById(`plan-diag-${idx}`);
     if (!panel) return;
-    const p = _planilhasExternas[idx];
-    if (!p) return;
+    const t = state.turmas[idx];
+    if (!t || !t.planilha_id) return;
     panel.innerHTML = '<div style="font-size:12px;color:#94a3b8">Analisando planilha...</div>';
     try {
-      const res = await window.pywebview.api.diagnosticar_planilha(p.id);
+      const res = await window.pywebview.api.diagnosticar_planilha(t.planilha_id);
       if (!res.ok) {
         panel.innerHTML = `<div style="font-size:12px;color:#ef4444">Erro: ${res.erro}</div>`;
+        _planDiagCarregado[idx] = 'erro';
         return;
       }
       const { nome_planilha, abas, modulos } = res;
       const abasHtml = abas.map(a => `<span style="background:#f1f5f9;padding:2px 7px;border-radius:99px;font-size:11px">${a}</span>`).join(' ');
       const modHtml = modulos.map(m => {
-        const cor = m.encontrado ? '#22c55e' : '#94a3b8';
-        const bg  = m.encontrado ? '#dcfce7' : '#f1f5f9';
-        const icone = m.encontrado ? '✓' : '—';
+        const cor    = m.encontrado ? '#22c55e' : '#94a3b8';
+        const bg     = m.encontrado ? '#dcfce7' : '#f1f5f9';
+        const icone  = m.encontrado ? '✓' : '—';
         return `<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;background:${bg}">
           <span style="color:${cor};font-weight:700;width:14px">${icone}</span>
           <div>
@@ -1514,62 +1496,8 @@
         <div style="display:flex;flex-direction:column;gap:4px">${modHtml}</div>`;
     } catch(e) {
       panel.innerHTML = `<div style="font-size:12px;color:#ef4444">Erro inesperado: ${e}</div>`;
+      _planDiagCarregado[idx] = 'erro';
     }
-  }
-
-  function _abrirCadastroExternal() {
-    document.getElementById('ext-nome').value = '';
-    document.getElementById('ext-link').value = '';
-    document.getElementById('ext-msg').textContent = '';
-    document.getElementById('modal-ext').classList.remove('hidden');
-  }
-
-  function _fecharCadastroExternal() {
-    document.getElementById('modal-ext').classList.add('hidden');
-  }
-
-  async function _salvarExternal() {
-    const nome = document.getElementById('ext-nome').value.trim();
-    const link = document.getElementById('ext-link').value.trim();
-    const msg  = document.getElementById('ext-msg');
-    if (!link) { msg.style.color = '#ef4444'; msg.textContent = 'Informe o link ou ID da planilha.'; return; }
-
-    // Extrai ID do link, ou usa direto se não for URL
-    let planilhaId = link;
-    const m = link.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
-    if (m) planilhaId = m[1];
-
-    msg.style.color = '#94a3b8';
-    msg.textContent = 'Cadastrando...';
-    try {
-      const res = await window.pywebview.api.cadastrar_planilha_externa(planilhaId, nome || planilhaId);
-      if (res.ok) {
-        _fecharCadastroExternal();
-        _extDiagCarregado = {};
-        await renderPlanilhas();
-        toast('Planilha externa cadastrada.', 'success');
-      } else {
-        msg.style.color = '#ef4444';
-        msg.textContent = 'Erro: ' + res.erro;
-      }
-    } catch(e) {
-      msg.style.color = '#ef4444';
-      msg.textContent = 'Erro inesperado: ' + e;
-    }
-  }
-
-  async function _removerExternal(id) {
-    if (!confirm('Remover esta planilha externa?')) return;
-    try {
-      const res = await window.pywebview.api.remover_planilha_externa(id);
-      if (res.ok) {
-        _extDiagCarregado = {};
-        await renderPlanilhas();
-        toast('Planilha removida.', 'success');
-      } else {
-        toast('Erro: ' + res.erro, 'error');
-      }
-    } catch(e) { toast('Erro inesperado: ' + e, 'error'); }
   }
 
   // ── Vincular planilha existente ───────────────────────────────────────────

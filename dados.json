@@ -242,8 +242,8 @@
               "situacao": ""
             }
           ],
-          "planilha_id": "",
-          "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1Xwrj-EwGB24aCYfj14-SOB0VGQrZcMHooxagh1UNWqc",
+          "planilha_id": "1IaDQ3KaJiRkdSEi6lmp5dvnn6rngiCAS_Vi792s-r9k",
+          "planilha_url_anterior": "https://docs.google.com/spreadsheets/d/1IaDQ3KaJiRkdSEi6lmp5dvnn6rngiCAS_Vi792s-r9k",
           "notas_lancadas": {
             "1T": {}
           }
@@ -2813,10 +2813,5 @@
     }
   ],
   "ultima_atualizacao": "26/03/2026 18:27",
-  "planilhas_externas": [
-    {
-      "id": "1IaDQ3KaJiRkdSEi6lmp5dvnn6rngiCAS_Vi792s-r9k",
-      "nome": "Algate Noite 3A"
-    }
-  ]
+  "planilhas_externas": []
 }
