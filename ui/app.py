@@ -89,6 +89,48 @@ class Api:
         except Exception as e:
             return {"ok": False, "erro": str(e)}
 
+    def verificar_atualizacao(self):
+        try:
+            from ui.updater import verificar_atualizacao
+            return verificar_atualizacao()
+        except Exception as e:
+            return {"disponivel": False, "erro": str(e)}
+
+    def instalar_atualizacao(self, url):
+        import sys
+        import threading
+
+        frozen = getattr(sys, "frozen", False)
+
+        def _progresso(pct):
+            try:
+                webview.windows[0].evaluate_js(
+                    f"window._onUpdateProgresso && window._onUpdateProgresso({pct})"
+                )
+            except Exception:
+                pass
+
+        def _run():
+            try:
+                if not frozen:
+                    webview.windows[0].evaluate_js(
+                        "window._onUpdateProgresso && window._onUpdateProgresso(-1)"
+                    )
+                    return
+                from ui.updater import baixar_e_instalar
+                baixar_e_instalar(url, _progresso)
+            except Exception as e:
+                try:
+                    msg = str(e).replace("'", "\\'")
+                    webview.windows[0].evaluate_js(
+                        f"window._onUpdateErro && window._onUpdateErro('{msg}')"
+                    )
+                except Exception:
+                    pass
+
+        threading.Thread(target=_run, daemon=True).start()
+        return {"ok": True}
+
     def autenticar_google(self):
         try:
             from sheets.gerador import _get_creds
@@ -1023,4 +1065,32 @@ def iniciar():
         height=680,
         resizable=False,
     )
-    webview.start()
+
+    def _verificar_update():
+        import threading
+
+        def _run():
+            # Aguarda a janela carregar completamente antes de verificar
+            time.sleep(5)
+            print("[UPDATE] Verificando atualização...")
+            from ui.updater import verificar_atualizacao
+            resultado = verificar_atualizacao()
+            print(f"[UPDATE] Resultado: {resultado}")
+
+            if resultado.get("disponivel"):
+                import json as _json
+                payload = _json.dumps({
+                    "versao":       resultado.get("versao", ""),
+                    "url_download": resultado.get("url_download", ""),
+                    "descricao":    resultado.get("descricao", ""),
+                })
+                js = f"window.notificarAtualizacao && window.notificarAtualizacao({payload})"
+                print(f"[UPDATE] Chamando JS com payload JSON")
+                try:
+                    webview.windows[0].evaluate_js(js)
+                except Exception as e:
+                    print(f"[UPDATE] Erro evaluate_js: {e}")
+
+        threading.Thread(target=_run, daemon=True).start()
+
+    webview.start(func=_verificar_update)
