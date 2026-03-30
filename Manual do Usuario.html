@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RCO Manager — Manual do Usuário</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: #1a202c;
+    background: #fff;
+    font-size: 13.5px;
+    line-height: 1.7;
+  }
+
+  /* Capa */
+  .capa {
+    background: #1a2744;
+    color: #fff;
+    padding: 80px 60px 60px;
+    min-height: 260px;
+  }
+  .capa h1 { font-size: 34px; font-weight: 700; letter-spacing: -0.5px; }
+  .capa .sub { font-size: 15px; color: #8a9bbf; margin-top: 8px; }
+  .capa .versao { margin-top: 32px; font-size: 12px; color: #6b7fa8; }
+
+  /* Layout */
+  .conteudo { max-width: 820px; margin: 0 auto; padding: 40px 40px 80px; }
+
+  /* Sumário */
+  .sumario { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 24px 28px; margin-bottom: 40px; }
+  .sumario h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #64748b; margin-bottom: 14px; }
+  .sumario ol { padding-left: 20px; }
+  .sumario li { margin-bottom: 5px; }
+  .sumario a { color: #3b82f6; text-decoration: none; font-size: 13px; }
+  .sumario a:hover { text-decoration: underline; }
+  .sumario .sub-item { list-style: none; padding-left: 14px; }
+  .sumario .sub-item li { margin-bottom: 2px; }
+  .sumario .sub-item a { color: #64748b; font-size: 12px; }
+
+  /* Seções */
+  h1.secao {
+    font-size: 22px; font-weight: 700; color: #1a2744;
+    border-bottom: 2px solid #1a2744; padding-bottom: 8px;
+    margin: 48px 0 20px;
+  }
+  h2.sub { font-size: 16px; font-weight: 700; color: #1e3a5f; margin: 28px 0 10px; }
+  h3.item { font-size: 14px; font-weight: 600; color: #374151; margin: 20px 0 8px; }
+
+  p { margin-bottom: 10px; }
+
+  /* Alertas */
+  .alerta { border-radius: 8px; padding: 12px 16px; margin: 14px 0; font-size: 13px; display: flex; gap: 10px; align-items: flex-start; }
+  .alerta-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+  .alerta.info    { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+  .alerta.aviso   { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+  .alerta.sucesso { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; }
+
+  /* Passos */
+  .passos { counter-reset: passo; padding: 0; margin: 10px 0 16px; }
+  .passos li {
+    counter-increment: passo;
+    list-style: none;
+    display: flex; gap: 12px; align-items: flex-start;
+    margin-bottom: 8px; font-size: 13px;
+  }
+  .passos li::before {
+    content: counter(passo);
+    background: #1a2744; color: #fff;
+    font-size: 11px; font-weight: 700;
+    min-width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+
+  /* Lista simples */
+  ul.lista { padding-left: 0; margin: 8px 0 14px; }
+  ul.lista li { list-style: none; padding: 4px 0 4px 20px; position: relative; font-size: 13px; }
+  ul.lista li::before { content: "–"; position: absolute; left: 0; color: #94a3b8; }
+
+  /* Tabela */
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 12.5px; }
+  th { background: #1a2744; color: #fff; padding: 9px 12px; text-align: left; font-weight: 600; font-size: 12px; }
+  td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+  tr:nth-child(even) td { background: #f8fafc; }
+
+  /* Código inline */
+  code { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1px 6px; font-family: 'Consolas', monospace; font-size: 12px; color: #1e3a5f; }
+
+  /* Badge */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+  .badge-ok  { background: #d1fae5; color: #065f46; }
+  .badge-err { background: #fee2e2; color: #991b1b; }
+  .badge-info{ background: #e0e7ff; color: #3730a3; }
+  .badge-warn{ background: #fef3c7; color: #92400e; }
+
+  /* Botão visual */
+  .btn-demo { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #e2e8f0; background: #f1f5f9; color: #374151; }
+
+  /* Divisor */
+  hr { border: none; border-top: 1px solid #e2e8f0; margin: 32px 0; }
+
+  /* Print */
+  @media print {
+    .capa { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    h1.secao { page-break-before: always; }
+    .sumario { page-break-after: always; }
+    .alerta { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CAPA -->
+<div class="capa">
+  <h1>RCO Manager</h1>
+  <div class="sub">Manual do Usuário</div>
+  <div class="versao">Versão 1.0 &nbsp;·&nbsp; 2026</div>
+</div>
+
+<div class="conteudo">
+
+<!-- SUMÁRIO -->
+<div class="sumario">
+  <h2>Sumário</h2>
+  <ol>
+    <li><a href="#s1">Visão Geral</a></li>
+    <li><a href="#s2">Configuração Inicial</a>
+      <ul class="sub-item">
+        <li><a href="#s2-1">Autorizar Google Sheets</a></li>
+        <li><a href="#s2-2">Conectar Chrome ao RCO</a></li>
+        <li><a href="#s2-3">Configurar pasta do Google Drive</a></li>
+      </ul>
+    </li>
+    <li><a href="#s3">Dashboard</a></li>
+    <li><a href="#s4">Planilhas</a>
+      <ul class="sub-item">
+        <li><a href="#s4-1">Gerar nova planilha</a></li>
+        <li><a href="#s4-2">Usar planilha existente</a></li>
+        <li><a href="#s4-3">Diagnóstico de compatibilidade</a></li>
+        <li><a href="#s4-4">Gerar em Lote</a></li>
+        <li><a href="#s4-5">Resumo em Lote</a></li>
+      </ul>
+    </li>
+    <li><a href="#s5">Alunos</a>
+      <ul class="sub-item">
+        <li><a href="#s5-1">Verificar e Sincronizar</a></li>
+        <li><a href="#s5-2">Sincronizar em Lote</a></li>
+      </ul>
+    </li>
+    <li><a href="#s6">Notas</a>
+      <ul class="sub-item">
+        <li><a href="#s6-1">Lançar nova avaliação</a></li>
+        <li><a href="#s6-2">Editar avaliação já lançada</a></li>
+      </ul>
+    </li>
+    <li><a href="#s7">Comentários</a></li>
+    <li><a href="#s8">Estrutura esperada de planilha externa</a></li>
+    <li><a href="#s9">Fluxos de uso resumidos</a></li>
+  </ol>
+</div>
+
+<!-- 1. VISÃO GERAL -->
+<h1 class="secao" id="s1">1. Visão Geral</h1>
+
+<p>O <strong>RCO Manager</strong> é um software de automação para professores que utilizam o sistema RCO (Registro de Classe Online). Ele conecta seu diário de classe no Google Sheets com o RCO, automatizando tarefas como lançamento de notas, sincronização de alunos e registro de comentários/ocorrências.</p>
+
+<table>
+  <tr><th>O que o software faz</th><th>Como faz</th></tr>
+  <tr><td>Lança notas no RCO</td><td>Lê as notas da planilha e preenche o RCO automaticamente via Chrome</td></tr>
+  <tr><td>Sincroniza alunos</td><td>Compara a lista de alunos do RCO com a planilha e adiciona/remove automaticamente</td></tr>
+  <tr><td>Registra comentários/ocorrências</td><td>Lê ocorrências da planilha e lança no RCO com texto formatado</td></tr>
+  <tr><td>Gera diários de classe</td><td>Cria planilhas Google Sheets estruturadas no seu Google Drive</td></tr>
+  <tr><td>Atualiza resumo de notas</td><td>Lê notas finais do RCO e preenche aba de Resumo na planilha</td></tr>
+</table>
+
+<div class="alerta aviso">
+  <span class="alerta-icon">⚠</span>
+  <div>O software controla o Chrome automaticamente. Durante operações de lançamento, não clique no navegador Chrome — aguarde o processo terminar.</div>
+</div>
+
+<hr>
+
+<!-- 2. CONFIGURAÇÃO INICIAL -->
+<h1 class="secao" id="s2">2. Configuração Inicial</h1>
+
+<p>Antes de usar qualquer funcionalidade, é necessário realizar três configurações. Elas aparecem na barra superior do software.</p>
+
+<h2 class="sub" id="s2-1">2.1 Autorizar Google Sheets</h2>
+
+<p>Esta autorização permite que o software leia e escreva nas suas planilhas Google Sheets e crie arquivos no seu Google Drive.</p>
+
+<ol class="passos">
+  <li>Clique no botão <span class="btn-demo">Autorizar Google</span> na barra superior.</li>
+  <li>Uma janela do navegador será aberta com a tela de login do Google.</li>
+  <li>Faça login com a conta Google que possui acesso às planilhas.</li>
+  <li>Autorize o acesso solicitado.</li>
+  <li>A barra superior mudará para <span class="badge badge-ok">✓ Google autorizado</span>.</li>
+</ol>
+
+<div class="alerta info">
+  <span class="alerta-icon">ℹ</span>
+  <div>Esta autorização é salva localmente. Você só precisará repetir este processo se trocar de computador ou revogar o acesso manualmente.</div>
+</div>
+
+<h2 class="sub" id="s2-2">2.2 Conectar Chrome ao RCO</h2>
+
+<p>O software utiliza o Chrome instalado no computador para acessar o RCO. É necessário estar logado no RCO dentro do Chrome.</p>
+
+<ol class="passos">
+  <li>Clique em <span class="btn-demo">Conectar Chrome</span> na barra superior.</li>
+  <li>O Chrome abrirá automaticamente na página de login do RCO.</li>
+  <li>Faça login no RCO normalmente dentro do Chrome.</li>
+  <li>Após entrar no sistema, volte ao RCO Manager e clique em <span class="btn-demo">Confirmar login</span>.</li>
+  <li>O software verificará a conexão. Se bem-sucedido, exibirá <span class="badge badge-ok">✓ Chrome conectado</span>.</li>
+</ol>
+
+<div class="alerta aviso">
+  <span class="alerta-icon">⚠</span>
+  <div>Se fechar o Chrome ou a sessão do RCO expirar, será necessário clicar em <strong>Reconectar</strong> e repetir o processo de login.</div>
+</div>
+
+<h2 class="sub" id="s2-3">2.3 Configurar Pasta do Google Drive</h2>
+
+<p>Defina em qual pasta do Google Drive as planilhas geradas pelo software serão salvas.</p>
+
+<ol class="passos">
+  <li>Acesse a aba <strong>Configurações</strong> no menu lateral.</li>
+  <li>Abra o Google Drive no navegador e navegue até a pasta desejada.</li>
+  <li>Copie o ID da pasta na URL — é o trecho após <code>/folders/</code>.<br>
+      Exemplo: <code>https://drive.google.com/drive/folders/<strong>1MsRODhlM...</strong></code></li>
+  <li>Cole o link completo ou apenas o ID no campo indicado.</li>
+  <li>Clique em <span class="btn-demo">Salvar</span>.</li>
+</ol>
+
+<div class="alerta info">
+  <span class="alerta-icon">ℹ</span>
+  <div>A pasta deve ser acessível pela conta Google autorizada no passo anterior. Você pode colar o link completo — o software extrai o ID automaticamente.</div>
+</div>
+
+<hr>
+
+<!-- 3. DASHBOARD -->
+<h1 class="secao" id="s3">3. Dashboard</h1>
+
+<p>O Dashboard é a tela inicial do software. Nele você tem uma visão geral das suas turmas e pode acessar as principais funcionalidades.</p>
+
+<h2 class="sub">Cartões de resumo</h2>
+<table>
+  <tr><th>Cartão</th><th>O que mostra</th></tr>
+  <tr><td>Turmas</td><td>Total de turmas cadastradas</td></tr>
+  <tr><td>Alunos</td><td>Total de alunos ativos (inativos não contabilizados)</td></tr>
+  <tr><td>Última atualização</td><td>Data e hora da última sincronização com o RCO</td></tr>
+</table>
+
+<h2 class="sub">Atualizar Banco de Dados</h2>
+<p>Esta função lê as turmas, alunos e avaliações diretamente do RCO e salva localmente. É o ponto de partida — execute sempre que iniciar o software ou quando houver mudanças no RCO.</p>
+
+<ol class="passos">
+  <li>Clique em <span class="btn-demo">Atualizar Banco</span> no Dashboard.</li>
+  <li>Selecione o trimestre desejado.</li>
+  <li>Marque as turmas que deseja sincronizar.</li>
+  <li>Clique em <span class="btn-demo">Iniciar</span> e aguarde o progresso.</li>
+</ol>
+
+<h2 class="sub">Lista de turmas</h2>
+<p>Cada turma exibe nome, escola, disciplina e quantidade de alunos. Clique sobre uma turma para expandir e ver as avaliações lançadas por trimestre, com data de lançamento e status.</p>
+
+<hr>
+
+<!-- 4. PLANILHAS -->
+<h1 class="secao" id="s4">4. Planilhas</h1>
+
+<p>Nesta aba você gerencia o vínculo entre cada turma e sua planilha Google Sheets. Uma turma pode estar em três estados:</p>
+
+<table>
+  <tr><th>Status</th><th>Significado</th></tr>
+  <tr><td><span class="badge badge-err">Sem planilha</span></td><td>Nenhuma planilha vinculada. Não é possível lançar notas.</td></tr>
+  <tr><td><span class="badge badge-ok">Vinculada</span></td><td>Planilha associada. Todas as funcionalidades disponíveis.</td></tr>
+</table>
+
+<h2 class="sub" id="s4-1">4.1 Gerar nova planilha</h2>
+
+<p>Cria um diário de classe do zero no Google Drive, já estruturado para uso com o RCO Manager.</p>
+
+<ol class="passos">
+  <li>Clique em <span class="btn-demo">Gerar</span> na turma desejada.</li>
+  <li>Selecione o <strong>Modo</strong>:
+    <ul class="lista">
+      <li><strong>Diário</strong> — notas calculadas a partir de penalidades por aula (faltas, celular, etc).</li>
+      <li><strong>Completo</strong> — igual ao Diário, com mais recursos de controle.</li>
+      <li><strong>Simples</strong> — notas inseridas diretamente pelo professor, sem penalidades.</li>
+    </ul>
+  </li>
+  <li>Selecione o <strong>Trimestre</strong> (1º, 2º ou 3º).</li>
+  <li>Defina a <strong>frequência semanal</strong> de aulas (quantas vezes por semana).</li>
+  <li>Configure as <strong>avaliações</strong> (nome, valor máximo e pesos).</li>
+  <li>Clique em <span class="btn-demo">Gerar</span> e aguarde a criação no Google Drive.</li>
+</ol>
+
+<div class="alerta sucesso">
+  <span class="alerta-icon">✓</span>
+  <div>Após gerar, a planilha já aparece vinculada à turma automaticamente. Você pode clicar em <strong>Abrir</strong> para visualizá-la no Google Sheets.</div>
+</div>
+
+<h2 class="sub" id="s4-2">4.2 Usar planilha existente</h2>
+
+<p>Vincula um diário de classe já existente (criado por você) ao invés de gerar um novo. O software utilizará as colunas dessa planilha para todas as operações.</p>
+
+<ol class="passos">
+  <li>Clique em <span class="btn-demo">Usar existente</span> na turma desejada.</li>
+  <li>Cole o link completo da planilha ou apenas o ID.</li>
+  <li>Clique em <span class="btn-demo">Vincular</span>.</li>
+</ol>
+
+<div class="alerta aviso">
+  <span class="alerta-icon">⚠</span>
+  <div>A planilha externa precisa seguir uma estrutura mínima para funcionar corretamente. Consulte a seção <a href="#s8">8. Estrutura esperada de planilha externa</a>.</div>
+</div>
+
+<h2 class="sub" id="s4-3">4.3 Diagnóstico de compatibilidade</h2>
+
+<p>Para turmas vinculadas, é possível verificar se a planilha possui todas as colunas e abas reconhecidas pelo software.</p>
+
+<ol class="passos">
+  <li>Clique sobre a linha da turma vinculada (onde está escrito <em>▼ Ver compatibilidade</em>).</li>
+  <li>O painel expandirá e iniciará a análise automaticamente.</li>
+  <li>Cada módulo será exibido com <strong style="color:#22c55e">✓</strong> (encontrado) ou <strong style="color:#94a3b8">—</strong> (não encontrado).</li>
+</ol>
+
+<p>Módulos verificados:</p>
+<table>
+  <tr><th>Módulo</th><th>O que verifica</th></tr>
+  <tr><td>Alunos (Nome + Nº)</td><td>Colunas de nome e número de chamada</td></tr>
+  <tr><td>Situação</td><td>Coluna de status do aluno (ativo/inativo)</td></tr>
+  <tr><td>Avaliações</td><td>Colunas de notas (ATV 1, ATV 2, REC 1…)</td></tr>
+  <tr><td>Datas de aula</td><td>Linha com datas no formato DD/MM</td></tr>
+  <tr><td>Trimestres</td><td>Abas nomeadas 1º Tri, 2º Tri, 3º Tri</td></tr>
+  <tr><td>Ocorrências</td><td>Colunas de lançamento de comentários</td></tr>
+</table>
+
+<h2 class="sub" id="s4-4">4.4 Gerar em Lote</h2>
+
+<p>Cria planilhas para múltiplas turmas de uma só vez, com as mesmas configurações.</p>
+
+<ol class="passos">
+  <li>Clique em <span class="btn-demo">Gerar em Lote</span> no topo da aba.</li>
+  <li>Selecione as turmas (use <em>Sem Planilha</em> para filtrar apenas as que precisam).</li>
+  <li>Configure Modo, Trimestre, Frequência e Avaliações.</li>
+  <li>Clique em <span class="btn-demo">Gerar</span> e acompanhe o progresso.</li>
+</ol>
+
+<h2 class="sub" id="s4-5">4.5 Resumo em Lote</h2>
+
+<p>Atualiza a aba "Resumo" de múltiplas planilhas com as notas finais lidas diretamente do RCO.</p>
+
+<ol class="passos">
+  <li>Clique em <span class="btn-demo">Resumo em Lote</span> no topo da aba.</li>
+  <li>Selecione o trimestre.</li>
+  <li>Marque as turmas desejadas.</li>
+  <li>Clique em <span class="btn-demo">Gerar Resumo</span>.</li>
+</ol>
+
+<div class="alerta info">
+  <span class="alerta-icon">ℹ</span>
+  <div>O resumo mostra aprovados (verde), reprovados (vermelho) e situação parcial (amarelo) para cada aluno, com base nas notas finais do RCO.</div>
+</div>
+
+<hr>
+
+<!-- 5. ALUNOS -->
+<h1 class="secao" id="s5">5. Alunos</h1>
+
+<p>Esta aba compara a lista de alunos do RCO com a lista na planilha e mantém as duas sincronizadas.</p>
+
+<h2 class="sub">Status de cada turma</h2>
+<table>
+  <tr><th>Badge</th><th>Significado</th></tr>
+  <tr><td><span class="badge badge-warn">Sem planilha</span></td><td>Nenhuma planilha vinculada</td></tr>
+  <tr><td><span class="badge" style="background:#f1f5f9;color:#374151">Não verificado</span></td><td>Ainda não foi feita a comparação</td></tr>
+  <tr><td><span class="badge badge-ok">✓ Sincronizada</span></td><td>RCO e planilha estão iguais</td></tr>
+  <tr><td><span class="badge badge-warn">X pendente(s)</span></td><td>Há diferenças entre RCO e planilha</td></tr>
+</table>
+
+<h2 class="sub" id="s5-1">5.1 Verificar e Sincronizar</h2>
+
+<p>Para uma turma individual:</p>
+
+<ol class="passos">
+  <li>Clique em <span class="btn-demo">Verificar</span> na turma desejada.</li>
+  <li>O software compara os alunos do RCO com a planilha e exibe as diferenças:
+    <ul class="lista">
+      <li><strong style="color:#22c55e">+</strong> Aluno novo no RCO, ainda não na planilha</li>
+      <li><strong style="color:#f59e0b">~</strong> Situação do aluno mudou (ex: ativo → transferido)</li>
+      <li><strong style="color:#ef4444">−</strong> Aluno na planilha mas não encontrado no RCO</li>
+    </ul>
+  </li>
+  <li>Clique em <span class="btn-demo">Sincronizar</span> para aplicar as alterações na planilha.</li>
+</ol>
+
+<h2 class="sub" id="s5-2">5.2 Verificar Todas e Sincronizar em Lote</h2>
+
+<ol class="passos">
+  <li>Clique em <span class="btn-demo">Verificar Todas</span> para comparar todas as turmas de uma vez.</li>
+  <li>Acompanhe a barra de progresso.</li>
+  <li>Após verificar, clique em <span class="btn-demo">Sincronizar em Lote</span> para corrigir todas as pendências.</li>
+  <li>Selecione as turmas e confirme.</li>
+</ol>
+
+<hr>
+
+<!-- 6. NOTAS -->
+<h1 class="secao" id="s6">6. Notas</h1>
+
+<p>Esta aba permite lançar ou editar notas de avaliações no RCO a partir dos valores calculados na planilha.</p>
+
+<h2 class="sub" id="s6-1">6.1 Lançar nova avaliação</h2>
+
+<ol class="passos">
+  <li>Clique em <span class="btn-demo">Lançar Notas</span> na turma desejada.</li>
+  <li>Selecione o <strong>Trimestre</strong>.</li>
+  <li>Selecione a <strong>Avaliação</strong> (ATV 1, ATV 2, REC 1…).</li>
+  <li>Selecione a <strong>Data</strong> da aula correspondente.</li>
+  <li>Informe o <strong>Valor Máximo</strong> da avaliação.</li>
+  <li>Clique em <span class="btn-demo">Buscar Notas da Planilha</span> — a tabela será preenchida.</li>
+  <li>Revise as notas. Você pode editá-las manualmente antes de enviar.</li>
+  <li>Clique em <span class="btn-demo">Lançar no RCO</span>.</li>
+</ol>
+
+<div class="alerta aviso">
+  <span class="alerta-icon">⚠</span>
+  <div>Alunos inativos são ignorados automaticamente. Células com texto (ex: "AF", "Falta") são tratadas como <strong>zero</strong>.</div>
+</div>
+
+<h2 class="sub" id="s6-2">6.2 Editar avaliação já lançada</h2>
+
+<p>Quando uma avaliação já foi lançada anteriormente no RCO, o software entra em modo de edição automaticamente.</p>
+
+<ol class="passos">
+  <li>Selecione a avaliação já lançada (aparece com o badge <span class="badge badge-ok">✓ Lançada</span>).</li>
+  <li>Clique em <span class="btn-demo">Buscar do RCO</span> para carregar as notas atuais do sistema.</li>
+  <li>Linhas com divergência entre planilha e RCO serão destacadas em amarelo.</li>
+  <li>Ajuste as notas conforme necessário.</li>
+  <li>Clique em <span class="btn-demo">Editar no RCO</span>.</li>
+</ol>
+
+<hr>
+
+<!-- 7. COMENTÁRIOS -->
+<h1 class="secao" id="s7">7. Comentários</h1>
+
+<p>Esta aba lança comentários e ocorrências de alunos no RCO, lendo os registros da planilha por período.</p>
+
+<ol class="passos">
+  <li>Informe o período nos campos <strong>De</strong> e <strong>Até</strong> (formato DD/MM/AAAA).</li>
+  <li>Clique em <span class="btn-demo">Buscar comentários</span>.</li>
+  <li>Os grupos de ocorrências serão listados por data e turma.</li>
+  <li>Revise os comentários de cada aluno (editáveis antes de lançar).</li>
+  <li>Clique em <span class="btn-demo">Lançar no RCO</span> por grupo, ou <span class="btn-demo">Lançar tudo no RCO</span> para todos de uma vez.</li>
+</ol>
+
+<div class="alerta info">
+  <span class="alerta-icon">ℹ</span>
+  <div>Grupos já lançados ficam travados (cinza) e não podem ser relançados. O badge <span class="badge badge-ok">✓ Já lançado</span> confirma o envio.</div>
+</div>
+
+<hr>
+
+<!-- 8. ESTRUTURA DE PLANILHA EXTERNA -->
+<h1 class="secao" id="s8">8. Estrutura esperada de planilha externa</h1>
+
+<p>Se for usar uma planilha própria (via "Usar existente"), ela precisa seguir estas especificações para que o software reconheça os dados corretamente.</p>
+
+<h2 class="sub">Obrigatório</h2>
+<table>
+  <tr><th>Requisito</th><th>Detalhe</th></tr>
+  <tr><td>Linha dos cabeçalhos</td><td>Os títulos das colunas devem estar na <strong>linha 3</strong> da planilha</td></tr>
+  <tr><td>Coluna de nome</td><td>Cabeçalho: <code>Nome</code> ou <code>Aluno</code></td></tr>
+  <tr><td>Coluna de número de chamada</td><td>Cabeçalho: <code>Nº</code>, <code>N°</code> ou <code>Num</code></td></tr>
+</table>
+
+<h2 class="sub">Opcional (ativa funcionalidades adicionais)</h2>
+<table>
+  <tr><th>Coluna / Aba</th><th>Cabeçalho esperado</th><th>Funcionalidade ativada</th></tr>
+  <tr><td>Situação do aluno</td><td><code>Situação</code>, <code>Sit.</code> ou <code>Status</code></td><td>Sincronização de alunos inativos</td></tr>
+  <tr><td>Avaliações</td><td><code>ATV 1</code>, <code>ATV 2</code>, <code>REC 1</code>…</td><td>Lançamento de notas</td></tr>
+  <tr><td>Datas de aula</td><td>Linha 1 com datas no formato <code>DD/MM</code></td><td>Lançamento de comentários</td></tr>
+  <tr><td>Abas de trimestre</td><td><code>1º Tri</code>, <code>2º Tri</code>, <code>3º Tri</code></td><td>Separação por trimestre</td></tr>
+</table>
+
+<div class="alerta sucesso">
+  <span class="alerta-icon">✓</span>
+  <div><strong>A ordem das colunas não importa.</strong> O software localiza cada coluna pelo nome do cabeçalho, não pela posição. Uma planilha com Nº na coluna A e Nome na coluna D funciona normalmente.</div>
+</div>
+
+<div class="alerta info">
+  <span class="alerta-icon">ℹ</span>
+  <div>Use o <strong>Diagnóstico de compatibilidade</strong> (clicando na turma vinculada) para verificar quais módulos foram encontrados na sua planilha.</div>
+</div>
+
+<hr>
+
+<!-- 9. FLUXOS DE USO -->
+<h1 class="secao" id="s9">9. Fluxos de uso resumidos</h1>
+
+<h2 class="sub">Primeiro uso (configuração completa)</h2>
+<ol class="passos">
+  <li>Autorizar Google Sheets</li>
+  <li>Conectar Chrome e fazer login no RCO</li>
+  <li>Configurar pasta do Google Drive (aba Configurações)</li>
+  <li>Atualizar Banco no Dashboard</li>
+  <li>Gerar planilhas na aba Planilhas</li>
+  <li>Verificar e sincronizar alunos na aba Alunos</li>
+</ol>
+
+<h2 class="sub">Uso semanal típico</h2>
+<ol class="passos">
+  <li>Conectar Chrome e confirmar login</li>
+  <li>Aba Comentários → buscar período da semana → lançar no RCO</li>
+  <li>Aba Notas → selecionar avaliação → buscar notas → lançar no RCO</li>
+</ol>
+
+<h2 class="sub">Início de trimestre</h2>
+<ol class="passos">
+  <li>Atualizar Banco (captura novos alunos e turmas do RCO)</li>
+  <li>Verificar Todas na aba Alunos → Sincronizar em Lote</li>
+  <li>Gerar planilhas do novo trimestre (se necessário)</li>
+</ol>
+
+<h2 class="sub">Fim de trimestre</h2>
+<ol class="passos">
+  <li>Lançar todas as avaliações e comentários pendentes</li>
+  <li>Aba Planilhas → Resumo em Lote → selecionar trimestre → gerar resumo</li>
+  <li>Abrir planilhas no Google Sheets para revisar aprovados/reprovados</li>
+</ol>
+
+</div>
+</body>
+</html>

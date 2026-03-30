@@ -772,10 +772,10 @@ def adicionar_aluno(planilha_id, aluno):
         col_nome = gspread.utils.rowcol_to_a1(nova, nome_col_idx + 1)[:-len(str(nova))]
         ws.update([[aluno["nome"]]], f"{col_nome}{nova}", value_input_option="USER_ENTERED")
         if sit_col_idx is not None:
-            col_sit = gu.rowcol_to_a1(nova, sit_col_idx + 1)[:-len(str(nova))]
+            col_sit = gspread.utils.rowcol_to_a1(nova, sit_col_idx + 1)[:-len(str(nova))]
             ws.update([[situacao_texto]], f"{col_sit}{nova}", value_input_option="USER_ENTERED")
         if num_col_idx is not None:
-            col_num = gu.rowcol_to_a1(nova, num_col_idx + 1)[:-len(str(nova))]
+            col_num = gspread.utils.rowcol_to_a1(nova, num_col_idx + 1)[:-len(str(nova))]
             ws.update([[int(aluno["numero"])]], f"{col_num}{nova}", value_input_option="USER_ENTERED")
 
 
