@@ -1055,7 +1055,52 @@ class Api:
             return {"ok": False, "erro": str(e)}
 
 
+def _garantir_webview2():
+    """Verifica se o WebView2 Runtime está instalado; baixa e instala silenciosamente se não estiver."""
+    import sys
+    if not getattr(sys, "frozen", False):
+        return  # Só verifica no executável empacotado
+
+    try:
+        import winreg
+        winreg.OpenKey(
+            winreg.HKEY_LOCAL_MACHINE,
+            r"SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients"
+            r"\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}",
+        )
+        print("[WEBVIEW2] Já instalado.")
+        return
+    except FileNotFoundError:
+        pass
+
+    print("[WEBVIEW2] Não encontrado. Baixando instalador...")
+    import urllib.request
+    import subprocess
+    import tempfile
+
+    url_instalador = "https://go.microsoft.com/fwlink/p/?LinkId=2124703"
+    tmp = tempfile.NamedTemporaryFile(suffix=".exe", delete=False)
+    tmp.close()
+
+    try:
+        urllib.request.urlretrieve(url_instalador, tmp.name)
+        print("[WEBVIEW2] Instalando silenciosamente...")
+        subprocess.run(
+            [tmp.name, "/silent", "/install"],
+            check=True,
+        )
+        print("[WEBVIEW2] Instalação concluída.")
+    except Exception as e:
+        print(f"[WEBVIEW2] Erro na instalação: {e}")
+    finally:
+        try:
+            os.remove(tmp.name)
+        except Exception:
+            pass
+
+
 def iniciar():
+    _garantir_webview2()
     api = Api()
     webview.create_window(
         title="RCO Manager",
@@ -1093,4 +1138,4 @@ def iniciar():
 
         threading.Thread(target=_run, daemon=True).start()
 
-    webview.start(func=_verificar_update)
+    webview.start(func=_verificar_update, gui='edgechromium')
