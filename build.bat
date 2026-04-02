@@ -54,9 +54,21 @@ if exist "oauth_credentials.json" (
     echo           O app nao conseguira autenticar com o Google sem este arquivo.
 )
 
+:: Lê a versão do version.py
+for /f "tokens=3 delims== " %%v in ('findstr "VERSION" ui\version.py') do set VERSION=%%~v
+
+:: Gera o zip sem pasta raiz (conteúdo direto na raiz do zip)
+echo.
+echo Gerando zip de release...
+set ZIP_NAME=%~dp0rco_manager_v%VERSION%.zip
+if exist "%ZIP_NAME%" del /Q "%ZIP_NAME%"
+set DIST_DIR=%~dp0dist\RCO Manager
+%PYTHON% -c "import zipfile,os; src=r'%DIST_DIR%'; out=r'%ZIP_NAME%'; z=zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED); [z.write(os.path.join(r,f),os.path.relpath(os.path.join(r,f),src).replace(os.sep,'/')) for r,_,fs in os.walk(src) for f in fs]; z.close(); print('  [OK]',os.path.basename(out),'gerado')"
+
 echo.
 echo ============================================
 echo  Build concluido! Pasta: dist\RCO Manager\
+echo  Release zip: %ZIP_NAME%
 echo  Verifique se oauth_credentials.json esta
 echo  na pasta dist\RCO Manager\
 echo ============================================

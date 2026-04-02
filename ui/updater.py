@@ -75,17 +75,11 @@ def baixar_e_instalar(url_download, callback_progresso=None):
         else:
             pasta_destino = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-        # Descompacta e detecta subpasta raiz no zip
+        # Descompacta direto na pasta de update
         with zipfile.ZipFile(zip_path, "r") as zf:
             zf.extractall(pasta_update)
 
-            # Descobre se o zip tem uma subpasta raiz (ex: "RCO Manager/")
-            nomes = zf.namelist()
-            raiz = nomes[0].split("/")[0] if nomes else ""
-            pasta_extraida = os.path.join(pasta_update, raiz) if raiz else pasta_update
-            # Confirma que é realmente uma subpasta (não um arquivo)
-            if not os.path.isdir(pasta_extraida):
-                pasta_extraida = pasta_update
+        pasta_extraida = pasta_update
 
         # Cria update.bat
         bat_path = os.path.join(pasta_update, "update.bat")
