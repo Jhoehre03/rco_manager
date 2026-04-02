@@ -510,6 +510,14 @@ class Api:
         except Exception as e:
             return {"ok": False, "erro": str(e)}
 
+    def corrigir_dropdowns(self, planilha_id):
+        try:
+            from sheets.gerador import reaplicar_validacao
+            n = reaplicar_validacao(planilha_id)
+            return {"ok": True, "colunas": n}
+        except Exception as e:
+            return {"ok": False, "erro": str(e)}
+
     def diagnosticar_planilha(self, planilha_id):
         try:
             from sheets.gerador import diagnosticar_planilha

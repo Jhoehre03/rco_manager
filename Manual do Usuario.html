@@ -119,7 +119,7 @@
 <div class="capa">
   <h1>RCO Manager</h1>
   <div class="sub">Manual do Usuário</div>
-  <div class="versao">Versão 1.0 &nbsp;·&nbsp; 2026</div>
+  <div class="versao">Versão 1.2.1 &nbsp;·&nbsp; 2026</div>
 </div>
 
 <div class="conteudo">
@@ -128,6 +128,7 @@
 <div class="sumario">
   <h2>Sumário</h2>
   <ol>
+    <li><a href="#s0">Instalação</a></li>
     <li><a href="#s1">Visão Geral</a></li>
     <li><a href="#s2">Configuração Inicial</a>
       <ul class="sub-item">
@@ -144,6 +145,7 @@
         <li><a href="#s4-3">Diagnóstico de compatibilidade</a></li>
         <li><a href="#s4-4">Gerar em Lote</a></li>
         <li><a href="#s4-5">Resumo em Lote</a></li>
+        <li><a href="#s4-6">Corrigir Dropdowns</a></li>
       </ul>
     </li>
     <li><a href="#s5">Alunos</a>
@@ -155,7 +157,7 @@
     <li><a href="#s6">Notas</a>
       <ul class="sub-item">
         <li><a href="#s6-1">Lançar nova avaliação</a></li>
-        <li><a href="#s6-2">Editar avaliação já lançada</a></li>
+        <li><a href="#s6-2">Ver e Editar avaliação já lançada</a></li>
       </ul>
     </li>
     <li><a href="#s7">Comentários</a></li>
@@ -164,6 +166,46 @@
   </ol>
 </div>
 
+<!-- 0. INSTALAÇÃO -->
+<h1 class="secao" id="s0">0. Instalação</h1>
+
+<p>O RCO Manager é distribuído como um executável para Windows — não requer instalação de Python ou dependências adicionais.</p>
+
+<h2 class="sub">Como baixar</h2>
+<ol class="passos">
+  <li>Acesse a página de releases do projeto no GitHub: <strong>github.com/Jhoehre03/rco_manager/releases</strong></li>
+  <li>Clique na versão mais recente (ex: <code>v1.1.1</code>).</li>
+  <li>Na seção <strong>Assets</strong>, baixe o arquivo <code>rco_manager.exe</code>.</li>
+</ol>
+
+<h2 class="sub">Como instalar</h2>
+<ol class="passos">
+  <li>Mova o arquivo <code>rco_manager.exe</code> para uma pasta de sua escolha (ex: <code>C:\RCO Manager\</code>).</li>
+  <li>Na primeira execução, o Windows pode exibir um aviso de segurança. Clique em <strong>Mais informações</strong> → <strong>Executar assim mesmo</strong>.</li>
+  <li>O software criará automaticamente os arquivos de configuração necessários na mesma pasta.</li>
+</ol>
+
+<div class="alerta info">
+  <span class="alerta-icon">ℹ</span>
+  <div>O software verifica automaticamente se há uma versão mais nova disponível ao iniciar. Se houver atualização, um aviso será exibido com link para download.</div>
+</div>
+
+<div class="alerta aviso">
+  <span class="alerta-icon">⚠</span>
+  <div>Não mova o executável após a primeira execução sem também mover os arquivos de configuração gerados na mesma pasta (como <code>credentials.json</code> e <code>dados.json</code>). Caso contrário, será necessário reconfigurá-los.</div>
+</div>
+
+<h2 class="sub">Requisitos do sistema</h2>
+<table>
+  <tr><th>Requisito</th><th>Detalhe</th></tr>
+  <tr><td>Sistema operacional</td><td>Windows 10 ou 11 (64-bit)</td></tr>
+  <tr><td>Google Chrome</td><td>Necessário para lançamento de comentários/ocorrências no RCO</td></tr>
+  <tr><td>Conta Google</td><td>Com acesso ao Google Sheets e Google Drive</td></tr>
+  <tr><td>Acesso ao RCO</td><td>Usuário e senha válidos no sistema RCO</td></tr>
+</table>
+
+<hr>
+
 <!-- 1. VISÃO GERAL -->
 <h1 class="secao" id="s1">1. Visão Geral</h1>
 
@@ -171,16 +213,16 @@
 
 <table>
   <tr><th>O que o software faz</th><th>Como faz</th></tr>
-  <tr><td>Lança notas no RCO</td><td>Lê as notas da planilha e preenche o RCO automaticamente via Chrome</td></tr>
+  <tr><td>Lança notas no RCO</td><td>Lê as notas da planilha e envia diretamente para a API do RCO</td></tr>
   <tr><td>Sincroniza alunos</td><td>Compara a lista de alunos do RCO com a planilha e adiciona/remove automaticamente</td></tr>
-  <tr><td>Registra comentários/ocorrências</td><td>Lê ocorrências da planilha e lança no RCO com texto formatado</td></tr>
+  <tr><td>Registra comentários/ocorrências</td><td>Lê ocorrências da planilha e lança no RCO via Chrome com texto formatado</td></tr>
   <tr><td>Gera diários de classe</td><td>Cria planilhas Google Sheets estruturadas no seu Google Drive</td></tr>
   <tr><td>Atualiza resumo de notas</td><td>Lê notas finais do RCO e preenche aba de Resumo na planilha</td></tr>
 </table>
 
-<div class="alerta aviso">
-  <span class="alerta-icon">⚠</span>
-  <div>O software controla o Chrome automaticamente. Durante operações de lançamento, não clique no navegador Chrome — aguarde o processo terminar.</div>
+<div class="alerta info">
+  <span class="alerta-icon">ℹ</span>
+  <div>O lançamento de <strong>notas</strong> é feito diretamente pela API do RCO — sem abrir o Chrome. O Chrome é necessário apenas para lançamento de <strong>comentários e ocorrências</strong>.</div>
 </div>
 
 <hr>
@@ -188,7 +230,7 @@
 <!-- 2. CONFIGURAÇÃO INICIAL -->
 <h1 class="secao" id="s2">2. Configuração Inicial</h1>
 
-<p>Antes de usar qualquer funcionalidade, é necessário realizar três configurações. Elas aparecem na barra superior do software.</p>
+<p>Antes de usar qualquer funcionalidade, é necessário realizar as configurações abaixo. Elas aparecem na barra superior do software.</p>
 
 <h2 class="sub" id="s2-1">2.1 Autorizar Google Sheets</h2>
 
@@ -209,7 +251,7 @@
 
 <h2 class="sub" id="s2-2">2.2 Conectar Chrome ao RCO</h2>
 
-<p>O software utiliza o Chrome instalado no computador para acessar o RCO. É necessário estar logado no RCO dentro do Chrome.</p>
+<p>O Chrome é utilizado para o lançamento de comentários e ocorrências no RCO. Para lançamento de notas, o Chrome <strong>não é necessário</strong>.</p>
 
 <ol class="passos">
   <li>Clique em <span class="btn-demo">Conectar Chrome</span> na barra superior.</li>
@@ -221,7 +263,7 @@
 
 <div class="alerta aviso">
   <span class="alerta-icon">⚠</span>
-  <div>Se fechar o Chrome ou a sessão do RCO expirar, será necessário clicar em <strong>Reconectar</strong> e repetir o processo de login.</div>
+  <div>Se fechar o Chrome ou a sessão do RCO expirar, será necessário clicar em <strong>Reconectar</strong> e repetir o processo de login. Isso afeta apenas o lançamento de comentários.</div>
 </div>
 
 <h2 class="sub" id="s2-3">2.3 Configurar Pasta do Google Drive</h2>
@@ -370,6 +412,21 @@
   <div>O resumo mostra aprovados (verde), reprovados (vermelho) e situação parcial (amarelo) para cada aluno, com base nas notas finais do RCO.</div>
 </div>
 
+<h2 class="sub" id="s4-6">4.6 Corrigir Dropdowns</h2>
+
+<p>As planilhas geradas pelo software possuem um campo de ocorrências com validação de lista (dropdown). Se o professor precisar adicionar novas entradas de ocorrência na aba <strong>Penalidades</strong> da planilha, o dropdown precisa ser atualizado para reconhecer as novas linhas.</p>
+
+<ol class="passos">
+  <li>Clique em <span class="btn-demo">Dropdowns</span> na linha da turma desejada (aparece ao expandir a turma vinculada).</li>
+  <li>O software atualizará a validação das colunas de ocorrência nas três abas de trimestre.</li>
+  <li>Abra a planilha no Google Sheets e verifique que as novas entradas aparecem no dropdown.</li>
+</ol>
+
+<div class="alerta info">
+  <span class="alerta-icon">ℹ</span>
+  <div>Novas planilhas geradas a partir desta versão já possuem o intervalo de dropdown aberto por padrão (até 200 entradas). O botão <strong>Dropdowns</strong> é necessário apenas para planilhas geradas em versões anteriores.</div>
+</div>
+
 <hr>
 
 <!-- 5. ALUNOS -->
@@ -416,37 +473,51 @@
 <!-- 6. NOTAS -->
 <h1 class="secao" id="s6">6. Notas</h1>
 
-<p>Esta aba permite lançar ou editar notas de avaliações no RCO a partir dos valores calculados na planilha.</p>
+<p>Esta aba permite lançar ou editar notas de avaliações no RCO a partir dos valores calculados na planilha. O lançamento é feito diretamente via API do RCO — <strong>sem necessidade de abrir o Chrome</strong>.</p>
+
+<p>Cada turma exibe a lista de avaliações cadastradas no RCO. As avaliações ainda não lançadas mostram o botão <span class="btn-demo">Lançar</span>; as já lançadas mostram o botão <span class="btn-demo">Ver / Editar</span>.</p>
 
 <h2 class="sub" id="s6-1">6.1 Lançar nova avaliação</h2>
 
+<p>Use este fluxo para avaliações que ainda não foram enviadas ao RCO.</p>
+
 <ol class="passos">
-  <li>Clique em <span class="btn-demo">Lançar Notas</span> na turma desejada.</li>
-  <li>Selecione o <strong>Trimestre</strong>.</li>
-  <li>Selecione a <strong>Avaliação</strong> (ATV 1, ATV 2, REC 1…).</li>
+  <li>Na turma desejada, clique em <span class="btn-demo">Lançar</span> ao lado da avaliação.</li>
+  <li>No modal que abrir, selecione o <strong>Trimestre</strong>.</li>
   <li>Selecione a <strong>Data</strong> da aula correspondente.</li>
-  <li>Informe o <strong>Valor Máximo</strong> da avaliação.</li>
-  <li>Clique em <span class="btn-demo">Buscar Notas da Planilha</span> — a tabela será preenchida.</li>
+  <li>Clique em <span class="btn-demo">Buscar da Planilha</span> — a tabela será preenchida com as notas da planilha na coluna <strong>Enviar</strong>.</li>
   <li>Revise as notas. Você pode editá-las manualmente antes de enviar.</li>
   <li>Clique em <span class="btn-demo">Lançar no RCO</span>.</li>
 </ol>
 
 <div class="alerta aviso">
   <span class="alerta-icon">⚠</span>
-  <div>Alunos inativos são ignorados automaticamente. Células com texto (ex: "AF", "Falta") são tratadas como <strong>zero</strong>.</div>
+  <div>Alunos inativos são ignorados automaticamente. Células com texto (ex: "AF", "Falta") são enviadas como <strong>zero</strong>.</div>
 </div>
 
-<h2 class="sub" id="s6-2">6.2 Editar avaliação já lançada</h2>
+<h2 class="sub" id="s6-2">6.2 Ver e Editar avaliação já lançada</h2>
 
-<p>Quando uma avaliação já foi lançada anteriormente no RCO, o software entra em modo de edição automaticamente.</p>
+<p>Use este fluxo para avaliações que já foram enviadas ao RCO e precisam ser consultadas ou corrigidas.</p>
 
 <ol class="passos">
-  <li>Selecione a avaliação já lançada (aparece com o badge <span class="badge badge-ok">✓ Lançada</span>).</li>
-  <li>Clique em <span class="btn-demo">Buscar do RCO</span> para carregar as notas atuais do sistema.</li>
-  <li>Linhas com divergência entre planilha e RCO serão destacadas em amarelo.</li>
-  <li>Ajuste as notas conforme necessário.</li>
+  <li>Na turma desejada, clique em <span class="btn-demo">Ver / Editar</span> ao lado da avaliação já lançada.</li>
+  <li>No modal que abrir, as colunas exibidas são:
+    <ul class="lista">
+      <li><strong>Planilha</strong> — nota atual na planilha Google Sheets</li>
+      <li><strong>RCO atual</strong> — nota registrada no RCO (lida via API, somente leitura)</li>
+      <li><strong>Enviar</strong> — nota que será enviada ao RCO (editável)</li>
+    </ul>
+  </li>
+  <li>Clique em <span class="btn-demo">Buscar da Planilha</span> para preencher a coluna <strong>Planilha</strong>.</li>
+  <li>Clique em <span class="btn-demo">Buscar do RCO</span> para preencher a coluna <strong>RCO atual</strong>. Linhas com diferença entre planilha e RCO serão destacadas em amarelo.</li>
+  <li>Ajuste a coluna <strong>Enviar</strong> conforme necessário.</li>
   <li>Clique em <span class="btn-demo">Editar no RCO</span>.</li>
 </ol>
+
+<div class="alerta info">
+  <span class="alerta-icon">ℹ</span>
+  <div>A coluna <strong>RCO atual</strong> é apenas para referência — ela não é editável. A coluna <strong>Enviar</strong> é o que será efetivamente enviado ao clicar em Editar no RCO.</div>
+</div>
 
 <hr>
 
@@ -509,8 +580,9 @@
 
 <h2 class="sub">Primeiro uso (configuração completa)</h2>
 <ol class="passos">
+  <li>Baixar e executar o <code>rco_manager.exe</code></li>
   <li>Autorizar Google Sheets</li>
-  <li>Conectar Chrome e fazer login no RCO</li>
+  <li>Conectar Chrome e fazer login no RCO (necessário para comentários)</li>
   <li>Configurar pasta do Google Drive (aba Configurações)</li>
   <li>Atualizar Banco no Dashboard</li>
   <li>Gerar planilhas na aba Planilhas</li>
@@ -519,9 +591,9 @@
 
 <h2 class="sub">Uso semanal típico</h2>
 <ol class="passos">
-  <li>Conectar Chrome e confirmar login</li>
+  <li>Aba Notas → selecionar avaliação → buscar notas da planilha → lançar no RCO (sem Chrome)</li>
+  <li>Conectar Chrome e confirmar login (apenas se precisar lançar comentários)</li>
   <li>Aba Comentários → buscar período da semana → lançar no RCO</li>
-  <li>Aba Notas → selecionar avaliação → buscar notas → lançar no RCO</li>
 </ol>
 
 <h2 class="sub">Início de trimestre</h2>

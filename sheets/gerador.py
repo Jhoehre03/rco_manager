@@ -422,7 +422,7 @@ def _requests_cores_cabecalho(ws_id, colunas, num_alunos, n_avs):
 def _requests_validacao(ws_id, colunas, num_alunos, n_avs):
     """Menu suspenso nas colunas 'Ocorrência'."""
     ultima_linha  = 4 + num_alunos
-    intervalo_pen = f"Penalidades!$A$2:$A${1 + len(PENALIDADES)}"
+    intervalo_pen = "Penalidades!$A$2:$A$200"
     col_aulas_ini = _col_aulas_inicio(n_avs)
     requests      = []
 
@@ -1027,6 +1027,62 @@ def ler_ocorrencias_planilha(planilha_id, data_str):
 
 
 # ---------------------------------------------------------------------------
+def reaplicar_validacao(planilha_id):
+    """
+    Reaplicar o dropdown de ocorrências em todas as abas de trimestre da planilha,
+    usando o intervalo aberto Penalidades!$A$2:$A$200 para suportar novas entradas.
+    """
+    creds = _get_creds()
+    gc    = gspread.authorize(creds)
+    sh    = gc.open_by_key(planilha_id)
+
+    ABAS = {"1 Trimestre", "2 Trimestre", "3 Trimestre"}
+    requests = []
+
+    for ws in sh.worksheets():
+        if ws.title not in ABAS:
+            continue
+        linhas = ws.get_all_values()
+        if len(linhas) < 3:
+            continue
+
+        row3 = linhas[2]
+        num_alunos = sum(
+            1 for l in linhas[3:]
+            if l and any(c.strip() for c in l)
+        )
+        ultima_linha = 4 + num_alunos
+
+        # Detecta colunas de ocorrência pelo cabeçalho (contém "ocorr" ou "ocorrência")
+        for col_idx, header in enumerate(row3):
+            h = header.strip().lower()
+            if "ocorr" in h or "ocorrencia" in h or "ocorrência" in h:
+                requests.append({
+                    "setDataValidation": {
+                        "range": {
+                            "sheetId":          ws.id,
+                            "startRowIndex":    3,
+                            "endRowIndex":      ultima_linha,
+                            "startColumnIndex": col_idx,
+                            "endColumnIndex":   col_idx + 1,
+                        },
+                        "rule": {
+                            "condition": {
+                                "type":   "ONE_OF_RANGE",
+                                "values": [{"userEnteredValue": "=Penalidades!$A$2:$A$200"}],
+                            },
+                            "showCustomUi": True,
+                            "strict":       False,
+                        },
+                    }
+                })
+
+    if requests:
+        sh.batch_update({"requests": requests})
+
+    return len(requests)
+
+
 # Aba Resumo
 # ---------------------------------------------------------------------------
 
@@ -1338,7 +1394,7 @@ def gerar_diario(turma_data, config, pasta_id):
     max_sem = max(calcular_semanas_trimestre(t, ano) for t in [1, 2, 3])
     max_cols = _col_fixas(n_avs) + max_sem * freq * 2 + n_avs + 10
 
-    ws_pen  = planilha.add_worksheet("Penalidades",  rows=20,  cols=2)
+    ws_pen  = planilha.add_worksheet("Penalidades",  rows=200, cols=2)
     ws_tri1 = planilha.add_worksheet("1 Trimestre",  rows=200, cols=max(80, max_cols))
     ws_tri2 = planilha.add_worksheet("2 Trimestre",  rows=200, cols=max(80, max_cols))
     ws_tri3 = planilha.add_worksheet("3 Trimestre",  rows=200, cols=max(80, max_cols))
