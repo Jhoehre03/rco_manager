@@ -422,7 +422,7 @@ def _requests_cores_cabecalho(ws_id, colunas, num_alunos, n_avs):
 def _requests_validacao(ws_id, colunas, num_alunos, n_avs):
     """Menu suspenso nas colunas 'Ocorrência'."""
     ultima_linha  = 4 + num_alunos
-    intervalo_pen = f"Penalidades!$A$2:$A${1 + len(PENALIDADES)}"
+    intervalo_pen = f"Penalidades!$A$2:$A"
     col_aulas_ini = _col_aulas_inicio(n_avs)
     requests      = []
 
