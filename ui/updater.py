@@ -91,20 +91,28 @@ def baixar_e_instalar(url_download, callback_progresso=None):
         bat_path = os.path.join(pasta_update, "update.bat")
         exe_path = sys.executable if getattr(sys, "frozen", False) else ""
 
+        log_path = os.path.join(pasta_update, "update_log.txt")
         conteudo_bat = f"""@echo off
-timeout /t 2 /nobreak >nul
-xcopy /E /Y /I "{pasta_extraida}\\*" "{pasta_destino}\\"
-del /Q "{zip_path}"
+echo Aguardando encerramento do app... > "{log_path}"
+timeout /t 3 /nobreak >nul
+echo Copiando arquivos de: {pasta_extraida} >> "{log_path}"
+echo Para: {pasta_destino} >> "{log_path}"
+xcopy /E /Y /I "{pasta_extraida}\\*" "{pasta_destino}\\" >> "{log_path}" 2>&1
+echo Xcopy retornou: %ERRORLEVEL% >> "{log_path}"
+del /Q "{zip_path}" 2>nul
 """
         if exe_path:
+            conteudo_bat += f'echo Reiniciando app... >> "{log_path}"\n'
             conteudo_bat += f'start "" "{exe_path}"\n'
+        conteudo_bat += f'echo Concluido. >> "{log_path}"\n'
         conteudo_bat += "del /Q \"%~f0\"\n"
 
         with open(bat_path, "w", encoding="utf-8") as f:
             f.write(conteudo_bat)
 
         # Executa o bat e encerra o app atual
-        os.startfile(bat_path)
+        import subprocess as _sp
+        _sp.Popen(["cmd", "/c", bat_path], creationflags=0x08000000)  # CREATE_NO_WINDOW
         sys.exit(0)
 
     except Exception as e:
