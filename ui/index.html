@@ -2299,6 +2299,79 @@
       </div>`;
   }
 
+  function _ntToggleTurma(idx) {
+    const item   = document.getElementById(`notas-turma-${idx}`);
+    const expand = document.getElementById(`notas-expand-${idx}`);
+    if (!item || !expand) return;
+    const isOpen = item.classList.contains('expanded');
+    // Fecha todos
+    document.querySelectorAll('#notas-list .turma-item').forEach(el => el.classList.remove('expanded'));
+    if (!isOpen) {
+      item.classList.add('expanded');
+      // Seleciona trimestre 1 automaticamente na primeira abertura
+      if (!_ntTrimestre[idx]) _ntSelecionarTrim(idx, 1);
+    }
+  }
+
+  async function _ntSelecionarTrim(idx, tri) {
+    _ntTrimestre[idx] = tri;
+    // Atualiza visual dos botões
+    [1,2,3].forEach(t => {
+      const btn = document.getElementById(`notas-trim-${idx}-${t}`);
+      if (!btn) return;
+      btn.style.background = t === tri ? '#3b82f6' : '#f1f5f9';
+      btn.style.color      = t === tri ? '#fff'    : '#374151';
+    });
+    const container = document.getElementById(`notas-avs-${idx}`);
+    if (!container) return;
+    container.innerHTML = '<div style="color:#94a3b8;font-size:12px">Carregando avaliações...</div>';
+
+    const t = state.turmas[idx];
+    // Usa cache ou busca na API
+    if (!_ntDadosApi[idx]) {
+      try {
+        const res = await window.pywebview.api.get_avaliacoes_rco_api(t.escola, t.turma, t.disciplina);
+        if (!res.ok) {
+          container.innerHTML = `<div style="color:#ef4444;font-size:12px">Erro: ${res.erro}</div>`;
+          return;
+        }
+        _ntDadosApi[idx] = res.avaliacoes;
+      } catch(e) {
+        container.innerHTML = `<div style="color:#ef4444;font-size:12px">Erro: ${e}</div>`;
+        return;
+      }
+    }
+
+    const avs = _ntDadosApi[idx];
+    const triKey = `${tri}T`;
+    const nl  = (t.notas_lancadas || {})[triKey] || {};
+    if (!avs || avs.length === 0) {
+      container.innerHTML = '<div style="color:#94a3b8;font-size:12px">Nenhuma avaliação encontrada.</div>';
+      return;
+    }
+    container.innerHTML = avs.map(av => _renderAvLinha(idx, tri, av, nl)).join('');
+  }
+
+  function _renderAvLinha(idx, tri, av, nl) {
+    const nomeAv   = av.nome;
+    const dataLanc = nl[nomeAv] || '';
+    const lancada  = !!dataLanc;
+    const badgeHtml = lancada
+      ? `<span class="badge" style="background:#dcfce7;color:#166534;font-size:11px">✓ ${dataLanc}</span>`
+      : `<span class="badge" style="background:#fef3c7;color:#92400e;font-size:11px">Pendente</span>`;
+    const btnHtml = lancada
+      ? `<button class="btn btn-sm" style="background:#f1f5f9;color:#374151"
+           onclick="event.stopPropagation();_meAbrir(${idx},${tri},'${nomeAv}','${dataLanc}')">Ver / Editar</button>`
+      : `<button class="btn btn-sm btn-primary"
+           onclick="event.stopPropagation();_mlAbrir(${idx},${tri},'${nomeAv}')">Lançar</button>`;
+    return `
+      <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f1f5f9">
+        <div style="flex:1;font-size:13px;font-weight:600;color:#1e3a5f">${nomeAv}</div>
+        ${badgeHtml}
+        ${btnHtml}
+      </div>`;
+  }
+
   // ── COMENTÁRIOS ──────────────────────────────
   let _grupos_comentarios = [];   // cache da última busca: [{data,escola,turma,disciplina,trimestre,alunos}]
 
@@ -2734,6 +2807,7 @@
       state.status = status;
       atualizarStatusGoogle(status.google_autorizado);
       _atualizarPillApi(status.api_conectada, status.token_salvo_em);
+      if (status.versao) document.getElementById('sidebar-versao').textContent = 'v' + status.versao;
       if (state.secao === 'dashboard') renderDashboard();
     } catch (e) {
       toast('Erro ao carregar dados', 'error');

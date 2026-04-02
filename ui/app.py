@@ -3,6 +3,7 @@ import json
 import subprocess
 import time
 import webview
+from ui.version import VERSION
 from database import (carregar, atualizar_banco as _atualizar_banco,
                       atualizar_banco_progresso, marcar_comentario_lancado,
                       get_comentarios_lancados, sincronizar_notas_lancadas,
@@ -67,6 +68,7 @@ class Api:
             "google_autorizado":     os.path.exists("token.json"),
             "api_conectada":         api_conectada,
             "token_salvo_em":        token_expira_em,
+            "versao":                VERSION,
         }
 
     def get_snapshot_turma(self, escola, turma, disciplina):
