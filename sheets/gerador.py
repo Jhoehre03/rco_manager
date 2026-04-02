@@ -597,7 +597,13 @@ def ler_notas_planilha(planilha_id, trimestre, coluna_av):
 
         if nota_raw:
             try:
-                nota_rco = str(int(round(float(nota_raw))))
+                v = float(nota_raw)
+                # Se o valor já é inteiro >= 10 (escala 0-100), usa direto.
+                # Se é decimal < 10 (escala 0-10), converte ×10.
+                if v < 10 and not nota_raw.isdigit():
+                    nota_rco = str(int(round(v * 10)))
+                else:
+                    nota_rco = str(int(round(v)))
             except ValueError:
                 nota_rco = "0"
         else:
@@ -672,12 +678,13 @@ def _ler_alunos_planilha(planilha_id):
     gc    = gspread.authorize(creds)
     sh    = gc.open_by_key(planilha_id)
 
+    ABAS_TRIMESTRE = {"1 Trimestre", "2 Trimestre", "3 Trimestre"}
     for ws in sh.worksheets():
-        if ws.title == "Penalidades":
+        if ws.title not in ABAS_TRIMESTRE:
             continue
         linhas = ws.get_all_values()
         if len(linhas) < 3:
-            return {}
+            continue
 
         row3 = linhas[2]
         cols = _detectar_colunas_alunos(row3)
@@ -686,7 +693,7 @@ def _ler_alunos_planilha(planilha_id):
         sit_col_idx  = cols["situacao"]
 
         if num_col_idx is None:
-            return {}
+            continue
         # Nome: usa coluna detectada ou fallback para coluna 0
         if nome_col_idx is None:
             nome_col_idx = 0

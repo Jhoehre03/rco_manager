@@ -5,6 +5,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
+from rco.api_client import RCOClient
+
+# Instância global do cliente HTTP — compartilhada por todo o módulo rco
+rco_client = RCOClient()
 
 
 def conectar_chrome():
@@ -52,6 +56,12 @@ def fazer_login(cpf, senha):
         wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "pt-3")))
         botoes = browser.find_elements(By.CLASS_NAME, "pt-3")
         botoes[0].click()
+
+        # Extrai token JWT da URL após redirecionamento
+        encontrou = rco_client.extrair_token_do_browser(browser)
+        if not encontrou:
+            print("[AUTH] Token não extraído — será necessário autenticar novamente.")
+
         return browser, "ok"
     except:
         browser.quit()

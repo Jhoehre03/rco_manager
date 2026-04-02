@@ -11,6 +11,8 @@ icon = icon_path if os.path.exists(icon_path) else None
 # Coleta dados extras das bibliotecas que precisam deles
 datas = [
     ('ui/index.html', 'ui'),
+    ('ui/modal_lancar.js', 'ui'),
+    ('ui/modal_editar.js', 'ui'),
 ]
 
 # dados_inicial.json — template para novos usuários (main.py copia para dados.json se não existir)
@@ -86,6 +88,10 @@ hidden_imports = collect_submodules('selenium') + [
     # Módulos internos do projeto
     'ui.app',
     'rco.auth',
+    'rco.api_client',
+    'rco.consultas',
+    'rco.rate_limiter',
+    'rco.exceptions',
     'rco.escolas',
     'rco.notas',
     'sheets.gerador',

@@ -478,99 +478,6 @@
   </div>
 </div>
 
-<!-- ── MODAL LANÇAR NOTAS ────────────────────── -->
-<div id="modal-notas" class="modal-overlay hidden" onclick="if(event.target.id==='modal-notas')_fecharModalNotas()">
-  <div class="modal-box" onclick="event.stopPropagation()" style="width:700px;max-height:90vh;display:flex;flex-direction:column">
-    <div class="modal-header">
-      <h3 id="notas-modal-title">Lançar Notas</h3>
-      <button class="modal-close" onclick="_fecharModalNotas()">×</button>
-    </div>
-
-    <div class="modal-body" style="overflow-y:auto;flex:1">
-
-      <!-- Filtros -->
-      <div class="form-row-2" style="margin-bottom:14px">
-        <div class="form-group">
-          <label>Trimestre</label>
-          <div class="trimestre-pills">
-            <label class="trim-pill"><input type="radio" name="nt-trim" value="1" onchange="_ntCarregarDatas()"> 1º</label>
-            <label class="trim-pill"><input type="radio" name="nt-trim" value="2" onchange="_ntCarregarDatas()"> 2º</label>
-            <label class="trim-pill"><input type="radio" name="nt-trim" value="3" onchange="_ntCarregarDatas()"> 3º</label>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Avaliação</label>
-          <select id="nt-av" disabled onchange="_ntAvChanged()">
-            <option value="">Selecione o trimestre primeiro</option>
-          </select>
-          <div id="nt-av-status" style="margin-top:5px;font-size:12px;display:none"></div>
-        </div>
-      </div>
-
-      <div class="form-row-2" style="margin-bottom:14px">
-        <div class="form-group">
-          <label>Data da avaliação</label>
-          <select id="nt-data" disabled>
-            <option value="">Selecione o trimestre primeiro</option>
-          </select>
-          <div id="nt-data-aviso" style="font-size:11px;color:#ef4444;margin-top:4px;display:none">
-            Nenhuma aula cadastrada neste trimestre
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Valor máximo</label>
-          <input type="number" id="nt-valor" step="0.5" min="0.5" max="10" placeholder="ex: 3">
-        </div>
-      </div>
-
-      <div id="nt-modo-row" style="display:none;margin-bottom:12px;align-items:center;gap:10px">
-        <label style="font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em">Modo</label>
-        <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer">
-          <input type="radio" name="nt-modo" value="novo" onchange="_ntModoChanged()"> Novo lançamento
-        </label>
-        <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer">
-          <input type="radio" name="nt-modo" value="editar" onchange="_ntModoChanged()"> Editar existente
-        </label>
-      </div>
-
-      <div style="display:flex;gap:8px;margin-bottom:16px">
-        <button class="btn btn-primary" id="btn-buscar-notas" onclick="_buscarNotas()">
-          Buscar notas da planilha
-        </button>
-        <button class="btn" id="btn-buscar-rco" onclick="_buscarNotasRco()"
-          style="display:none;background:#e0e7ff;color:#3730a3">
-          Buscar do RCO
-        </button>
-      </div>
-
-      <!-- Tabela de notas -->
-      <div id="nt-tabela" class="hidden">
-        <hr style="border:none;border-top:1px solid #f1f5f9;margin-bottom:14px">
-        <table style="width:100%;border-collapse:collapse;font-size:13px">
-          <thead>
-            <tr style="background:#f8fafc">
-              <th style="padding:7px 10px;text-align:left;border-bottom:1px solid #e2e8f0;width:40px">Nº</th>
-              <th style="padding:7px 10px;text-align:left;border-bottom:1px solid #e2e8f0">Nome</th>
-              <th style="padding:7px 10px;text-align:center;border-bottom:1px solid #e2e8f0;width:80px">Planilha</th>
-              <th id="nt-th-rco-atual" style="padding:7px 10px;text-align:center;border-bottom:1px solid #e2e8f0;width:80px;display:none">RCO atual</th>
-              <th style="padding:7px 10px;text-align:center;border-bottom:1px solid #e2e8f0;width:100px">Enviar</th>
-            </tr>
-          </thead>
-          <tbody id="nt-tbody"></tbody>
-        </table>
-      </div>
-
-    </div>
-
-    <div class="modal-footer">
-      <button class="btn" style="background:#f1f5f9;color:#374151" onclick="_fecharModalNotas()">Fechar</button>
-      <button class="btn btn-primary" id="btn-lancar-notas" disabled onclick="_lancarNotas()">
-        Lançar no RCO
-      </button>
-    </div>
-  </div>
-</div>
-
 <!-- ── MODAL RESUMO EM LOTE ──────────────────── -->
 <div id="modal-resumo-lote" class="modal-overlay hidden" onclick="if(event.target.id==='modal-resumo-lote')_fecharResumoLote()">
   <div class="modal-box" onclick="event.stopPropagation()" style="width:580px;max-height:88vh;display:flex;flex-direction:column">
@@ -655,7 +562,7 @@
         </div>
       </div>
 
-      <div id="sa-log" style="display:none;flex-direction:column;gap:4px;max-height:240px;overflow-y:auto"></div>
+      <div id="sa-log" style="display:none;max-height:240px;overflow-y:auto"></div>
 
     </div>
 
@@ -715,56 +622,6 @@
     <div class="modal-footer">
       <button class="btn" id="sn-btn-fechar" style="background:#f1f5f9;color:#374151" onclick="_fecharSincronizarRco()">Fechar</button>
       <button class="btn btn-primary" id="sn-btn-iniciar" onclick="_iniciarSincronizarRco()">Sincronizar</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── MODAL ATUALIZAR BANCO ─────────────────── -->
-<div id="modal-atualizar-banco" class="modal-overlay hidden" onclick="if(event.target.id==='modal-atualizar-banco')_fecharAtualizarBanco()">
-  <div class="modal-box" onclick="event.stopPropagation()" style="width:560px;max-height:88vh;display:flex;flex-direction:column">
-    <div class="modal-header">
-      <h3>Atualizar Banco de Dados</h3>
-      <button class="modal-close" onclick="_fecharAtualizarBanco()">×</button>
-    </div>
-
-    <div class="modal-body" style="overflow-y:auto;flex:1">
-
-      <!-- Seletor de trimestre -->
-      <div class="form-group" style="margin-bottom:16px">
-        <label>Trimestre</label>
-        <div class="trimestre-pills">
-          <label class="trim-pill"><input type="radio" name="ab-trim" value="1º Tri" checked> 1º</label>
-          <label class="trim-pill"><input type="radio" name="ab-trim" value="2º Tri"> 2º</label>
-          <label class="trim-pill"><input type="radio" name="ab-trim" value="3º Tri"> 3º</label>
-        </div>
-      </div>
-
-      <p style="font-size:13px;color:#64748b;margin-bottom:16px">
-        O sistema irá acessar o RCO e atualizar a lista de turmas e alunos de todas as escolas.
-        Não feche o Chrome durante o processo.
-      </p>
-
-      <!-- Barra de progresso (oculta até iniciar) -->
-      <div id="ab-progresso-area" style="display:none;margin-bottom:12px">
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:#64748b;margin-bottom:4px">
-          <span id="ab-progresso-label">Iniciando...</span>
-          <span id="ab-progresso-pct">0%</span>
-        </div>
-        <div style="background:#e2e8f0;border-radius:8px;height:10px;overflow:hidden">
-          <div id="ab-progresso-bar" style="height:100%;width:0%;background:#3b82f6;border-radius:8px;transition:width .3s"></div>
-        </div>
-      </div>
-
-      <!-- Log por turma -->
-      <div id="ab-log" style="display:none;flex-direction:column;gap:4px;font-size:12px;max-height:240px;overflow-y:auto"></div>
-
-    </div>
-
-    <div class="modal-footer">
-      <button class="btn" style="background:#f1f5f9;color:#374151" onclick="_fecharAtualizarBanco()" id="ab-btn-fechar">Fechar</button>
-      <button class="btn btn-primary" id="ab-btn-iniciar" onclick="_iniciarAtualizarBanco()">
-        Atualizar Banco
-      </button>
     </div>
   </div>
 </div>
@@ -955,6 +812,10 @@
       <div id="chrome-status" class="status-pill desconectado">
         <div class="status-dot"></div>
         <span id="chrome-status-text">Chrome desconectado</span>
+      </div>
+      <div id="api-status" class="status-pill desconectado" title="Token JWT capturado após login no Chrome">
+        <div class="status-dot"></div>
+        <span id="api-status-text">API desconectada</span>
       </div>
       <button class="btn btn-primary btn-sm" id="btn-conectar" onclick="conectarChrome()">
         Conectar Chrome
@@ -1267,7 +1128,7 @@
     const ok  = status === 'ok';
 
     const wrapper = document.createElement('div');
-    wrapper.style.cssText = `border-radius:6px;overflow:hidden;margin-bottom:2px`;
+    wrapper.style.cssText = `border-radius:6px;overflow:hidden;margin-bottom:4px;display:block`;
 
     // Cabeçalho da turma
     const header = document.createElement('div');
@@ -1316,7 +1177,7 @@
     document.getElementById('sa-btn-fechar').disabled  = true;
     document.getElementById('sa-progresso-area').style.display = 'block';
     const log = document.getElementById('sa-log');
-    log.style.display = 'flex';
+    log.style.display = 'block';
     log.innerHTML = '';
 
     try {
@@ -1690,8 +1551,6 @@
   }
 
   async function _iniciarResumoLote() {
-    if (!state.chrome) { toast('Conecte o Chrome primeiro', 'error'); return; }
-
     const trimEl = document.querySelector('input[name="rl-trim"]:checked');
     if (!trimEl) { toast('Selecione o trimestre', 'error'); return; }
     const triStr = {1:'1º Tri',2:'2º Tri',3:'3º Tri'}[parseInt(trimEl.value)];
@@ -1712,7 +1571,7 @@
     const logEl         = document.getElementById('rl-log');
 
     progressoArea.style.display = '';
-    logEl.style.display = 'flex';
+    logEl.style.display = 'block';
     logEl.innerHTML = '';
 
     const total = selecionadas.length;
@@ -2351,391 +2210,71 @@
     }
   }
 
-  // ── NOTAS ────────────────────────────────────
-  let _ntTurma   = null;
-  let _ntAlunos  = [];   // cache após busca
+  // ── NOTAS — estado ────────────────────────────────────────────────────────
+  let _ntTurmaAberta = null;  // idx da turma com painel aberto
+  let _ntDadosApi    = {};    // cache: idx → {avaliacoes, notas}
+  let _ntTrimestre   = {};    // idx → trimestre selecionado (1,2,3)
 
   function renderNotas() {
-    const rows = state.turmas.map((t, idx) => {
-      const tem = !!t.planilha_id;
-      return `
-        <div class="plan-row">
-          <div class="turma-avatar">${t.disciplina.slice(0,2).toUpperCase()}</div>
-          <div class="plan-info">
-            <div class="plan-nome">${t.turma} — ${t.disciplina}</div>
-            <div class="plan-escola">${t.escola}</div>
-          </div>
-          <div class="plan-actions">
-            <span class="badge ${tem ? 'badge-ok' : 'badge-sem'}">
-              ${tem ? 'Com planilha' : 'Sem planilha'}
-            </span>
-            <button class="btn btn-primary btn-sm" ${!tem ? 'disabled title="Gere a planilha primeiro"' : ''}
-              onclick='_abrirModalNotas(${idx}, "${t.turma.replace(/"/g,"")} — ${t.disciplina.replace(/"/g,"")}")'>
-              Lançar Notas
-            </button>
-          </div>
-        </div>`;
-    }).join('');
-
+    const { turmas } = state;
     document.getElementById('content').innerHTML = `
       <div class="section-header">
-        <span class="section-title">Lançamento de Notas</span>
+        <span class="section-title">Lançar Notas</span>
       </div>
-      <div class="turmas-list">
-        ${state.turmas.length === 0
+      <div class="turmas-list" id="notas-list">
+        ${turmas.length === 0
           ? '<div class="empty">Nenhuma turma cadastrada.</div>'
-          : rows}
+          : turmas.map((t, idx) => _renderNotasTurmaRow(t, idx)).join('')}
+      </div>
+      ${_mlHTML()}
+      ${_meHTML()}
+    `;
+  }
+
+  function _renderNotasTurmaRow(t, idx) {
+    const iniciais  = t.disciplina.slice(0,2).toUpperCase();
+    const temPlan   = !!t.planilha_id;
+    const nl        = t.notas_lancadas || {};
+    // Conta AVs únicas por data (evita duplicatas de nomes RCO vs planilha)
+    const totalAvs  = Object.values(nl).reduce((s, avs) => {
+      const datas = new Set(Object.values(avs).filter(Boolean));
+      return s + datas.size;
+    }, 0);
+    const badgePlan = temPlan
+      ? `<span class="badge" style="background:#dcfce7;color:#166534">📊 Com planilha</span>`
+      : `<span class="badge badge-sem">Sem planilha</span>`;
+    const badgeAvs  = totalAvs > 0
+      ? `<span class="badge" style="background:#e0e7ff;color:#3730a3">${totalAvs} AV${totalAvs !== 1 ? 's' : ''} lançada${totalAvs !== 1 ? 's' : ''}</span>`
+      : '';
+
+    return `
+      <div class="turma-item" id="notas-turma-${idx}">
+        <div class="turma-row" onclick="_ntToggleTurma(${idx})">
+          <div class="turma-avatar">${iniciais}</div>
+          <div class="turma-info">
+            <div class="turma-nome">${t.turma} — ${t.disciplina}</div>
+            <div class="turma-escola">${t.escola}</div>
+          </div>
+          <div class="turma-badges">
+            ${badgePlan}
+            ${badgeAvs}
+          </div>
+          <span class="turma-chevron">▶</span>
+        </div>
+        <div class="turma-expand" id="notas-expand-${idx}">
+          <div style="padding:8px 0 4px;display:flex;gap:6px;flex-wrap:wrap">
+            ${[1,2,3].map(tri => `
+              <button class="btn btn-sm" id="notas-trim-${idx}-${tri}"
+                style="background:${(_ntTrimestre[idx]||1)===tri?'#3b82f6':'#f1f5f9'};color:${(_ntTrimestre[idx]||1)===tri?'#fff':'#374151'}"
+                onclick="event.stopPropagation();_ntSelecionarTrim(${idx},${tri})">
+                ${tri}º Tri
+              </button>`).join('')}
+          </div>
+          <div id="notas-avs-${idx}" style="margin-top:8px">
+            <div style="color:#94a3b8;font-size:12px">Clique em um trimestre para carregar as AVs</div>
+          </div>
+        </div>
       </div>`;
-  }
-
-  function _abrirModalNotas(turmaIdx, nomeTurma) {
-    // Lê sempre de state.turmas para ter notas_lancadas atualizadas
-    _ntTurma  = state.turmas[turmaIdx];
-    _ntAlunos = [];
-    document.getElementById('notas-modal-title').textContent = `Notas — ${nomeTurma}`;
-    document.querySelectorAll('input[name="nt-trim"]').forEach(r => r.checked = false);
-    const selAv = document.getElementById('nt-av');
-    selAv.innerHTML = '<option value="">Selecione o trimestre primeiro</option>';
-    selAv.disabled  = true;
-    document.getElementById('nt-valor').value = '';
-    const sel = document.getElementById('nt-data');
-    sel.innerHTML = '<option value="">Selecione o trimestre primeiro</option>';
-    sel.disabled  = true;
-    document.getElementById('nt-data-aviso').style.display = 'none';
-    document.getElementById('nt-tabela').classList.add('hidden');
-    document.getElementById('nt-tbody').innerHTML = '';
-    document.getElementById('btn-lancar-notas').disabled = true;
-    // Reset status badge e modo
-    document.getElementById('nt-av-status').style.display = 'none';
-    document.getElementById('nt-modo-row').style.display  = 'none';
-    document.getElementById('modal-notas').classList.remove('hidden');
-  }
-
-  function _fecharModalNotas() {
-    document.getElementById('modal-notas').classList.add('hidden');
-  }
-
-  // Atualiza badge de status e toggle de modo ao trocar avaliação ou trimestre
-  function _ntAtualizarStatusAv() {
-    const trimEl = document.querySelector('input[name="nt-trim"]:checked');
-    if (!trimEl) return;
-    const trim   = parseInt(trimEl.value);
-    const av     = document.getElementById('nt-av').value;
-    if (!av) return;   // seletor ainda vazio (carregando ou sem avs)
-    const triKey = trim + 'T';
-
-    const nl        = (_ntTurma && _ntTurma.notas_lancadas) ? _ntTurma.notas_lancadas : {};
-    const dataLanc  = (nl[triKey] || {})[av] || null;
-
-    const statusDiv = document.getElementById('nt-av-status');
-    const modoRow   = document.getElementById('nt-modo-row');
-
-    if (dataLanc) {
-      statusDiv.style.display = '';
-      statusDiv.innerHTML = `<span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:10px;font-weight:600">
-        ✓ Lançada em ${dataLanc}</span>`;
-      modoRow.style.display = 'flex';
-      // Já lançada → padrão sempre "editar", independente de ser ATV ou REC
-      document.querySelector('input[name="nt-modo"][value="editar"]').checked = true;
-    } else {
-      statusDiv.style.display = 'none';
-      modoRow.style.display   = 'none';
-      const novo = document.querySelector('input[name="nt-modo"][value="novo"]');
-      if (novo) novo.checked = true;
-    }
-    _ntModoChanged();
-  }
-
-  function _ntAvChanged() {
-    _ntAtualizarStatusAv();
-  }
-
-  function _ntModoChanged() {
-    const modo     = document.querySelector('input[name="nt-modo"]:checked')?.value;
-    const editando = modo === 'editar';
-
-    // No modo editar, data e valor não são necessários
-    document.getElementById('nt-data').closest('.form-row-2').style.opacity = editando ? '.4' : '1';
-    document.getElementById('nt-data').closest('.form-row-2').style.pointerEvents = editando ? 'none' : '';
-
-    // Botão e coluna RCO atual só aparecem no modo editar
-    document.getElementById('btn-buscar-rco').style.display = editando ? '' : 'none';
-    document.getElementById('nt-th-rco-atual').style.display = editando ? '' : 'none';
-
-    // Limpa coluna RCO atual ao sair do modo editar
-    if (!editando) {
-      _ntAlunos.forEach(a => { a.nota_rco_atual = null; });
-      _renderTabelaNotas();
-    }
-
-    const btn = document.getElementById('btn-lancar-notas');
-    if (!btn.disabled) btn.textContent = editando ? 'Editar no RCO' : 'Lançar no RCO';
-  }
-
-  async function _ntCarregarDatas() {
-    const trimEl = document.querySelector('input[name="nt-trim"]:checked');
-    if (!trimEl) return;
-    const trim  = parseInt(trimEl.value);
-    const selAv = document.getElementById('nt-av');
-    const sel   = document.getElementById('nt-data');
-    const aviso = document.getElementById('nt-data-aviso');
-
-    // Reseta controles
-    selAv.disabled = true;
-    selAv.innerHTML = '<option value="">Carregando...</option>';
-    sel.disabled  = true;
-    sel.innerHTML = '<option value="">Carregando...</option>';
-    aviso.style.display = 'none';
-    document.getElementById('nt-tabela').classList.add('hidden');
-    document.getElementById('btn-lancar-notas').disabled = true;
-    document.getElementById('nt-av-status').style.display = 'none';
-    document.getElementById('nt-modo-row').style.display  = 'none';
-    _ntAlunos = [];
-
-    const {escola, turma, disciplina} = _ntTurma;
-
-    // Busca AVs e datas em paralelo
-    try {
-      const [resAvs, resDatas] = await Promise.all([
-        window.pywebview.api.get_avaliacoes_planilha(escola, turma, disciplina, trim),
-        window.pywebview.api.get_datas_aula(escola, turma, disciplina, trim),
-      ]);
-
-      // Popula seletor de avaliação
-      if (!resAvs.ok || resAvs.avaliacoes.length === 0) {
-        selAv.innerHTML = '<option value="">Sem avaliações na planilha</option>';
-      } else {
-        const opts = resAvs.avaliacoes.flatMap(({av, rec}) => [
-          `<option value="${av}">${av}</option>`,
-          `<option value="${rec}">${rec}</option>`,
-        ]).join('');
-        selAv.innerHTML = opts;
-        selAv.disabled = false;
-      }
-
-      // Popula seletor de datas
-      if (!resDatas.ok) {
-        sel.innerHTML = '<option value="">—</option>';
-        aviso.textContent = resDatas.chrome === false
-          ? 'Conecte o Chrome para ver as datas disponíveis no RCO'
-          : 'Erro ao carregar datas: ' + resDatas.erro;
-        aviso.style.color   = resDatas.chrome === false ? '#d97706' : '#ef4444';
-        aviso.style.display = '';
-      } else if (resDatas.datas.length === 0) {
-        sel.innerHTML = '<option value="">—</option>';
-        aviso.textContent   = 'Nenhuma aula cadastrada neste trimestre';
-        aviso.style.color   = '#ef4444';
-        aviso.style.display = '';
-      } else {
-        sel.innerHTML = '<option value="">Selecione a data...</option>' +
-          resDatas.datas.map(d => `<option value="${d}">${d}</option>`).join('');
-        sel.disabled = false;
-      }
-    } catch(e) {
-      selAv.innerHTML = '<option value="">Erro</option>';
-      sel.innerHTML   = '<option value="">Erro</option>';
-    }
-
-    _ntAtualizarStatusAv();
-  }
-
-  async function _buscarNotas() {
-    const trimEl = document.querySelector('input[name="nt-trim"]:checked');
-    if (!trimEl) { toast('Selecione o trimestre', 'error'); return; }
-    const trim     = parseInt(trimEl.value);
-    const coluna   = document.getElementById('nt-av').value;
-    if (!coluna) { toast('Selecione a avaliação', 'error'); return; }
-    const btn      = document.getElementById('btn-buscar-notas');
-
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>Buscando...';
-
-    try {
-      const {escola, turma, disciplina} = _ntTurma;
-      const res = await window.pywebview.api.get_notas_planilha(escola, turma, disciplina, trim, coluna);
-      if (!res.ok) { toast('Erro: ' + res.erro, 'error'); return; }
-
-      _ntAlunos = res.alunos.map(a => ({...a, nota_rco_atual: null}));
-      _renderTabelaNotas();
-      document.getElementById('nt-tabela').classList.remove('hidden');
-      document.getElementById('btn-lancar-notas').disabled = !state.chrome;
-      // Atualiza badge com info do backend (fonte de verdade)
-      if (res.ja_lancada && _ntTurma) {
-        const av  = document.getElementById('nt-av').value;
-        const tri = parseInt(document.querySelector('input[name="nt-trim"]:checked').value);
-        if (!_ntTurma.notas_lancadas) _ntTurma.notas_lancadas = {};
-        if (!_ntTurma.notas_lancadas[tri+'T']) _ntTurma.notas_lancadas[tri+'T'] = {};
-        _ntTurma.notas_lancadas[tri+'T'][av] = res.data_lancamento;
-        _ntAtualizarStatusAv();
-      }
-    } catch(e) {
-      toast('Erro inesperado: ' + e, 'error');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Buscar notas da planilha';
-    }
-  }
-
-  function _renderTabelaNotas() {
-    const editando = document.querySelector('input[name="nt-modo"]:checked')?.value === 'editar';
-    document.getElementById('nt-tbody').innerHTML = _ntAlunos.map((a, i) => {
-      const inBadge = a.inativo
-        ? '<span style="font-size:10px;background:#fee2e2;color:#991b1b;padding:1px 6px;border-radius:10px;margin-left:6px">Inativo</span>'
-        : '';
-
-      // Coluna RCO atual — só no modo editar
-      const tdRcoAtual = editando ? `
-        <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;text-align:center;color:#6366f1;font-weight:500">
-          ${a.nota_rco_atual != null ? a.nota_rco_atual : '<span style="color:#cbd5e1">—</span>'}
-        </td>` : '';
-
-      // Destaca linha se planilha e RCO divergem
-      const diverge = editando && a.nota_rco_atual != null && a.nota_rco_atual !== '-'
-        && a.nota_rco && a.nota_rco !== a.nota_rco_atual;
-      const rowBg = diverge ? 'background:#fffbeb' : '';
-
-      return `<tr style="${a.inativo ? 'opacity:.5;' : ''}${rowBg}">
-        <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;color:#94a3b8">${a.numero}</td>
-        <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9">${a.nome}${inBadge}</td>
-        <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;text-align:center;color:#64748b">
-          ${a.nota || '—'}
-        </td>
-        ${tdRcoAtual}
-        <td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;text-align:center">
-          <input type="text" maxlength="3" ${a.inativo ? 'disabled' : ''}
-                 value="${a.nota_rco}"
-                 data-idx="${i}"
-                 oninput="_ntAlunos[${i}].nota_rco=this.value"
-                 style="width:60px;text-align:center;border:1px solid #e2e8f0;border-radius:6px;
-                        padding:3px 6px;font-size:13px;background:${a.inativo?'#f8fafc':'#fff'}">
-        </td>
-      </tr>`;
-    }).join('');
-  }
-
-  async function _buscarNotasRco() {
-    if (!state.chrome) { toast('Conecte o Chrome primeiro', 'error'); return; }
-    const trimEl = document.querySelector('input[name="nt-trim"]:checked');
-    if (!trimEl) { toast('Selecione o trimestre', 'error'); return; }
-    const tipoAv = document.getElementById('nt-av').value;
-    if (!tipoAv) { toast('Selecione a avaliação', 'error'); return; }
-    if (_ntAlunos.length === 0) { toast('Busque as notas da planilha primeiro', 'error'); return; }
-
-    const trim   = parseInt(trimEl.value);
-    const triStr = trim === 1 ? '1º Tri' : trim === 2 ? '2º Tri' : '3º Tri';
-    const btn    = document.getElementById('btn-buscar-rco');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner" style="border-top-color:#3730a3;border-color:rgba(55,48,163,.2)"></span>Buscando...';
-
-    try {
-      const {escola, turma, disciplina} = _ntTurma;
-      const res = await window.pywebview.api.get_notas_rco(
-        escola, turma, disciplina, triStr, tipoAv
-      );
-      if (!res.ok) { toast('Erro: ' + res.erro, 'error'); return; }
-
-      // Mapeia por número de chamada
-      const rcoIdx = {};
-      res.alunos.forEach(a => { rcoIdx[a.numero] = a.nota; });
-
-      // Preenche nota_rco_atual e usa como padrão para "Enviar" se ainda não editado
-      _ntAlunos.forEach(a => {
-        const notaRco = rcoIdx[a.numero] ?? null;
-        a.nota_rco_atual = notaRco;
-        // Pré-preenche coluna Enviar com o valor do RCO (professor edita apenas o que muda)
-        if (notaRco && notaRco !== '-') a.nota_rco = notaRco;
-      });
-
-      _renderTabelaNotas();
-      toast('Notas do RCO carregadas.', 'success');
-    } catch(e) {
-      toast('Erro inesperado: ' + e, 'error');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Buscar do RCO';
-    }
-  }
-
-  async function _lancarNotas() {
-    if (!state.chrome) { toast('Conecte o Chrome primeiro', 'error'); return; }
-
-    const trimEl = document.querySelector('input[name="nt-trim"]:checked');
-    if (!trimEl) { toast('Selecione o trimestre', 'error'); return; }
-    const trim   = parseInt(trimEl.value);
-    const triStr = trim === 1 ? '1º Tri' : trim === 2 ? '2º Tri' : '3º Tri';
-    const tipoAv = document.getElementById('nt-av').value;
-    const modo   = document.querySelector('input[name="nt-modo"]:checked')?.value || 'novo';
-    const editando = modo === 'editar';
-
-    // Monta lista apenas dos alunos ativos com nota_rco preenchida
-    const notas = _ntAlunos
-      .filter(a => !a.inativo && a.nota_rco)
-      .map(a => ({
-        nome_normalizado: a.nome
-          .normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim(),
-        nota: a.nota_rco,
-      }));
-
-    if (notas.length === 0) { toast('Nenhuma nota para lançar', 'error'); return; }
-
-    const btn = document.getElementById('btn-lancar-notas');
-    btn.disabled = true;
-
-    if (editando) {
-      // ── MODO EDITAR: vai direto ao botão Alterar da AV no RCO ──
-      btn.innerHTML = `<span class="spinner"></span>Editando ${notas.length} notas...`;
-      try {
-        const {escola, turma, disciplina} = _ntTurma;
-        const res = await window.pywebview.api.editar_notas(
-          escola, turma, disciplina, triStr, tipoAv, notas
-        );
-        if (res.ok) {
-          toast('Notas editadas com sucesso!', 'success');
-        } else {
-          toast('Erro: ' + res.erro, 'error');
-        }
-      } catch(e) {
-        toast('Erro inesperado: ' + e, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Editar no RCO';
-      }
-    } else {
-      // ── MODO NOVO LANÇAMENTO ──
-      const data  = document.getElementById('nt-data').value;
-      const valor = document.getElementById('nt-valor').value.trim();
-
-      if (!data) { toast('Selecione a data da avaliação', 'error'); btn.disabled = false; return; }
-      if (!valor || isNaN(parseFloat(valor))) { toast('Informe o valor máximo', 'error'); btn.disabled = false; return; }
-
-      const valorRco = String(Math.round(parseFloat(valor) * 10)).padStart(2, '0');
-      btn.innerHTML = `<span class="spinner"></span>Lançando ${notas.length} notas...`;
-
-      try {
-        const {escola, turma, disciplina} = _ntTurma;
-        const res = await window.pywebview.api.lancar_notas(
-          escola, turma, disciplina, triStr, tipoAv, data, valorRco, notas
-        );
-        if (res.ok) {
-          toast('Notas lançadas com sucesso!', 'success');
-          const hoje = new Date();
-          const dd = String(hoje.getDate()).padStart(2,'0');
-          const mm = String(hoje.getMonth()+1).padStart(2,'0');
-          const dataHoje = `${dd}/${mm}/${hoje.getFullYear()}`;
-          if (!_ntTurma.notas_lancadas) _ntTurma.notas_lancadas = {};
-          if (!_ntTurma.notas_lancadas[trim+'T']) _ntTurma.notas_lancadas[trim+'T'] = {};
-          _ntTurma.notas_lancadas[trim+'T'][tipoAv] = dataHoje;
-          _ntAtualizarStatusAv();
-        } else {
-          toast('Erro: ' + res.erro, 'error');
-        }
-      } catch(e) {
-        toast('Erro inesperado: ' + e, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Lançar no RCO';
-      }
-    }
   }
 
   // ── COMENTÁRIOS ──────────────────────────────
@@ -3172,9 +2711,32 @@
       state.turmas = turmas;
       state.status = status;
       atualizarStatusGoogle(status.google_autorizado);
+      _atualizarPillApi(status.api_conectada, status.token_salvo_em);
       if (state.secao === 'dashboard') renderDashboard();
     } catch (e) {
       toast('Erro ao carregar dados', 'error');
+    }
+  }
+
+  // Chamado pelo Python após captura automática do token no confirmar_login
+  window._onApiConectada = function(turmasAtualizadas) {
+    _atualizarPillApi(true, 'agora');
+    toast(`⚡ API conectada · ${turmasAtualizadas} turma(s) com codClasse`, 'success');
+    carregarDados();
+  };
+
+  function _atualizarPillApi(conectada, salvoEm) {
+    const pill = document.getElementById('api-status');
+    const txt  = document.getElementById('api-status-text');
+    if (!pill) return;
+    if (conectada) {
+      pill.className = 'status-pill conectado';
+      txt.textContent = 'API conectada';
+      pill.title = salvoEm ? `Token capturado em ${salvoEm}` : 'Token JWT disponível';
+    } else {
+      pill.className = 'status-pill desconectado';
+      txt.textContent = 'API desconectada';
+      pill.title = 'Conecte o Chrome e faça login para capturar o token';
     }
   }
 
@@ -3247,6 +2809,81 @@
   }
 
   // ── SINCRONIZAR RCO ──────────────────────────
+  // ── SINCRONIZAR VIA API ───────────────────────────────────────────────────
+  async function _sincronizarViaApi() {
+    if (!state.status.api_conectada) {
+      toast('API desconectada — conecte o Chrome e faça login primeiro', 'error');
+      return;
+    }
+    const btn = document.querySelector('button[onclick="_sincronizarViaApi()"]');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Sincronizando...'; }
+
+    // Callback de progresso chamado pelo Python
+    window._onApiSyncProgresso = function(pct, turma, disciplina) {
+      if (btn) btn.textContent = `⏳ ${pct}% — ${turma}`;
+    };
+
+    try {
+      const res = await window.pywebview.api.get_dados_via_api();
+      if (res.ok) {
+        toast(`✓ ${res.turmas_sincronizadas} turma(s) · ${res.avaliacoes_encontradas} AV(s) encontrada(s)`, 'success');
+        if (res.erros && res.erros.length > 0) {
+          console.warn('[API Sync] Erros:', res.erros);
+        }
+        await carregarDados();
+      } else {
+        toast('Erro: ' + res.erro, 'error');
+      }
+    } catch(e) {
+      toast('Falha na sincronização via API', 'error');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = '⚡ Sincronizar via API'; }
+      delete window._onApiSyncProgresso;
+    }
+  }
+
+  // ── ATUALIZAR TUDO ────────────────────────────────────────────────────────
+  window._onAtualizarProgresso = function(pct, msg) {
+    const bar  = document.getElementById('dash-progresso-bar');
+    const txt  = document.getElementById('dash-progresso-msg');
+    const sub  = document.getElementById('btn-atualizar-sub');
+    if (bar) bar.style.width = pct + '%';
+    if (txt) txt.textContent = msg;
+    if (sub) sub.textContent = msg;
+  };
+
+  async function _atualizarTudo() {
+    if (!state.status.api_conectada && !state.chrome) {
+      toast('Conecte o Chrome e faça login primeiro', 'error');
+      return;
+    }
+    const btn  = document.getElementById('btn-atualizar-tudo');
+    const icon = document.getElementById('btn-atualizar-icon');
+    const status = document.getElementById('dash-atualizar-status');
+
+    if (btn)    btn.disabled = true;
+    if (icon)   icon.textContent = '⏳';
+    if (status) status.style.display = '';
+
+    try {
+      const res = await window.pywebview.api.atualizar_tudo();
+      if (res.ok) {
+        const sub = document.getElementById('btn-atualizar-sub');
+        if (sub) sub.textContent = res.ultima_atualizacao;
+        toast(`✓ ${res.turmas} turma(s) · ${res.alunos_atualizados} aluno(s) · ${res.avs_encontradas} AV(s)`, 'success');
+        await carregarDados();
+      } else {
+        toast('Erro: ' + res.erro, 'error');
+      }
+    } catch(e) {
+      toast('Falha ao atualizar', 'error');
+    } finally {
+      if (btn)    btn.disabled = false;
+      if (icon)   icon.textContent = '↻';
+      if (status) status.style.display = 'none';
+    }
+  }
+
   function _abrirSincronizarRco() {
     if (!state.chrome) { toast('Conecte o Chrome primeiro', 'error'); return; }
     // Reset
@@ -3353,6 +2990,7 @@
     const { turmas, status } = state;
     const totalAtivos   = turmas.reduce((s, t) => s + t.ativos,   0);
     const totalInativos = turmas.reduce((s, t) => s + t.inativos, 0);
+    const totalAvs      = turmas.reduce((s, t) => s + Object.values(t.notas_lancadas || {}).reduce((x, avs) => x + Object.keys(avs).length, 0), 0);
 
     const bannerGoogle = !status.google_autorizado ? `
       <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:13px 18px;
@@ -3376,27 +3014,27 @@
         <div class="card">
           <div class="card-label">Alunos Ativos</div>
           <div class="card-value">${totalAtivos}</div>
-          <div class="card-sub">${totalInativos} inativo(s) ocult${totalInativos === 1 ? 'o' : 'os'} na planilha</div>
+          <div class="card-sub">${totalInativos} inativo(s) ocultado(s) na planilha</div>
         </div>
         <div class="card">
           <div class="card-label">Última Atualização</div>
           <div class="card-value" style="font-size:15px;padding-top:8px">${status.ultima_atualizacao || '—'}</div>
-          <div class="card-sub">dados.json</div>
+          <div class="card-sub">${totalAvs > 0 ? totalAvs + ' AV(s) sincronizadas' : 'dados.json'}</div>
         </div>
       </div>
 
       <div class="actions-grid">
-        <button class="btn-action" onclick="_abrirAtualizarBanco()">
-          <div class="btn-icon blue">↻</div>
+        <button class="btn-action" id="btn-atualizar-tudo" onclick="_atualizarTudo()">
+          <div class="btn-icon blue" id="btn-atualizar-icon">↻</div>
           <div class="btn-action-text">
-            <div>Atualizar Banco</div>
-            <div id="ab-ultima-dash">${status.ultima_atualizacao ? status.ultima_atualizacao : 'Nunca atualizado'}</div>
+            <div>Atualizar</div>
+            <div id="btn-atualizar-sub">${status.ultima_atualizacao || 'Nunca atualizado'}</div>
           </div>
         </button>
         <button class="btn-action" onclick="navegar(document.querySelector('[data-section=planilhas]'))">
           <div class="btn-icon green">⊞</div>
           <div class="btn-action-text">
-            <div>Gerar Planilhas</div>
+            <div>Planilhas</div>
             <div>Google Sheets</div>
           </div>
         </button>
@@ -3418,14 +3056,19 @@
 
       <div class="section-header">
         <span class="section-title">Turmas Cadastradas</span>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-sm" style="background:#f1f5f9;color:#374151" onclick="_testarUpdate()">🔍 Testar Update</button>
-          <button class="btn btn-sm" style="background:#e0e7ff;color:#3730a3" onclick="_abrirSincronizarRco()">↺ Sincronizar RCO</button>
+      </div>
+      <div id="dash-atualizar-status" style="display:none;margin-bottom:12px">
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;
+                    display:flex;align-items:center;gap:10px">
+          <div id="dash-progresso-bar-wrap" style="flex:1;background:#dcfce7;border-radius:4px;height:6px">
+            <div id="dash-progresso-bar" style="height:6px;background:#16a34a;border-radius:4px;width:0%;transition:width 0.3s"></div>
+          </div>
+          <span id="dash-progresso-msg" style="font-size:12px;color:#166534;white-space:nowrap">Atualizando...</span>
         </div>
       </div>
       <div class="turmas-list">
         ${turmas.length === 0
-          ? '<div class="empty">Nenhuma turma cadastrada. Conecte o Chrome e clique em Atualizar Banco.</div>'
+          ? '<div class="empty">Nenhuma turma cadastrada. Conecte o Chrome e clique em Atualizar.</div>'
           : turmas.map(renderTurmaRow).join('')}
       </div>
     `;
@@ -3486,6 +3129,12 @@
             ${t.inativos > 0
               ? `<span class="badge badge-inativos">${t.inativos} inativo${t.inativos > 1 ? 's' : ''}</span>`
               : ''}
+            ${(() => {
+              const total = Object.values(t.notas_lancadas || {}).reduce((s, avs) => s + Object.keys(avs).length, 0);
+              return total > 0
+                ? `<span class="badge" style="background:#dcfce7;color:#166534" title="AVs já lançadas no RCO">⚡ ${total} AV${total !== 1 ? 's' : ''}</span>`
+                : '';
+            })()}
           </div>
           <span class="turma-chevron">▶</span>
         </div>
@@ -3508,5 +3157,7 @@
   // ── INIT ─────────────────────────────────────
   window.addEventListener('pywebviewready', carregarDados);
 </script>
+<script src="modal_lancar.js"></script>
+<script src="modal_editar.js"></script>
 </body>
 </html>
