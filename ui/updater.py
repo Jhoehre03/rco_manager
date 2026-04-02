@@ -85,14 +85,30 @@ def baixar_e_instalar(url_download, callback_progresso=None):
         bat_path = os.path.join(pasta_update, "update.bat")
         exe_path = sys.executable if getattr(sys, "frozen", False) else ""
 
+        exe_name = os.path.basename(exe_path) if exe_path else "RCO Manager.exe"
+        exe_old  = os.path.join(pasta_destino, exe_name + ".old")
         log_path = os.path.join(pasta_update, "update_log.txt")
+
         conteudo_bat = f"""@echo off
 echo Aguardando encerramento do app... > "{log_path}"
-timeout /t 3 /nobreak >nul
+
+:: Aguarda até o exe ser liberado (tenta renomear em loop)
+:aguarda
+rename "{exe_path}" "{exe_name}.old" >nul 2>&1
+if errorlevel 1 (
+    timeout /t 1 /nobreak >nul
+    goto aguarda
+)
+echo Processo encerrado, iniciando copia... >> "{log_path}"
+
+:: Copia novos arquivos
 echo Copiando arquivos de: {pasta_extraida} >> "{log_path}"
 echo Para: {pasta_destino} >> "{log_path}"
 xcopy /E /Y /I "{pasta_extraida}\\*" "{pasta_destino}\\" >> "{log_path}" 2>&1
 echo Xcopy retornou: %ERRORLEVEL% >> "{log_path}"
+
+:: Remove exe antigo e zip
+del /Q "{exe_old}" 2>nul
 del /Q "{zip_path}" 2>nul
 """
         if exe_path:
@@ -107,7 +123,14 @@ del /Q "{zip_path}" 2>nul
         # Executa o bat e encerra o app atual
         import subprocess as _sp
         _sp.Popen(["cmd", "/c", bat_path], creationflags=0x08000000)  # CREATE_NO_WINDOW
-        sys.exit(0)
+        # Fecha a janela do pywebview e encerra o processo
+        try:
+            import webview
+            for w in webview.windows:
+                w.destroy()
+        except Exception:
+            pass
+        os._exit(0)
 
     except Exception as e:
         raise RuntimeError(f"Falha na atualização: {e}")
