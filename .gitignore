@@ -10,3 +10,5 @@ token.json
 build/
 dist/
 *.spec.bak
+dados.json
+teste_*.py
