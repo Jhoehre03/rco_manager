@@ -10,5 +10,6 @@ token.json
 build/
 dist/
 *.spec.bak
+rco_manager_v*.zip
 dados.json
 teste_*.py
