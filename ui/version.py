@@ -1,2 +1,2 @@
-VERSION = "1.1.1"
+VERSION = "1.2.1"
 GITHUB_REPO = "Jhoehre03/rco_manager"
