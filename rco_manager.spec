@@ -29,27 +29,16 @@ datas += collect_data_files('google_auth_oauthlib')
 datas += collect_data_files('selenium')
 
 hidden_imports = collect_submodules('selenium') + [
-    # pywebview internals (Windows — Edge Chromium)
+    # pywebview internals (Windows)
     'webview',
     'webview.platforms.edgechromium',
-    'webview.platforms.mshtml',
+    'webview.platforms.winforms',
     'webview.guilib',
-    'webview.http',
-    'webview.dom',
-    'webview.dom.dom',
-    'webview.dom.element',
-    'webview.dom.event',
-    'webview.dom.classlist',
-    'webview.dom.propsdict',
     'webview.window',
     'webview.screen',
-    'webview.menu',
-    'webview.models',
     'webview.util',
-    'webview.errors',
     'webview.event',
     'webview.localization',
-    'webview.state',
 
     # Selenium
     'selenium',
