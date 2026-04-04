@@ -2,6 +2,7 @@ import os
 import json
 import subprocess
 import time
+os.environ["PYWEBVIEW_GUI"] = "edgechromium"
 import webview
 from ui.version import VERSION
 from database import (carregar, atualizar_banco as _atualizar_banco,

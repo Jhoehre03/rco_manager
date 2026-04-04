@@ -55,7 +55,10 @@ if exist "oauth_credentials.json" (
 )
 
 :: Lê a versão do version.py
-for /f "tokens=3 delims== " %%v in ('findstr "VERSION" ui\version.py') do set VERSION=%%~v
+for /f "tokens=2 delims==" %%v in ('findstr "VERSION" ui\version.py') do set VERSION_RAW=%%v
+:: Remove aspas e espaços
+set VERSION=%VERSION_RAW:"=%
+set VERSION=%VERSION: =%
 
 :: Gera o zip sem pasta raiz (conteúdo direto na raiz do zip)
 echo.
@@ -65,10 +68,29 @@ if exist "%ZIP_NAME%" del /Q "%ZIP_NAME%"
 set DIST_DIR=%~dp0dist\RCO Manager
 %PYTHON% -c "import zipfile,os; src=r'%DIST_DIR%'; out=r'%ZIP_NAME%'; z=zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED); [z.write(os.path.join(r,f),os.path.relpath(os.path.join(r,f),src).replace(os.sep,'/')) for r,_,fs in os.walk(src) for f in fs]; z.close(); print('  [OK]',os.path.basename(out),'gerado')"
 
+:: Gera o instalador com Inno Setup (se instalado)
+set ISCC="C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+if exist %ISCC% (
+    echo.
+    echo Gerando instalador...
+    if not exist "installer_output" mkdir "installer_output"
+    %ISCC% installer.iss
+    if errorlevel 1 (
+        echo   [AVISO] Falha ao gerar instalador.
+    ) else (
+        echo   [OK] Instalador gerado em installer_output\
+    )
+) else (
+    echo.
+    echo   [AVISO] Inno Setup nao encontrado. Instalador nao gerado.
+    echo           Instale em: jrsoftware.org/isdl.php
+)
+
 echo.
 echo ============================================
 echo  Build concluido! Pasta: dist\RCO Manager\
 echo  Release zip: %ZIP_NAME%
+echo  Instalador:  installer_output\
 echo  Verifique se oauth_credentials.json esta
 echo  na pasta dist\RCO Manager\
 echo ============================================

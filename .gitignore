@@ -11,5 +11,6 @@ build/
 dist/
 *.spec.bak
 rco_manager_v*.zip
+installer_output/
 dados.json
 teste_*.py
