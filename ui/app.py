@@ -13,7 +13,12 @@ from database import (carregar, atualizar_banco as _atualizar_banco,
                       remover_planilha_externa)
 from rco.auth import conectar_chrome as _conectar_chrome
 
-BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
+import sys as _sys
+if getattr(_sys, 'frozen', False):
+    # No build empacotado, o index.html está em _MEIPASS/ui/
+    BASE_DIR = os.path.join(_sys._MEIPASS, 'ui')
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DADOS_JSON = "dados.json"
 
 
@@ -1734,7 +1739,7 @@ def iniciar():
     api = Api()
     webview.create_window(
         title="RCO Manager",
-        url=os.path.join(BASE_DIR, "index.html") + f"?v={int(time.time())}",
+        url=os.path.join(BASE_DIR, "index.html"),
         js_api=api,
         width=1100,
         height=680,

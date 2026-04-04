@@ -68,6 +68,9 @@ if exist "%ZIP_NAME%" del /Q "%ZIP_NAME%"
 set DIST_DIR=%~dp0dist\RCO Manager
 %PYTHON% -c "import zipfile,os; src=r'%DIST_DIR%'; out=r'%ZIP_NAME%'; z=zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED); [z.write(os.path.join(r,f),os.path.relpath(os.path.join(r,f),src).replace(os.sep,'/')) for r,_,fs in os.walk(src) for f in fs]; z.close(); print('  [OK]',os.path.basename(out),'gerado')"
 
+:: Remove dados.json da pasta dist (não deve ir no instalador)
+if exist "dist\RCO Manager\dados.json" del /Q "dist\RCO Manager\dados.json"
+
 :: Gera o instalador com Inno Setup (se instalado)
 set ISCC="C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
 if exist %ISCC% (

@@ -5,9 +5,10 @@ import os
 # com os arquivos bundled. Precisamos mudar o diretório de trabalho para que
 # database.py, token.json e dados.json sejam lidos/escritos na pasta do executável.
 if getattr(sys, 'frozen', False):
-    # Pasta onde o executável está (dist/RCO Manager/)
-    BASE_EXEC = os.path.dirname(sys.executable)
-    os.chdir(BASE_EXEC)
+    # Pasta de dados do usuário (sempre com permissão de escrita)
+    DATA_DIR = os.path.join(os.environ.get('LOCALAPPDATA', os.path.expanduser('~')), 'RCOManager')
+    os.makedirs(DATA_DIR, exist_ok=True)
+    os.chdir(DATA_DIR)
 
     # Cria dados.json a partir do template se não existir
     if not os.path.exists('dados.json'):
@@ -21,10 +22,7 @@ if getattr(sys, 'frozen', False):
                 json.dump({"escolas": [], "ultima_atualizacao": None}, f,
                           ensure_ascii=False, indent=2)
 
-from ui.dotnet_check import garantir_dotnet
 from ui.app import iniciar
 
 if __name__ == "__main__":
-    if not garantir_dotnet():
-        sys.exit(1)
     iniciar()

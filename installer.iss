@@ -39,6 +39,7 @@ Source: "{#MyAppDir}\_internal\*"; DestDir: "{app}\_internal"; Flags: ignorevers
 
 ; Credenciais OAuth (necessário para Google Sheets)
 Source: "{#MyAppDir}\oauth_credentials.json"; DestDir: "{app}"; Flags: ignoreversion
+; dados.json NÃO é incluído — será criado pelo app na primeira execução
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -52,22 +53,31 @@ Filename: "{app}\{#MyAppExeName}"; Description: "Iniciar {#MyAppName}"; Flags: n
 // ── Verificação do .NET 6.0 Desktop Runtime ──────────────────────────────────
 function DotNet6Installed(): Boolean;
 var
-  Key: String;
-  Names: TArrayOfString;
+  ResultCode: Integer;
+  TempFile: String;
+  Output: TArrayOfString;
   I: Integer;
 begin
   Result := False;
-  Key := 'SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.WindowsDesktop.App';
-  if RegGetValueNames(HKLM, Key, Names) then
+  TempFile := ExpandConstant('{tmp}\dotnet_list.txt');
+
+  // Usa "dotnet --list-runtimes" e salva output em arquivo
+  if Exec('cmd.exe', '/c dotnet --list-runtimes > "' + TempFile + '" 2>&1',
+          '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
   begin
-    for I := 0 to GetArrayLength(Names) - 1 do
+    if LoadStringsFromFile(TempFile, Output) then
     begin
-      if Pos('6.', Names[I]) = 1 then
+      for I := 0 to GetArrayLength(Output) - 1 do
       begin
-        Result := True;
-        Exit;
+        if (Pos('Microsoft.WindowsDesktop.App 6.', Output[I]) > 0) or
+           (Pos('Microsoft.NETCore.App 6.', Output[I]) > 0) then
+        begin
+          Result := True;
+          Break;
+        end;
       end;
     end;
+    DeleteFile(TempFile);
   end;
 end;
 
