@@ -21,7 +21,10 @@ if getattr(sys, 'frozen', False):
                 json.dump({"escolas": [], "ultima_atualizacao": None}, f,
                           ensure_ascii=False, indent=2)
 
+from ui.dotnet_check import garantir_dotnet
 from ui.app import iniciar
 
 if __name__ == "__main__":
+    if not garantir_dotnet():
+        sys.exit(1)
     iniciar()
